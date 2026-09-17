@@ -92,8 +92,8 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
    }
    if(method==='POST') {
     if(profile.role!=='client') throw new HttpError(403,'Usa una cuenta de cliente para publicar.');
-    await rate(ctx,'create-case',10,86400);const p=caseSchema.parse(await body(req));
-    const c=result(await client.from('cases').insert({owner_id:user.id,...p}).select('id').single());
+    const raw=await body(req),p=caseSchema.parse(raw);const requestId=raw.id?uuid.parse(raw.id):undefined;if(requestId){const existing=result(await client.from('cases').select('id,owner_id').eq('id',requestId).maybeSingle());if(existing){if(existing.owner_id!==user.id)throw new HttpError(409,'No se pudo recuperar el borrador.');return json({id:existing.id});}}await rate(ctx,'create-case',10,86400);
+    const c=result(await client.from('cases').insert({...requestId?{id:requestId}:{},owner_id:user.id,...p}).select('id').single());
     if(!c)throw new HttpError(503,'No se pudo crear el espacio.');await event(ctx,c.id,'Espacio creado');return json(c,201);
    }
   }
@@ -181,11 +181,11 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     const c=await getCase(ctx,id);if(c.status==='closed'||(c.owner_id!==user.id&&c.selected_lawyer!==user.id)) throw new HttpError(403,'No puedes adjuntar aquí.');
     await rate(ctx,'upload',40,86400);
     if(Number(req.headers.get('content-length')||0)>11*1024*1024) throw new HttpError(413,'El límite es 10 MB por archivo.');
-    const count=await client.from('documents').select('id',{count:'exact',head:true}).eq('case_id',id);if(count.error) throw new HttpError(503,'No se pudo comprobar el espacio.');if((count.count||0)>=30) throw new HttpError(409,'Este caso alcanzó los 30 archivos de la beta.');
     const form=await new Response(await readLimited(req,11*1024*1024),{headers:{'Content-Type':req.headers.get('content-type')||''}}).formData(),file=form.get('file');if(!(file instanceof File)) throw new HttpError(400,'Selecciona un archivo.');
     const bytes=Buffer.from(await file.arrayBuffer());let mime:string;
     try{mime=validateFile(file.name,bytes);}catch(e){throw new HttpError(400,(e as Error).message);}
-    const docId=crypto.randomUUID(),storagePath=id+'/'+docId;
+    const docId=form.get('document_id')?uuid.parse(form.get('document_id')):crypto.randomUUID(),storagePath=id+'/'+docId;const existing=result(await client.from('documents').select('id,case_id').eq('id',docId).maybeSingle());if(existing){if(existing.case_id!==id)throw new HttpError(409,'No se pudo recuperar el archivo.');return json({ok:true});}
+    const count=await client.from('documents').select('id',{count:'exact',head:true}).eq('case_id',id);if(count.error) throw new HttpError(503,'No se pudo comprobar el espacio.');if((count.count||0)>=30) throw new HttpError(409,'Este caso alcanzó los 30 archivos de la beta.');
     result(await client.storage.from('case-files').upload(storagePath,bytes,{contentType:mime,upsert:false}));
     const saved=await client.from('documents').insert({id:docId,case_id:id,name:safeName(file.name),path:storagePath,mime,size:bytes.length});
     if(saved.error){await client.storage.from('case-files').remove([storagePath]);result(saved);}
