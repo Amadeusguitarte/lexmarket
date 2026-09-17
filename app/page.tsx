@@ -1,0 +1,45 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import type { Session } from '@supabase/supabase-js';
+import { ArrowRight, CheckCircle2, X } from 'lucide-react';
+import Landing from '@/components/Landing';
+import { Field, Modal, ProfileForm, type Row } from '@/components/Forms';
+import Workspace from '@/components/Workspace';
+import { api, browserDB } from '@/lib/browser';
+export default function Home() {
+ const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState('');
+ useEffect(()=>{const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
+ useEffect(()=>{if(session)api('me').then(setMe).catch(e=>setError(e.message));else setMe(null);},[session]);
+ async function run(fn:()=>Promise<void>) {setBusy(true);setError('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'No pudimos completar la acción.');}finally{setBusy(false);}}
+ function start(r:string){setRole(r);setAuthMode('signup');}
+ const authSubmit=(form:HTMLFormElement)=>run(async()=>{const data=new FormData(form),db=browserDB();if(!db){setInfo('setup');return;}const email=String(data.get('email')||''),password=String(data.get('password')||'');
+  if(authMode==='signup'){const {error}=await db.auth.signUp({email,password,options:{data:{intended_role:role},emailRedirectTo:location.origin}});if(error)throw error;setNotice('Revisa tu correo para confirmar la cuenta. Si ya tenías una, puedes entrar.');setAuthMode('login');}
+  else if(authMode==='reset'){const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin});if(error)throw error;setNotice('Si hay una cuenta con ese correo, recibirás un enlace para cambiar la contraseña.');setAuthMode('login');}
+  else if(authMode==='update'){const {error}=await db.auth.updateUser({password});if(error)throw error;setAuthMode('');setNotice('Contraseña actualizada.');}
+  else {const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;setAuthMode('');}
+ });
+ const infoText:Record<string,{title:string;paragraphs:string[]}>= {
+  setup:{title:'Estamos preparando la apertura',paragraphs:['La interfaz ya está disponible. Para crear cuentas y guardar casos es necesario conectar los servicios de la plataforma. Esta pantalla no guarda ni simula una cuenta.']},
+  privacy:{title:'Tus documentos, bajo tu control',paragraphs:['El título, la ciudad, la categoría y el resumen aprobado se comparten con abogados verificados. El relato privado y los documentos requieren tu autorización de acceso.','Puedes retirar accesos desde cada caso. Esto impide nuevas consultas en la plataforma, pero no elimina las copias que alguien haya descargado.','La organización asistida es opcional. Solo se envían textos al proveedor de IA cuando lo autorizas. Puedes trabajar sin ella.','Esta versión está destinada a una beta por invitación. Antes de abrir el servicio al público, el operador debe publicar su identificación, la política de tratamiento, los plazos de conservación y los canales para ejercer derechos.']},
+  terms:{title:'Sobre esta beta',paragraphs:['LexMarket facilita el encuentro entre clientes y profesionales. Publicar o recibir propuestas no crea una representación automática. El encargo y los poderes que correspondan se acuerdan con el abogado.','Los honorarios se pactan directamente con el profesional. Esta versión no procesa pagos, no radica documentos ante autoridades y no calcula plazos judiciales.','La verificación profesional requiere una revisión del equipo. Las actualizaciones del proceso las registran las personas participantes; no son un reporte oficial de un juzgado.','Las condiciones definitivas de contratación y operación deben ser publicadas por el operador antes del lanzamiento abierto.']},
+  help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue en revisión, espera a que se complete el control de seguridad.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'El canal de soporte se habilitará antes de abrir la beta.']},
+ };
+ return <>
+  {session&&me?.profile?<Workspace me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
+   <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('login')} onInfo={setInfo}/>}
+  {session&&me&&!me.profile&&<Modal title={session.user.user_metadata?.intended_role==='lawyer'?'Tu perfil profesional':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">Solo necesitamos estos datos para empezar.</p><ProfileForm role={session.user.user_metadata?.intended_role==='lawyer'?'lawyer':'client'} busy={busy} onSave={p=>run(async()=>{await api('me','PUT',p);setMe(await api('me'));setAuthMode('');})}/></Modal>}
+  {authMode&&(!session||authMode==='update')&&<Modal title={authMode==='signup'?(role==='lawyer'?'Tu próximo caso empieza aquí':'Vamos a dar el siguiente paso'):authMode==='reset'?'Recupera tu acceso':authMode==='update'?'Elige una nueva contraseña':'Qué bueno verte de nuevo'} onClose={()=>setAuthMode('')}>
+   <p className="muted">{authMode==='signup'?'Crea tu cuenta y continúa a tu ritmo.':'Tu espacio de LexMarket te espera.'}</p>
+   {!browserDB()?<div className="notice-panel">Estamos preparando la apertura. El registro estará disponible al conectar los servicios de la plataforma.</div>:<form className="form-stack" onSubmit={e=>{e.preventDefault();void authSubmit(e.currentTarget);}}>
+    {authMode!=='update'&&<Field label="Correo electrónico"><input name="email" type="email" autoComplete="email" required maxLength={254}/></Field>}
+    {authMode!=='reset'&&<Field label="Contraseña" hint={authMode!=='login'?'Al menos 10 caracteres.':undefined}><input name="password" type="password" autoComplete={authMode==='login'?'current-password':'new-password'} required minLength={authMode==='login'?1:10} maxLength={128}/></Field>}
+    {authMode==='signup'&&<label className="checkbox-line"><input type="checkbox" required/>Entiendo que participo en una beta por invitación y he leído las condiciones y la información de privacidad.</label>}
+    <button className="button" disabled={busy||!authReady}>{busy?'Un momento…':authMode==='signup'?'Crear cuenta':authMode==='reset'?'Enviar enlace':authMode==='update'?'Guardar contraseña':'Entrar'}<ArrowRight size={17}/></button>
+   </form>}
+   <div className="auth-links"><button onClick={()=>setAuthMode(authMode==='signup'?'login':'signup')}>{authMode==='signup'?'Ya tengo cuenta':'Crear una cuenta'}</button>{authMode==='login'&&<button onClick={()=>setAuthMode('reset')}>Olvidé mi contraseña</button>}</div><div className="auth-links"><button onClick={()=>{setAuthMode('');setInfo('terms');}}>Condiciones</button><button onClick={()=>{setAuthMode('');setInfo('privacy');}}>Privacidad</button></div>
+  </Modal>}
+  {info&&infoText[info]&&<Modal title={infoText[info].title} onClose={()=>setInfo('')}>{infoText[info].paragraphs.map(p=><p className="info-paragraph" key={p}>{p}</p>)}</Modal>}
+  {(error||notice)&&typeof document!=='undefined'&&createPortal(<div className={'toast '+(error?'error':'')} role={error?'alert':'status'}><CheckCircle2 size={18}/><span>{error||notice}</span><button aria-label="Cerrar notificación" onClick={()=>{setError('');setNotice('');}}><X size={18}/></button></div>,document.querySelector('dialog[open]')||document.body)}
+ </>;
+}
