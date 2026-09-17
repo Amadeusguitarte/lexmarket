@@ -7,7 +7,7 @@ export function db() {
  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 }
 export function result<T>(r:{data:T;error:unknown}):T {if(r.error) throw new HttpError(409,'No se pudo guardar el cambio. Actualiza e inténtalo de nuevo.');return r.data;}
-export function isAdmin(user:User) {return !!user.email_confirmed_at && (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||'');}
+export function isAdmin(user:User) {return !!user.email_confirmed_at && (user.app_metadata?.lexmarket_admin===true || (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||''));}
 export async function auth(req:Request) {
  const token=req.headers.get('authorization')?.match(/^Bearer (.+)$/)?.[1];
  if(!token) throw new HttpError(401,'Inicia sesión para continuar.');

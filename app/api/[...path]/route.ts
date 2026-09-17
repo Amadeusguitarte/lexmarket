@@ -55,11 +55,14 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
   }
   if(path[0]==='admin') {
    if(!isAdmin(user)) throw new HttpError(403,'Acceso restringido.');
-   if(method==='GET') return json({profiles:result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200)),audit:result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))});
+   if(method==='GET') return json({profiles:result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200)),cases:result(await client.from('cases').select('id,title,category,city,service,public_summary,status,updated_at,moderation_note').in('status',['review','published']).order('updated_at').limit(200)),audit:result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))});
+   if(method==='PATCH'&&path[1]==='cases'&&path[2]) {
+    const id=uuid.parse(path[2]);const p=z.object({decision:z.enum(['approved','changes_requested','rejected','removed']),note:z.string().trim().min(20).max(2000),version:z.string().datetime({offset:true})}).parse(await body(req));
+    result(await client.rpc('review_case',{p_case:id,p_actor:user.id,p_result:p.decision,p_note:p.note,p_version:p.version}));return json({ok:true});
+   }
    if(method==='PATCH'&&path[1]) {
     uuid.parse(path[1]);const p=z.object({verification:z.enum(['verified','rejected']),note:z.string().trim().min(20).max(2000)}).parse(await body(req));
-    result(await client.from('profiles').update({verification:p.verification,verified_at:p.verification==='verified'?new Date().toISOString():null,verification_note:p.note}).eq('id',path[1]).eq('role','lawyer'));
-    result(await client.from('audit_log').insert({actor_id:user.id,action:'professional.'+p.verification,target_id:path[1],note:p.note}));
+    result(await client.rpc('review_professional',{p_target:path[1],p_actor:user.id,p_result:p.verification,p_note:p.note}));
     return json({ok:true});
    }
   }
