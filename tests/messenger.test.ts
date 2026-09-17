@@ -9,16 +9,17 @@ test('chat opens its thread, renders a private document and offer, marks visible
  process.env.NEXT_PUBLIC_SUPABASE_URL='https://example.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='not-a-real-key';const db=browserDB()!;
  const dom=new JSDOM('<div id="root"></div>',{url:'https://lexmarket.test',pretendToBeVisual:true});
  const saved=new Map<string,PropertyDescriptor|undefined>();
- for(const [key,value] of Object.entries({window:dom.window,document:dom.window.document,navigator:dom.window.navigator,IS_REACT_ACT_ENVIRONMENT:true})){saved.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
+ for(const [key,value] of Object.entries({window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Event:dom.window.Event,sessionStorage:dom.window.sessionStorage,IS_REACT_ACT_ENVIRONMENT:true})){saved.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
  t.after(()=>{for(const [key,d] of saved){if(d)Object.defineProperty(globalThis,key,d);else delete (globalThis as any)[key];}dom.window.close();});
  process.env.NEXT_PUBLIC_SUPABASE_URL='https://example.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='not-a-real-key';
  const channel={on(){return this;},subscribe(callback?:Function){callback?.('SUBSCRIBED');return this;}};let cleaned=0;
  t.mock.method(db,'channel',()=>channel);t.mock.method(db,'removeChannel',async()=>{cleaned++;return 'ok';});t.mock.method(db.auth,'getSession',async()=>({data:{session:{access_token:'fake'}},error:null}));
  t.mock.method(dom.window.document,'hasFocus',()=>true);
- const calls:{path:string;body:any}[]=[];let read=false;
+ const calls:{path:string;body:any}[]=[];let read=false;let releaseSend:(()=>void)|undefined;
  const message={id:'m1',created_at:'2026-09-17T12:00:00Z',sender_id:'lawyer',body:'Te comparto las observaciones',read_at:null};
  t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{const path=String(input);const body=init?.body?JSON.parse(init.body):null;calls.push({path,body});let d:any;
- if(path==='/api/chats')d={items:[]};
+ if(path.endsWith('/messages')){await new Promise<void>(resolve=>{releaseSend=resolve;});d={id:body.id};}
+ else if(path==='/api/chats')d={items:[]};
  else if(path.endsWith('/activity')){read=!!body.read_ids?.length;d={ok:true};}
  else d={messages:[{...message,read_at:read?'2026-09-17T12:01:00Z':null},{id:'m2',sender_id:'client',body:'Archivo',attachment_id:'f1',created_at:'2026-09-17T12:00:01Z',read_at:'2026-09-17T12:01:00Z'}],files:[{id:'f1',name:'observaciones.txt',size:120}],activity:[],proposals:[{id:'p1',created_at:'2026-09-17T12:00:02Z',scope:'Revisar todos los documentos preparados',amount:100000,exclusions:'No incluye radicación',days:2,payment_terms:'Al inicio',status:'pending'}],peer:{id:'lawyer',name:'Abogada de prueba'},case:{id:'c1',title:'Caso ficticio',status:'published'},owner:true,hasMore:false};
  return new Response(JSON.stringify(d),{status:200,headers:{'Content-Type':'application/json'}});});
@@ -27,5 +28,19 @@ test('chat opens its thread, renders a private document and offer, marks visible
  assert.match(dom.window.document.body.textContent!,/Abogada de prueba/);assert.match(dom.window.document.body.textContent!,/observaciones.txt/);assert.match(dom.window.document.body.textContent!,/Revisar y elegir/);assert.match(dom.window.document.body.textContent!,/Leído/);
  assert.ok(calls.some(c=>c.body?.read_ids?.includes('m1')));
  assert.ok(!calls.some(c=>c.body?.read_ids?.includes('m2')));
+ // Invoke the rendered textarea's React handler to control component input in jsdom.
+ const input=dom.window.document.querySelector('textarea')!;
+ const propsKey=Object.keys(input).find(k=>k.startsWith('__reactProps$'))!;
+ await act(async()=>{(input as any)[propsKey].onChange({target:{value:'Mensaje inmediato de prueba'}});});
+ const form=dom.window.document.querySelector('.chat-composer')!;
+ await act(async()=>{form.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));});
+ assert.match(dom.window.document.body.textContent!,/Mensaje inmediato de prueba/);
+ assert.match(dom.window.document.body.textContent!,/Enviando…/);
+ assert.equal((input as HTMLTextAreaElement).value,'');
+ assert.ok(releaseSend,'network request is still pending while bubble is visible');
+ await act(async()=>{releaseSend!();await new Promise(r=>setTimeout(r,20));});
+ assert.match(dom.window.document.body.textContent!,/Enviado/);
+ await act(async()=>{root.render(React.createElement(Messenger,{mode:'page',userId:'client',open:true,target:null,onOpen:()=>{},onClose:()=>{},onSelect:()=>{},onCase:()=>{}}));});
+ assert.ok(dom.window.document.querySelector('.messages-page'));assert.equal(dom.window.document.querySelector('.chat-launcher'),null);
  await act(async()=>root.unmount());await db.auth.stopAutoRefresh();assert.equal(cleaned,2);
 });

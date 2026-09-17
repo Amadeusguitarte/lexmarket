@@ -4,12 +4,12 @@ import {safeName,validateFile} from './shared';
 const uuid=z.string().uuid();
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
 export async function chatThread(ctx:Context,caseId:string,lawyerId:string){
- uuid.parse(caseId);uuid.parse(lawyerId);const c=await getCase(ctx,caseId);
+ uuid.parse(caseId);uuid.parse(lawyerId);const c=result(await ctx.client.from('cases').select('*').eq('id',caseId).maybeSingle());if(!c)throw new HttpError(404,'Caso no disponible.');
  if(ctx.user.id!==c.owner_id&&ctx.user.id!==lawyerId)throw new HttpError(403,'Esta conversación es privada.');
  const a=result(await ctx.client.from('access_requests').select('state').eq('case_id',caseId).eq('lawyer_id',lawyerId).maybeSingle());
  const p=result(await ctx.client.from('profiles').select('id,name,avatar_url,verification,role').eq('id',lawyerId).maybeSingle());
- if(a?.state!=='granted'||p?.verification!=='verified'||p?.role!=='lawyer')throw new HttpError(403,'El acceso a esta conversación no está activo.');
- return c;
+ if(!['requested','granted'].includes(a?.state)||p?.verification!=='verified'||p?.role!=='lawyer')throw new HttpError(403,'El acceso a esta conversación no está activo.');
+ return {...c,access_state:a!.state};
 }
 export async function chatApi(req:Request,path:string[],ctx:Context,readBody:(r:Request)=>Promise<any>,readLimited:(r:Request,n:number)=>Promise<Uint8Array>){
  const {client,user,profile}=ctx,method=req.method;
@@ -22,16 +22,16 @@ export async function chatApi(req:Request,path:string[],ctx:Context,readBody:(r:
  if(path[0]!=='chats')return null;
  if(!path[1]&&method==='GET'){
   let requests:any[]=[];
-  if(profile.role==='lawyer')requests=result(await client.from('access_requests').select('case_id,lawyer_id').eq('lawyer_id',user.id).eq('state','granted').limit(100))||[];
-  else {const cases=result(await client.from('cases').select('id').eq('owner_id',user.id).limit(100))||[];if(cases.length)requests=result(await client.from('access_requests').select('case_id,lawyer_id').in('case_id',cases.map(c=>c.id)).eq('state','granted').limit(100))||[];}
+  if(profile.role==='lawyer')requests=result(await client.from('access_requests').select('case_id,lawyer_id,state,created_at').eq('lawyer_id',user.id).in('state',['requested','granted']).limit(100))||[];
+  else {const cases=result(await client.from('cases').select('id').eq('owner_id',user.id).limit(100))||[];if(cases.length)requests=result(await client.from('access_requests').select('case_id,lawyer_id,state,created_at').in('case_id',cases.map(c=>c.id)).in('state',['requested','granted']).limit(100))||[];}
   const items=await Promise.all(requests.map(async a=>{
    const c=result(await client.from('cases').select('id,title,owner_id,status').eq('id',a.case_id).single());
    const lawyer=result(await client.from('profiles').select('id,name,avatar_url,verification').eq('id',a.lawyer_id).single());
    if(!c||!lawyer||lawyer.verification!=='verified')return null;
-   const peer=profile.role==='lawyer'?result(await client.from('profiles').select('id,name,avatar_url').eq('id',c.owner_id).single()):lawyer;
+   const peer=profile.role==='lawyer'&&a.state!=='granted'?{name:'Cliente',avatar_url:null}:profile.role==='lawyer'?result(await client.from('profiles').select('id,name,avatar_url').eq('id',c.owner_id).single()):lawyer;
    const [last,unread]=await Promise.all([client.from('messages').select('body,created_at,sender_id').eq('case_id',c.id).eq('lawyer_id',a.lawyer_id).order('created_at',{ascending:false}).limit(1),client.from('messages').select('id',{count:'exact',head:true}).eq('case_id',c.id).eq('lawyer_id',a.lawyer_id).neq('sender_id',user.id).is('read_at',null)]);
    result(unread);return {...a,title:c.title,status:c.status,peer,last:result(last)?.[0]||null,unread:unread.count||0};
-  }));return json({items:items.filter(Boolean).sort((a,b)=>(b?.last?.created_at||'').localeCompare(a?.last?.created_at||''))});
+  }));return json({items:items.filter(Boolean).sort((a,b)=>(b?.last?.created_at||b?.created_at||'').localeCompare(a?.last?.created_at||a?.created_at||''))});
  }
  const caseId=uuid.parse(path[1]),lawyerId=uuid.parse(path[2]),action=path[3],c=await chatThread(ctx,caseId,lawyerId);
  const filter={case_id:caseId,lawyer_id:lawyerId};
@@ -43,7 +43,7 @@ export async function chatApi(req:Request,path:string[],ctx:Context,readBody:(r:
   if(incoming.length)result(await client.from('messages').update({delivered_at:new Date().toISOString()}).in('id',incoming).is('delivered_at',null));
   const ids=messages.map(m=>m.attachment_id).filter(Boolean),peerId=user.id===c.owner_id?lawyerId:c.owner_id;
   const [files,activity,proposals,peer]=await Promise.all([ids.length?client.from('chat_attachments').select('id,name,size,mime').in('id',ids):Promise.resolve({data:[],error:null}),client.from('chat_activity').select('*').match(filter),client.from('proposals').select('*').match(filter).order('created_at'),client.from('profiles').select('id,name,avatar_url').eq('id',peerId).single()]);
-  return json({messages:messages.reverse(),files:result(files),activity:result(activity),proposals:result(proposals),peer:result(peer),case:{id:c.id,title:c.title,status:c.status},owner:user.id===c.owner_id,hasMore:messages.length===60});
+  return json({messages:messages.reverse(),files:result(files),activity:result(activity),proposals:result(proposals),peer:user.id!==c.owner_id&&c.access_state!=='granted'?{name:'Cliente',avatar_url:null}:result(peer),access_state:c.access_state,case:{id:c.id,title:c.title,status:c.status,summary:c.public_summary},owner:user.id===c.owner_id,hasMore:messages.length===60});
  }
  if(action==='activity'&&method==='POST'){
   const p=z.object({typing:z.boolean().default(false),read_ids:z.array(uuid).max(60).default([])}).parse(await readBody(req));

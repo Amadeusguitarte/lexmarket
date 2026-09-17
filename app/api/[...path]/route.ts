@@ -39,6 +39,10 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
    }
   }
   if(!profile) throw new HttpError(403,'Completa tu perfil para continuar.');
+  if(path[0]==='notifications') {
+   if(method==='GET') return json({items:result(await client.from('notifications').select('*').eq('recipient_id',user.id).order('created_at',{ascending:false}).limit(100))});
+   if(method==='PATCH'){const p=z.object({ids:z.array(uuid).min(1).max(100)}).parse(await body(req));result(await client.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',user.id).in('id',p.ids).is('read_at',null));return json({ok:true});}
+  }
   if(path[0]==='chats'||path[0]==='chat-files'){const response=await chatApi(req,path,ctx,body,readLimited);if(response)return response;}
   if(path[0]==='marketplace'&&method==='GET') {
    lawyer(ctx);
@@ -69,7 +73,10 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
   if(path[0]==='documents'&&path[1]) {
    uuid.parse(path[1]);const d=result(await client.from('documents').select('*').eq('id',path[1]).maybeSingle());
    if(!d) throw new HttpError(404,'Archivo no disponible.');
-   await getCase(ctx,d.case_id,method==='DELETE');
+   if(method==='GET'&&d.preview_shared&&profile.role==='lawyer'&&profile.verification==='verified') {
+    const listed=result(await client.from('listings').select('case_id').eq('case_id',d.case_id).maybeSingle());if(!listed)await getCase(ctx,d.case_id);
+   }else await getCase(ctx,d.case_id,method==='DELETE'||method==='PATCH');
+   if(method==='PATCH') {const p=z.object({preview_shared:z.boolean(),reviewed:z.literal(true)}).parse(await body(req));if(d.state!=='clean')throw new HttpError(409,'Espera a que el archivo esté disponible.');result(await client.from('documents').update({preview_shared:p.preview_shared}).eq('id',d.id));result(await client.from('audit_log').insert({actor_id:user.id,action:'document.preview.'+p.preview_shared,target_id:d.id}));return json({ok:true});}
    if(method==='GET') {
     if(d.state!=='clean') throw new HttpError(409,'El archivo todavía no está disponible para descargar.');
     const file=result(await client.storage.from('case-files').download(d.path));
@@ -114,11 +121,11 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     if(!privateAccess) {
      lawyer(ctx);const listing=result(await client.from('listings').select('*').eq('case_id',id).maybeSingle());
      if(!listing) throw new HttpError(403,'El caso no está disponible para tu cuenta.');
-     return json({case:{...listing,id,public_summary:listing.summary,status:'published'},private:false,owner:false,requests,documents:[],proposals:[],messages:[],events:[],jobs:[],professionals:[]});
+     return json({case:{...listing,id,public_summary:listing.summary,status:'published'},private:false,owner:false,requests,documents:result(await client.from('documents').select('id,name,mime,size,state,preview_shared').eq('case_id',id).eq('preview_shared',true).eq('state','clean')),proposals:[],messages:[],events:[],jobs:[],professionals:[]});
     }
     const ids=requests.map(r=>r.lawyer_id);
     const [documents,proposals,messages,events,jobs,professionals,reviews]=await Promise.all([
-     client.from('documents').select('id,name,mime,size,state,extraction_note,created_at').eq('case_id',id).order('created_at'),
+     client.from('documents').select('id,name,mime,size,state,extraction_note,created_at,preview_shared').eq('case_id',id).order('created_at'),
      client.from('proposals').select('*').eq('case_id',id).match(owner?{}:{lawyer_id:user.id}).order('created_at'),
      client.from('messages').select('*').eq('case_id',id).match(owner?{}:{lawyer_id:user.id}).order('created_at').limit(500),
      client.from('events').select('*').eq('case_id',id).order('created_at'),
