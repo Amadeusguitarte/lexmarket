@@ -6,6 +6,8 @@ import { api } from '@/lib/browser';
 import { categories, statusLabels } from '@/lib/shared';
 import { Brand } from './Landing';
 import { CaseForm, Field, Modal, ProfileForm, type Row } from './Forms';
+import CaseIntake from './CaseIntake';
+import {importIntake} from '@/lib/import-intake';
 import CaseView from './CaseView';
 export type Run=(fn:()=>Promise<void>)=>Promise<void>;
 export type WorkProps={me:Row;session:Session;run:Run;busy:boolean;onNotice:(s:string)=>void;onInfo:(s:string)=>void;onRefreshMe:()=>Promise<void>;onLogout:()=>void};
@@ -28,7 +30,7 @@ export default function Workspace(props:WorkProps) {
  </>}
  {loadError&&<div className="notice-panel error" role="alert">{loadError}<button className="text-button" onClick={()=>setRevision(n=>n+1)}>Reintentar</button></div>}
  </>}
- </main></div>{create&&<Modal title="Empecemos por tu asunto" onClose={()=>setCreate(false)}><CaseForm busy={busy} onSave={data=>run(async()=>{const c=await api('cases','POST',data);setCreate(false);setCaseId(c.id);onNotice('Tu espacio está creado. Puedes agregar tus documentos.');})}/></Modal>}
+ </main></div>{create&&<CaseIntake signedIn onClose={()=>setCreate(false)} onReady={()=>run(async()=>{const id=await importIntake(props.session.user.id,onNotice);setCreate(false);setCaseId(id);onNotice('Tu caso está guardado. Revisa el resumen antes de compartirlo.');})}/>}
  </div>;
 }
 export function Empty({title,text,action}:{title:string;text:string;action?:React.ReactNode}) {return <div className="empty-state"><div className="empty-icon"><FolderOpen size={31}/></div><h2>{title}</h2><p>{text}</p>{action}</div>;}
