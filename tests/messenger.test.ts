@@ -40,7 +40,12 @@ test('chat opens its thread, renders a private document and offer, marks visible
  assert.ok(releaseSend,'network request is still pending while bubble is visible');
  await act(async()=>{releaseSend!();await new Promise(r=>setTimeout(r,20));});
  assert.match(dom.window.document.body.textContent!,/Enviado/);
+ await act(async()=>{(dom.window.document.querySelector('.dock-title') as HTMLButtonElement).click();});
+ assert.ok(dom.window.document.querySelector('.dock-window.is-minimized'));
+ await act(async()=>{(dom.window.document.querySelector('.dock-title') as HTMLButtonElement).click();});
+ assert.equal(dom.window.document.querySelector('.dock-window.is-minimized'),null);
+ assert.match(dom.window.document.body.textContent!,/observaciones.txt/);
  await act(async()=>{root.render(React.createElement(Messenger,{mode:'page',userId:'client',open:true,target:null,onOpen:()=>{},onClose:()=>{},onSelect:()=>{},onCase:()=>{}}));});
  assert.ok(dom.window.document.querySelector('.messages-page'));assert.equal(dom.window.document.querySelector('.chat-launcher'),null);
- await act(async()=>root.unmount());await db.auth.stopAutoRefresh();assert.equal(cleaned,2);
+ await act(async()=>root.unmount());await db.auth.stopAutoRefresh();assert.equal(cleaned,3);
 });
