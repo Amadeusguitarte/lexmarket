@@ -14,14 +14,4 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     env_file: .env
-    environment:
-      CLAMAV_HOST: clamav
-    depends_on: [clamav]
     restart: unless-stopped
-  clamav:
-    image: clamav/clamav:stable
-    volumes: ["clamav-signatures:/var/lib/clamav"]
-    restart: unless-stopped
-    # No public port. Only the worker needs scanner access.
-volumes:
-  clamav-signatures:

@@ -10,7 +10,7 @@ Las tablas tienen RLS habilitado, sin políticas ni permisos para `anon`/`authen
 |---|---|---|---|
 | Borrador y relato | Leer, editar en borrador | Solo con autorización vigente | Denegado |
 | Marketplace | Ve su publicación en su espacio | Lee resumen publicado | Denegado |
-| Documentos | Carga y descarga tras escaneo | Descarga con autorización; carga si es seleccionado | Denegado |
+| Documentos | Carga y descarga tras preparación | Descarga con autorización; carga si es seleccionado | Denegado |
 | Conversación | Accede a sus hilos | Solo su hilo autorizado | Denegado |
 | Propuestas | Ve todas las propias del caso | Solo las que envió | Denegado |
 | Verificación | No puede asignarla | No puede asignarla | Solo admin por allowlist de correo verificado |
@@ -21,20 +21,20 @@ Publicación y selección se realizan con funciones SQL que bloquean la fila del
 
 Web valida tamaño real del request y del archivo, extensión y cabecera; escribe con ruta aleatoria en bucket privado, registra metadata y crea un trabajo. El archivo permanece en cuarentena. Si falla crear metadata se elimina el objeto recién subido; si falla encolar se marca el documento como fallido. La comprobación de límite usa un bloqueo SQL además del chequeo de interfaz.
 
-Worker reclama un trabajo con `FOR UPDATE SKIP LOCKED`, asigna una ventana de diez minutos e incrementa intentos. Envía los bytes a ClamAV por INSTREAM; cualquier respuesta distinta de `OK` o `FOUND` es error y mantiene el archivo sin acceso. Extracción de PDF/DOCX/TXT ocurre en proceso separado, con 128 MB de heap y timeout de 25 s. Un antivirus no constituye garantía absoluta de seguridad; los archivos se descargan como adjuntos y nunca se insertan como HTML ejecutable.
+Worker reclama un trabajo con `FOR UPDATE SKIP LOCKED`, asigna una ventana de diez minutos e incrementa intentos. En esta beta prepara el archivo y extrae PDF/DOCX/TXT en un proceso separado, con 128 MB de heap y timeout de 25 s. El bucket sigue siendo privado, los adjuntos se descargan como bytes y nunca se insertan como HTML ejecutable. Un scanner antivirus gestionado queda como una capa posterior antes de escalar.
 
 La descarga vuelve a comprobar token, perfil, acceso y estado limpio cada vez y devuelve bytes a través del servidor con `no-store`. No se publican URLs permanentes ni enlaces firmados que sobrevivan a la revocación. Una revocación no puede borrar una descarga ya efectuada.
 
 ## IA
 
-El usuario autoriza cada trabajo. El worker solo utiliza el texto que pasó por el flujo de seguridad, marca los recortes y errores de extracción y consulta Responses API con JSON Schema. La entrada se trata como datos no confiables; no se conceden herramientas, navegación o acciones al modelo. Se valida la estructura con Zod. La salida queda en `cases.ai_result` y no modifica el borrador ni el anuncio. El usuario abre el editor con la sugerencia y decide qué guardar y publicar.
+El usuario autoriza cada trabajo. El worker solo utiliza el texto que terminó de prepararse, marca los recortes y errores de extracción y consulta Responses API con JSON Schema. La entrada se trata como datos no confiables; no se conceden herramientas, navegación o acciones al modelo. Se valida la estructura con Zod. La salida queda en `cases.ai_result` y no modifica el borrador ni el anuncio. El usuario abre el editor con la sugerencia y decide qué guardar y publicar.
 
 ## Estados
 
 - Caso: borrador → publicado ↔ borrador; publicado → acompañamiento → cerrado.
 - Acceso: solicitado → autorizado ↔ retirado. Tras selección solo se puede autorizar al abogado seleccionado.
 - Propuesta: pendiente → aceptada o no seleccionada. Una propuesta por abogado/caso en esta beta.
-- Archivo: cuarentena → limpio / bloqueado / fallido. Fallo técnico admite reintento por API; un archivo bloqueado no.
+- Archivo: preparando → disponible / no disponible / fallido. Fallo técnico admite reintento por API.
 - Trabajo: en cola → trabajando → terminado; hasta tres intentos antes de fallo. Un worker caído deja una ventana recuperable de diez minutos.
 
 ## Operación y límites pendientes

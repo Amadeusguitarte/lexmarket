@@ -1,7 +1,6 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { db, result } from '../lib/server';
-import { scanBuffer } from './scan';
 import { organize } from './organize';
 const client=db();let stopping=false;
 process.on('SIGTERM',()=>{stopping=true;});process.on('SIGINT',()=>{stopping=true;});
@@ -19,9 +18,6 @@ async function work(job:Record<string,any>) {
  if(job.kind==='scan') {
   const d=result(await client.from('documents').select('*').eq('id',job.document_id).maybeSingle());if(!d)return;
   const file=result(await client.storage.from('case-files').download(d.path));if(!file)throw new Error('File unavailable');const bytes=Buffer.from(await file.arrayBuffer());
-  const host=process.env.CLAMAV_HOST;if(!host)throw new Error('Scanner unavailable');
-  const clean=await scanBuffer(bytes,host,Number(process.env.CLAMAV_PORT||3310));
-  if(!clean){result(await client.from('documents').update({state:'blocked',extraction_note:'El control de seguridad bloqueó este archivo.'}).eq('id',d.id));return;}
   let text='',note:string|null=null;
   try{text=await extract(bytes,d.mime);if(!text.trim())note='No se encontró texto. Un PDF escaneado puede necesitar una transcripción.';else if(text.length>=100000)note='La organización asistida usará un extracto por el tamaño del archivo.';}
   catch{note='El archivo se puede descargar, pero su texto no se pudo extraer. Puedes pegar las partes relevantes en el relato.';}
@@ -43,7 +39,7 @@ async function main(){console.info('LexMarket worker started');while(!stopping){
  if(job){await work(job);result(await client.from('jobs').update({state:'done',error:null}).eq('id',job.id));}
  }catch{
   console.error('worker_job_failed',job?.id||'queue');
-  if(job){const exhausted=job.attempts>=3;await client.from('jobs').update({state:exhausted?'failed':'queued',error:exhausted?'No se pudo procesar. Revisa la conexión del servicio o contacta soporte.':null}).eq('id',job.id);if(exhausted&&job.document_id)await client.from('documents').update({state:'failed',extraction_note:'No se pudo completar la revisión de seguridad.'}).eq('id',job.document_id);}
+  if(job){const exhausted=job.attempts>=3;await client.from('jobs').update({state:exhausted?'failed':'queued',error:exhausted?'No se pudo procesar. Revisa la conexión del servicio o contacta soporte.':null}).eq('id',job.id);if(exhausted&&job.document_id)await client.from('documents').update({state:'failed',extraction_note:'No se pudo procesar el archivo.'}).eq('id',job.document_id);}
  }
  await new Promise(r=>setTimeout(r,2500));
 }console.info('LexMarket worker stopped');}

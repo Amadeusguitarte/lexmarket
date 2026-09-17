@@ -27,3 +27,4 @@ El aviso informativo «RLS Enabled No Policy» es esperado: este MVP utiliza aut
 - Vista de diseño: https://lexmarket-review.amadeusart.chatgpt.site
 
 La vista de diseño es estática. La creación del proyecto Supabase no transforma esa vista en la aplicación ni implica que el backend esté desplegado. El estado funcional debe confirmarse mediante `docs/ACCEPTANCE.md`.
+
