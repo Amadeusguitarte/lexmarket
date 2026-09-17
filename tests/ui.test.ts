@@ -28,3 +28,12 @@ test('lawyer onboarding requests license and specialties but offers no self-veri
  assert.ok(doc.querySelector('input[name=specialties]'));
  assert.equal(doc.querySelector('[name=verification]'),null);
 });
+test('signed-in welcome uses the Google avatar and offers cases and messages before the dashboard',async()=>{
+ const {default:Workspace}=await import('../components/Workspace');
+ const html=renderToStaticMarkup(React.createElement(Workspace,{me:{profile:{id:'test',name:'Louis Amadeus',role:'client',avatar_url:'https://lh3.googleusercontent.com/a/example'}},session:{user:{id:'test',user_metadata:{}}} as any,busy:false,run:async f=>{await f();},onNotice:()=>{},onInfo:()=>{},onRefreshMe:async()=>{},onLogout:()=>{}}));
+ const doc=new JSDOM(html).window.document;
+ assert.match(doc.querySelector('h1')!.textContent!,/Qué bueno verte,Louis/);
+ assert.ok(doc.querySelector('.welcome-card img[src="https://lh3.googleusercontent.com/a/example"]'));
+ assert.ok(doc.querySelector('.chat-launcher'));
+ assert.equal(doc.querySelector('.stat-grid'),null);
+});

@@ -1,3 +1,5 @@
+import { chatApi } from '@/lib/chat-server';
+import { safeAvatar } from '@/lib/avatar';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
@@ -26,17 +28,18 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
   const path=(await params).path, method=req.method,ctx=await auth(req),{client,user,profile}=ctx;
   await rate(ctx,'api',180);
   if(path[0]==='me') {
-   if(method==='GET') return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});
+   if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
    if(method==='PUT') {
     const p=profileSchema.parse(await body(req));
     if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
     if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
     const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
-    result(await client.from('profiles').upsert({id:user.id,...p,...(!profile||reset?{verification:'pending',verified_at:null,verification_note:null}:{})}));
+    result(await client.from('profiles').upsert({id:user.id,...p,avatar_url:safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture),...(!profile||reset?{verification:'pending',verified_at:null,verification_note:null}:{})}));
     return json({ok:true});
    }
   }
   if(!profile) throw new HttpError(403,'Completa tu perfil para continuar.');
+  if(path[0]==='chats'||path[0]==='chat-files'){const response=await chatApi(req,path,ctx,body,readLimited);if(response)return response;}
   if(path[0]==='marketplace'&&method==='GET') {
    lawyer(ctx);
    const url=new URL(req.url),category=url.searchParams.get('category');

@@ -46,3 +46,20 @@ test('retrying a case creation returns the same case and cannot claim another ow
  const response=await POST(request(),{params:Promise.resolve({path:['cases']})});assert.equal(response.status,200);assert.deepEqual(await response.json(),{id:cid});
  otherOwner=true;const rejected=await POST(request(),{params:Promise.resolve({path:['cases']})});assert.equal(rejected.status,409);
 });
+test('chat attachment cannot be downloaded by another lawyer even with access to the same case',async t=>{
+ const oldUrl=process.env.NEXT_PUBLIC_SUPABASE_URL,oldKey=process.env.SUPABASE_SERVICE_ROLE_KEY;
+ process.env.NEXT_PUBLIC_SUPABASE_URL='https://project.supabase.co';process.env.SUPABASE_SERVICE_ROLE_KEY='test-key-not-a-secret';
+ t.after(()=>{if(oldUrl===undefined)delete process.env.NEXT_PUBLIC_SUPABASE_URL;else process.env.NEXT_PUBLIC_SUPABASE_URL=oldUrl;if(oldKey===undefined)delete process.env.SUPABASE_SERVICE_ROLE_KEY;else process.env.SUPABASE_SERVICE_ROLE_KEY=oldKey;});
+ let storageRead=false;
+ t.mock.method(globalThis,'fetch',async(input:RequestInfo|URL)=>{const p=new URL(input instanceof Request?input.url:input.toString()).pathname;let data:unknown;
+ if(p==='/auth/v1/user')data={id:uid,email:'test@example.test',email_confirmed_at:'2026-01-01T00:00:00Z'};
+ else if(p==='/rest/v1/profiles')data=[{id:uid,role:'lawyer',verification:'verified'}];
+ else if(p==='/rest/v1/rpc/take_rate')data=true;
+ else if(p==='/rest/v1/chat_attachments')data=[{id:docid,case_id:cid,lawyer_id:'00000000-0000-4000-8000-000000000099',path:'private-chat-file'}];
+ else if(p==='/rest/v1/cases')data=[{id:cid,owner_id:owner}];
+ else if(p==='/rest/v1/access_requests')data=[{state:'granted'}];
+ else if(p.startsWith('/storage')){storageRead=true;data={};}
+ else throw new Error('Unexpected path');return new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}});});
+ const r=await GET(new Request('https://lexmarket.test/api/chat-files/'+docid,{headers:{Authorization:'Bearer fake'}}),{params:Promise.resolve({path:['chat-files',docid]})});
+ assert.equal(r.status,403);assert.equal(storageRead,false);
+});
