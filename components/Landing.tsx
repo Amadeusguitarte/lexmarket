@@ -42,14 +42,14 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
      </svg>
 
       {/* Left Back Layer: Expediente folder image */}
-      <img src="/hero/hero-expediente.png" className="hero-img layer-expediente" alt="Expediente legal" />
+      <img src="/hero/hero-expediente.png?v=2" className="hero-img layer-expediente" alt="Expediente legal" />
 
       {/* Right Back Layer: Acción de Tutela document image */}
-      <img src="/hero/hero-tutela.png" className="hero-img layer-tutela" alt="Acción de Tutela" />
+      <img src="/hero/hero-tutela.png?v=2" className="hero-img layer-tutela" alt="Acción de Tutela" />
 
       {/* Front Layer: Tu caso card image with dynamic overlay */}
       <div className="layer-tu-caso-wrapper">
-       <img src="/hero/hero-tu-caso.png" className="hero-img layer-tu-caso" alt="Tu caso" />
+       <img src="/hero/hero-tu-caso.png?v=2" className="hero-img layer-tu-caso" alt="Tu caso" />
        <div className="tu-caso-overlay">
         <div className="card-top-row">
          <span className="overline" style={{marginBottom:0}}>ASÍ PODRÍA VERSE TU CASO</span>
