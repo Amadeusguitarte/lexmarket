@@ -7,8 +7,6 @@ export function Brand(){return <span className="brand">lex<span>market</span><sp
 export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>void;onLawyer:()=>void;onLogin:()=>void;onInfo:(s:string)=>void}) {
  const [example,setExample]=useState('Una tutela');
  const examples:Record<string,string>={'Una tutela':'Revisar y presentar mi tutela','Un asunto laboral':'Revisar una reclamación laboral','Una reclamación':'Dar el siguiente paso con mi reclamación','Un contrato':'Revisar y ajustar un contrato'};
- const backWords = ['ACCIÓN DE TUTELA', 'RECLAMACIÓN', 'DEMANDA CIVIL', 'REVISIÓN LEGAL', 'ACUERDO'];
- const [wordIdx, setWordIdx] = useState(0);
 
  useEffect(() => {
   const keys = Object.keys(examples);
@@ -16,7 +14,6 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
   const interval = setInterval(() => {
    i = (i + 1) % keys.length;
    setExample(keys[i]);
-   setWordIdx(idx => (idx + 1) % backWords.length);
   }, 3000);
   return () => clearInterval(interval);
  }, []);
@@ -57,11 +54,8 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
       {/* Left Back Layer: Expediente folder image */}
       <img src="/hero/hero-expediente.png?v=2" className="hero-img layer-expediente" alt="Expediente legal" />
 
-      {/* Right Back Layer: Acción legal document image */}
-      <div className="layer-tutela">
-       <img src="/hero/hero-tutela.png?v=2" className="hero-img" alt="Documento legal" />
-       <div className="tutela-text-cover">{backWords[wordIdx]}</div>
-      </div>
+      {/* Right Back Layer: Acción de Tutela document image */}
+      <img src="/hero/hero-tutela.png?v=2" className="hero-img layer-tutela" alt="Acción de Tutela" />
 
       {/* Front Layer: Tu caso card image with dynamic overlay */}
       <div className="layer-tu-caso-wrapper">
