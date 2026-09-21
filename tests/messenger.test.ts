@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React,{act} from 'react';
+(globalThis as any).React = React;
 import {createRoot} from 'react-dom/client';
 import {JSDOM} from 'jsdom';
 import Messenger from '../components/Messenger';

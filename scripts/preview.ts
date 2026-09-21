@@ -1,4 +1,5 @@
 import React from 'react';
+(globalThis as any).React = React;
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readFile, writeFile } from 'node:fs/promises';
 import Landing from '../components/Landing';
