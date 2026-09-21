@@ -41,16 +41,59 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
       <path d="M72 178H82V212H72Z M102 178H112V212H102Z M132 178H142V212H132Z M392 178H402V212H392Z M422 178H432V212H422Z M452 178H462V212H452Z" stroke="#ebdccb" strokeWidth="1"/>
      </svg>
 
-     {/* Left Back Layer: Expediente folder image */}
-     <img src="/hero/hero-expediente.jpg" className="hero-img layer-expediente" alt="Expediente legal" />
+      {/* Left Back Layer: Expediente folder image */}
+      <img src="/hero/hero-expediente.png" className="hero-img layer-expediente" alt="Expediente legal" />
 
-     {/* Right Back Layer: Acción de Tutela document image */}
-     <img src="/hero/hero-tutela.jpg" className="hero-img layer-tutela" alt="Acción de Tutela" />
+      {/* Right Back Layer: Acción de Tutela document image */}
+      <img src="/hero/hero-tutela.png" className="hero-img layer-tutela" alt="Acción de Tutela" />
 
-     {/* Front Layer: Tu caso card image */}
-     <div className="layer-tu-caso-wrapper">
-      <img src="/hero/hero-tu-caso.png" className="hero-img layer-tu-caso" alt="Tu caso" />
-     </div>
+      {/* Front Layer: Tu caso card image with dynamic overlay */}
+      <div className="layer-tu-caso-wrapper">
+       <img src="/hero/hero-tu-caso.png" className="hero-img layer-tu-caso" alt="Tu caso" />
+       <div className="tu-caso-overlay">
+        <div className="card-top-row">
+         <span className="overline" style={{marginBottom:0}}>ASÍ PODRÍA VERSE TU CASO</span>
+         <span className="badge-progress">En progreso</span>
+        </div>
+        <h2>{examples[example]}</h2>
+        <p>Todo en un solo lugar, para avanzar con claridad.</p>
+
+        <div className="card-item-row">
+         <div className="card-item-icon"><FileText size={18}/></div>
+         <div className="card-item-info">
+          <b>Lo que has preparado</b>
+          <span>Escritos, actas o documentos</span>
+         </div>
+         <div className="row-right-icons">
+          <ListFilter size={15} style={{color:'var(--muted)'}}/>
+          <div className="check-badge"><Check size={13}/></div>
+         </div>
+        </div>
+
+        <div className="card-item-row">
+         <div className="card-item-icon"><MessageCircle size={18}/></div>
+         <div className="card-item-info">
+          <b>El acompañamiento que buscas</b>
+          <span>Revisión, ajustes o representación</span>
+         </div>
+        </div>
+
+        <div className="card-item-row">
+         <div className="card-item-icon"><Users size={18}/></div>
+         <div className="card-item-info">
+          <b>Conecta con abogados</b>
+          <span>Perfiles verificados en Colombia</span>
+         </div>
+         <div className="row-right-icons">
+          <div className="avatar-group">
+           <span className="avatar-thumb">LR</span>
+           <span className="avatar-thumb two">MA</span>
+          </div>
+          <div className="check-badge"><Check size={13}/></div>
+         </div>
+        </div>
+       </div>
+      </div>
 
      {/* Floating Pills around the visual */}
      <div className="floating-pill fp-top-left">

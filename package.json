@@ -12,7 +12,9 @@
     "preview:html": "TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx scripts/preview.ts",
     "test": "TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx --test tests/*.test.ts"
   },
-  "overrides": {"postcss":"^8.5.28"},
+  "overrides": {
+    "postcss": "^8.5.28"
+  },
   "engines": {
     "node": ">=22"
   },
@@ -34,7 +36,9 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "jpeg-js": "^0.4.4",
     "jsdom": "^30.1.0",
+    "pngjs": "^7.0.0",
     "typescript": "^5.9.0"
   }
 }
