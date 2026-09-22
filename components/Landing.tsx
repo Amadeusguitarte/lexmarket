@@ -105,25 +105,20 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
       </div>
      </div>
 
-     <div className="floating-pill fp-top-right">
-      <HeartHandshake size={15} style={{color:'var(--purple)'}}/>
-      <span>Un paso a la vez</span>
-     </div>
-
      <div className="floating-pill fp-bottom-left">
-      <ShieldCheck size={16} style={{color:'#387250'}}/>
-      <span>Compartir con tranquilidad</span>
-     </div>
+       <ShieldCheck size={16} style={{color:'#387250'}}/>
+       <span>Compartir con tranquilidad</span>
+      </div>
 
-     <div className="floating-pill fp-bottom-center">
-      <LockKeyhole size={15} style={{color:'var(--purple)'}}/>
-      <span>Tu información siempre protegida</span>
-     </div>
+      <div className="floating-pill fp-bottom-center">
+       <LockKeyhole size={15} style={{color:'var(--purple)'}}/>
+       <span>Tu información siempre protegida</span>
+      </div>
 
-     <div className="floating-pill fp-bottom-right">
-      <Laptop size={15} style={{color:'var(--purple)'}}/>
-      <span>Justicia también en digital</span>
-     </div>
+      <div className="floating-pill fp-top-right">
+       <Laptop size={15} style={{color:'var(--purple)'}}/>
+       <span>Justicia también en digital</span>
+      </div>
     </div>
    </section>
 
