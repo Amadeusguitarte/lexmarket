@@ -38,28 +38,19 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
     </div>
     
     <div className="hero-visual" aria-label="Ejemplo ilustrativo de un espacio de caso">
-     {/* Detailed Neoclassical Courthouse background line art */}
-     <svg className="courthouse-bg" viewBox="0 0 560 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 300H540M30 300V288H530V300M40 288V276H520V288" stroke="#decbba" strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M60 276V160M90 276V160M120 276V160M150 276V160M180 276V160M210 276V160M350 276V160M380 276V160M410 276V160M440 276V160M470 276V160M500 276V160" stroke="#dfcebf" strokeWidth="1.2"/>
-      <path d="M230 276V145M255 276V145M280 276V145M305 276V145M330 276V145" stroke="#d4bfab" strokeWidth="1.8"/>
-      <path d="M40 160H520M40 148H520" stroke="#decbba" strokeWidth="1.5"/>
-      <path d="M210 148L280 75L350 148H210Z" stroke="#d2bc9e" strokeWidth="1.8" fill="#fbf8f3" fillOpacity="0.4"/>
-      <path d="M245 75C245 52 260.6 34 280 34C299.4 34 315 52 315 75" stroke="#d2bc9e" strokeWidth="1.5"/>
-      <line x1="280" y1="34" x2="280" y2="12" stroke="#cbb295" strokeWidth="1.5"/>
-      <path d="M280 12L302 18L280 24Z" fill="#cbb295"/>
-      <path d="M72 178H82V212H72Z M102 178H112V212H102Z M132 178H142V212H132Z M392 178H402V212H392Z M422 178H432V212H422Z M452 178H462V212H452Z" stroke="#ebdccb" strokeWidth="1"/>
-     </svg>
+      {/* Background Line Art Images */}
+      <img src="/hero/bg-drawing-1.png" className="bg-drawing-1" alt="" />
+      <img src="/hero/bg-drawing-2.png" className="bg-drawing-2" alt="" />
 
       {/* Left Back Layer: Expediente folder image */}
-      <img src="/hero/hero-expediente.png?v=2" className="hero-img layer-expediente" alt="Expediente legal" />
+      <img src="/hero/hero-expediente.png?v=3" className="hero-img layer-expediente" alt="Expediente legal" />
 
       {/* Right Back Layer: Acción de Tutela document image */}
-      <img src="/hero/hero-tutela.png?v=2" className="hero-img layer-tutela" alt="Acción de Tutela" />
+      <img src="/hero/hero-tutela.png?v=3" className="hero-img layer-tutela" alt="Acción de Tutela" />
 
       {/* Front Layer: Tu caso card image with dynamic overlay */}
       <div className="layer-tu-caso-wrapper">
-       <img src="/hero/hero-tu-caso.png?v=2" className="hero-img layer-tu-caso" alt="Tu caso" />
+       <img src="/hero/hero-tu-caso.png?v=3" className="hero-img layer-tu-caso" alt="Tu caso" />
        <div className="tu-caso-overlay">
         <div className="card-top-row">
          <span className="overline" style={{marginBottom:0}}>ASÍ PODRÍA VERSE TU CASO</span>
