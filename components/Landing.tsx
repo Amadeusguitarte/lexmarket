@@ -26,22 +26,22 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
   </header>
   <main>
    <section className="hero wrap">
-    <div className="hero-copy">
-     <div className="eyebrow"><span className="tiny-dot"/> Un buen comienzo para lo que sigue</div>
-     <h1>Dale a tu caso<br/>el <em>siguiente paso.</em></h1>
-     <p className="hero-description">Encuentra al abogado que lo revise contigo y te acompañe a llevarlo adelante.</p>
-     <div className="hero-actions">
-      <button className="button" aria-label="Compartir mi caso" onClick={onStart}>Empezar con mi caso <ArrowRight size={18}/></button>
-      <a className="quiet-link" href="#como-funciona">Conoce cómo funciona <span>↗</span></a>
-     </div>
-     <div className="hero-note"><LockKeyhole size={15}/> Tú decides con quién compartir tus documentos.</div>
-    </div>
-    
-    <div className="hero-visual" aria-label="Ejemplo ilustrativo de un espacio de caso">
-      {/* Background Line Art Images */}
-      <img src="/hero/bg-drawing-1.png" className="bg-drawing-1" alt="" />
-      <img src="/hero/bg-drawing-2.png" className="bg-drawing-2" alt="" />
+     {/* Background Line Art Images - placed at hero level to bleed off viewport */}
+     <img src="/hero/bg-drawing-1.png" className="bg-drawing-1" alt="" />
+     <img src="/hero/bg-drawing-2.png" className="bg-drawing-2" alt="" />
 
+     <div className="hero-copy">
+      <div className="eyebrow"><span className="tiny-dot"/> Un buen comienzo para lo que sigue</div>
+      <h1>Dale a tu caso<br/>el <em>siguiente paso.</em></h1>
+      <p className="hero-description">Encuentra al abogado que lo revise contigo y te acompañe a llevarlo adelante.</p>
+      <div className="hero-actions">
+       <button className="button" aria-label="Compartir mi caso" onClick={onStart}>Empezar con mi caso <ArrowRight size={18}/></button>
+       <a className="quiet-link" href="#como-funciona">Conoce cómo funciona <span>↗</span></a>
+      </div>
+      <div className="hero-note"><LockKeyhole size={15}/> Tú decides con quién compartir tus documentos.</div>
+     </div>
+     
+     <div className="hero-visual" aria-label="Ejemplo ilustrativo de un espacio de caso">
       {/* Left Back Layer: Expediente folder image */}
       <img src="/hero/hero-expediente.png?v=3" className="hero-img layer-expediente" alt="Expediente legal" />
 
