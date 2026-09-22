@@ -27,8 +27,8 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
   <main>
    <section className="hero wrap">
      {/* Background Line Art Images - placed at hero level to bleed off viewport */}
-     <img src="/hero/bg-drawing-1.png" className="bg-drawing-1" alt="" />
-     <img src="/hero/bg-drawing-2.png" className="bg-drawing-2" alt="" />
+     <img src="/hero/bg-drawing-1.png?v=2" className="bg-drawing-1" alt="" />
+     <img src="/hero/bg-drawing-2.png?v=2" className="bg-drawing-2" alt="" />
 
      <div className="hero-copy">
       <div className="eyebrow"><span className="tiny-dot"/> Un buen comienzo para lo que sigue</div>
