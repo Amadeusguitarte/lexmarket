@@ -787,19 +787,26 @@ img{max-width:100%}
 
 .protected-fees-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  grid-template-columns: 1.18fr 1fr;
+  gap: 45px;
   align-items: center;
 }
 
 .protected-fees-visual-wrapper {
   position: relative;
   width: 100%;
-  max-width: 540px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.protected-fees-canvas {
+  position: relative;
+  width: 124%;
+  max-width: 780px;
+  margin-left: -12%;
+  display: block;
 }
 
 .fees-img-base {
@@ -987,7 +994,7 @@ img{max-width:100%}
     flex-direction: row;
   }
   .protected-fees-grid {
-    gap: 40px;
+    gap: 30px;
   }
 }
 
@@ -1000,7 +1007,12 @@ img{max-width:100%}
     gap: 40px;
   }
   .protected-fees-visual-wrapper {
-    max-width: 440px;
+    justify-content: center;
+  }
+  .protected-fees-canvas {
+    width: 100%;
+    max-width: 460px;
+    margin-left: 0;
   }
   .fees-headline {
     font-size: 34px;
@@ -1050,5 +1062,6 @@ img{max-width:100%}
     padding: 14px 0;
   }
 }
+
 
 
