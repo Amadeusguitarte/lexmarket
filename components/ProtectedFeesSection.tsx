@@ -7,7 +7,7 @@ export default function ProtectedFeesSection() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <section className="protected-fees-section wrap" aria-label="Honorarios protegidos">
+    <section className="protected-fees-section" aria-label="Honorarios protegidos">
       <div className="protected-fees-grid">
         {/* Left Column: Visual Asset with Floating Coin */}
         <div className="protected-fees-visual-wrapper">
