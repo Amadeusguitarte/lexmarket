@@ -2,7 +2,33 @@ import { z } from 'zod';
 export const categories = ['Tutela','Laboral','Familia','Civil','Arrendamientos','Consumidor','Administrativo','Comercial','Penal','Otro'] as const;
 export const services = ['Revisar y orientar','Revisar y ajustar documentos','Presentar una actuación','Acompañar el proceso','Definir el siguiente paso'] as const;
 export const caseSchema = z.object({ title:z.string().trim().min(8).max(120), category:z.enum(categories), city:z.string().trim().min(2).max(80), service:z.enum(services), description:z.string().trim().min(30).max(40000), public_summary:z.string().trim().max(2000).default(''), urgency:z.enum(['normal','soon','urgent']).default('normal') });
-export const profileSchema = z.object({name:z.string().trim().min(2).max(100),role:z.enum(['client','lawyer']),city:z.string().trim().max(80).default(''),bio:z.string().trim().max(1500).default(''),license:z.string().trim().max(80).default(''),specialties:z.array(z.enum(categories)).max(10).default([])});
+export const lawyerCategories = [
+  'Derecho Laboral',
+  'Derecho de Familia',
+  'Derecho Civil',
+  'Derecho Penal',
+  'Derecho Comercial',
+  'Derecho Administrativo',
+  'Derecho Inmobiliario',
+  'Derecho Migratorio',
+  'Derecho Tributario',
+  'Tutelas y Derechos de Petición'
+] as const;
+
+export const profileSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  role: z.enum(['client','lawyer']),
+  city: z.string().trim().max(80).default(''),
+  bio: z.string().trim().max(1500).default(''),
+  license: z.string().trim().max(80).default(''),
+  specialties: z.array(z.string()).max(10).default([]),
+  years_of_experience: z.number().int().min(0).max(60).optional().default(0),
+  education: z.string().trim().max(500).optional().default(''),
+  languages: z.array(z.string()).optional().default(['Español']),
+  virtual_available: z.boolean().optional().default(true),
+  in_person_available: z.boolean().optional().default(true),
+  featured: z.boolean().optional().default(false),
+});
 export const proposalSchema = z.object({scope:z.string().trim().min(30).max(4000),exclusions:z.string().trim().min(5).max(2000),amount:z.number().int().min(0).max(1000000000),days:z.number().int().min(1).max(365),payment_terms:z.string().trim().min(5).max(1000)});
 export function canReadPrivate(owner:string,user:string,verified:boolean,access?:string) { return owner===user || (verified && access==='granted'); }
 export function safeName(name:string) { return name.replace(/[\x00-\x1f\x7f/\\]/g,'').slice(0,160)||'documento'; }
@@ -14,4 +40,21 @@ export function validateFile(name:string,bytes:Buffer) {
   if (ext==='txt' && !bytes.includes(0) && !bytes.subarray(0,100).toString().includes('\ufffd')) return 'text/plain';
   throw new Error('Usa PDF, DOCX o TXT con formato válido.');
 }
-export const statusLabels:Record<string,string> = {review:'En revisión',draft:'Borrador',published:'Recibiendo propuestas',engaged:'En acompañamiento',closed:'Cerrado',requested:'Acceso solicitado',granted:'Acceso autorizado',revoked:'Acceso retirado',pending:'Pendiente',verified:'Verificado',rejected:'Requiere ajustes',quarantine:'Preparando archivo',clean:'Disponible',blocked:'No disponible',failed:'No se pudo procesar',queued:'En cola',working:'Organizando',done:'Terminado',accepted:'Aceptada',declined:'No seleccionada'};
+export function formatCategory(cat: string): string {
+  if (!cat) return 'Derecho General';
+  if (cat.startsWith('Derecho ') || cat.startsWith('Tutelas')) return cat;
+  const map: Record<string, string> = {
+    'Laboral': 'Derecho Laboral',
+    'Familia': 'Derecho de Familia',
+    'Civil': 'Derecho Civil',
+    'Penal': 'Derecho Penal',
+    'Comercial': 'Derecho Comercial',
+    'Administrativo': 'Derecho Administrativo',
+    'Arrendamientos': 'Derecho Inmobiliario',
+    'Consumidor': 'Derecho Comercial',
+    'Tutela': 'Tutelas y Derechos de Petición'
+  };
+  return map[cat] || `Derecho ${cat}`;
+}
+export const statusLabels:Record<string,string> = {review:'En revisión',draft:'Borrador',published:'Recibiendo propuestas',engaged:'En acompañamiento',closed:'Cerrado',requested:'Acceso solicitado',granted:'Acceso autorizado',revoked:'Acceso retirado',pending:'Pendiente',verified:'Verificado',rejected:'Requiere ajustes',quarantine:'Preparando archivo',clean:'Disponible',blocked:'No disponible',failed:'No se pudo procesar',queued:'En cola',working:'Organizando',done:'Terminado',accepted:'Aceptada',declined:'No seleccionada',invited:'Invitación enviada'};
+

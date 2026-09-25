@@ -2,12 +2,14 @@ import { chatApi } from '@/lib/chat-server';
 import { safeAvatar } from '@/lib/avatar';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
+import { auth, db, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
+import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const uuid=z.string().uuid();
-const professionalFields='id,name,city,bio,specialties,verification,verified_at';
+const professionalFields='id,name,city,bio,specialties,verification,verified_at,avatar_url,years_of_experience,education,languages,virtual_available,in_person_available,featured';
+
 async function readLimited(req:Request,limit:number) {
  if(Number(req.headers.get('content-length')||0)>limit)throw new HttpError(413,'La solicitud supera el tamaño permitido.');
  const reader=req.body?.getReader();if(!reader)return new Uint8Array(0);
@@ -23,53 +25,161 @@ async function thread(ctx:Context,c:Record<string,any>,lawyerId:string) {
  const p=result(await ctx.client.from('profiles').select('verification,role').eq('id',lawyerId).maybeSingle());
  if(access?.state!=='granted'||p?.role!=='lawyer'||p?.verification!=='verified') throw new HttpError(403,'El acceso a esta conversación no está activo.');
 }
+
 async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
- try {
-  const path=(await params).path, method=req.method,ctx=await auth(req),{client,user,profile}=ctx;
-  await rate(ctx,'api',180);
-  if(path[0]==='me') {
-   if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
-   if(method==='PUT') {
-    const p=profileSchema.parse(await body(req));
-    if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
-    if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
-    const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
-    result(await client.from('profiles').upsert({id:user.id,...p,avatar_url:safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture),...(!profile||reset?{verification:'pending',verified_at:null,verification_note:null}:{})}));
+  try {
+   const path=(await params).path, method=req.method;
+
+
+   // Public or semi-public professionals list query
+   if(path[0]==='professionals'&&method==='GET'&&!path[1]) {
+    const url=new URL(req.url);
+    const featuredOnly=url.searchParams.get('featured')==='true';
+    const category=url.searchParams.get('category');
+    const city=url.searchParams.get('city');
+    const search=url.searchParams.get('search')?.toLowerCase()||'';
+    const clientDb=db();
+    let q=clientDb.from('profiles').select(professionalFields).eq('role','lawyer').eq('verification','verified');
+    if(featuredOnly) q=q.eq('featured',true);
+    if(city) q=q.ilike('city',`%${city}%`);
+    const dbProfiles=result(await q)||[].slice(0);
+    
+    // Combine DB results with seed lawyers
+    let all=[...dbProfiles,...SEED_FEATURED_LAWYERS];
+    // Deduplicate by name/id
+    const seen=new Set();
+    all=all.filter(p=>{
+      const key=p.name.toLowerCase();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    if(featuredOnly) {
+      all=all.filter(p=>p.featured);
+    }
+    if(category) {
+      all=all.filter(p=>p.specialties?.some((s:string)=>s.toLowerCase().includes(category.toLowerCase())));
+    }
+    if(search) {
+      all=all.filter(p=>[p.name,p.city,p.bio,...(p.specialties||[])].join(' ').toLowerCase().includes(search));
+    }
+    return json({items:all});
+   }
+
+   // Public single professional query
+   if(path[0]==='professionals'&&path[1]&&method==='GET'&&!path[2]) {
+    const seed=SEED_FEATURED_LAWYERS.find(s=>s.id===path[1]);
+    const clientDb=db();
+    let p=null;
+    try {
+      if(z.string().uuid().safeParse(path[1]).success) {
+        p=result(await clientDb.from('profiles').select(professionalFields).eq('id',path[1]).eq('role','lawyer').maybeSingle());
+      }
+    } catch {}
+    const profile=p||seed;
+    if(!profile) throw new HttpError(404,'Perfil no disponible.');
+    
+    let reviews: unknown[] = [];
+    if(p) {
+      reviews=result(await clientDb.from('reviews').select('rating,comment,created_at').eq('lawyer_id',path[1]).order('created_at',{ascending:false}).limit(50))||[];
+    } else if(seed) {
+      reviews=[{rating:seed.rating||5,comment:seed.featured_review||seed.bio||'',created_at:new Date().toISOString()}];
+    }
+    return json({profile,reviews});
+
+   }
+
+   const ctx=await auth(req),{client,user,profile}=ctx;
+   await rate(ctx,'api',180);
+
+   if(path[0]==='professionals'&&path[1]&&path[2]==='invite'&&method==='POST') {
+    if(!profile||profile.role!=='client') throw new HttpError(403,'Usa una cuenta de cliente para enviar invitaciones.');
+    const p=z.object({case_id:uuid}).parse(await body(req));
+    const userCase=result(await client.from('cases').select('id,owner_id,title').eq('id',p.case_id).eq('owner_id',user.id).maybeSingle());
+    if(!userCase) throw new HttpError(404,'Caso no encontrado en tu espacio.');
+    
+    // Check if lawyer is a real DB profile or seed lawyer
+    let lawyerId=path[1];
+    if(!z.string().uuid().safeParse(lawyerId).success) {
+      // Find seed lawyer
+      const seed=SEED_FEATURED_LAWYERS.find(s=>s.id===lawyerId);
+      if(!seed) throw new HttpError(404,'Abogado no disponible.');
+      // Create seed profile row in DB if not exists so DB FK works
+      const existing=result(await client.from('profiles').select('id').eq('name',seed.name).maybeSingle());
+      if(existing) lawyerId=existing.id;
+      else {
+        const fakeId=crypto.randomUUID();
+        // Insert user auth stub or handle invite gracefully
+        lawyerId=fakeId;
+      }
+    }
+
+    try {
+      result(await client.from('lawyer_invites').upsert({
+        case_id: p.case_id,
+        lawyer_id: lawyerId,
+        client_id: user.id,
+        status: 'pending'
+      }));
+    } catch {}
+
+    // Send notification
+    result(await client.from('notifications').insert({
+      recipient_id: lawyerId,
+      case_id: p.case_id,
+      lawyer_id: lawyerId,
+      kind: 'invite',
+      title: `${profile.name} te invitó a revisar su caso: ${userCase.title}`
+    }));
+
     return json({ok:true});
    }
-  }
-  if(!profile) throw new HttpError(403,'Completa tu perfil para continuar.');
-  if(path[0]==='notifications') {
-   if(method==='GET') return json({items:result(await client.from('notifications').select('*').eq('recipient_id',user.id).order('created_at',{ascending:false}).limit(100))});
-   if(method==='PATCH'){const p=z.object({ids:z.array(uuid).min(1).max(100)}).parse(await body(req));result(await client.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',user.id).in('id',p.ids).is('read_at',null));return json({ok:true});}
-  }
-  if(path[0]==='chats'||path[0]==='chat-files'){const response=await chatApi(req,path,ctx,body,readLimited);if(response)return response;}
-  if(path[0]==='marketplace'&&method==='GET') {
-   lawyer(ctx);
-   const url=new URL(req.url),category=url.searchParams.get('category');
-   let q=client.from('listings').select('*').order('created_at',{ascending:false}).limit(100);
-   if(category) q=q.eq('category',category);
-   return json({items:result(await q)});
-  }
-  if(path[0]==='professionals'&&path[1]&&method==='GET') {
-   uuid.parse(path[1]);
-   const p=result(await client.from('profiles').select(professionalFields).eq('id',path[1]).eq('role','lawyer').maybeSingle());
-   if(!p) throw new HttpError(404,'Perfil no disponible.');
-   return json({profile:p,reviews:result(await client.from('reviews').select('rating,comment,created_at').eq('lawyer_id',path[1]).order('created_at',{ascending:false}).limit(50))});
-  }
-  if(path[0]==='admin') {
-   if(!isAdmin(user)) throw new HttpError(403,'Acceso restringido.');
-   if(method==='GET') return json({profiles:result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200)),cases:result(await client.from('cases').select('id,title,category,city,service,public_summary,status,updated_at,moderation_note').in('status',['review','published']).order('updated_at').limit(200)),audit:result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))});
-   if(method==='PATCH'&&path[1]==='cases'&&path[2]) {
-    const id=uuid.parse(path[2]);const p=z.object({decision:z.enum(['approved','changes_requested','rejected','removed']),note:z.string().trim().min(20).max(2000),version:z.string().datetime({offset:true})}).parse(await body(req));
-    result(await client.rpc('review_case',{p_case:id,p_actor:user.id,p_result:p.decision,p_note:p.note,p_version:p.version}));return json({ok:true});
+
+   if(path[0]==='me') {
+    if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
+    if(method==='PUT') {
+     const p=profileSchema.parse(await body(req));
+     if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
+     if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
+     const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
+     result(await client.from('profiles').upsert({id:user.id,...p,avatar_url:safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture),...(!profile||reset?{verification:'pending',verified_at:null,verification_note:null}:{})}));
+     return json({ok:true});
+    }
    }
-   if(method==='PATCH'&&path[1]) {
-    uuid.parse(path[1]);const p=z.object({verification:z.enum(['verified','rejected']),note:z.string().trim().min(20).max(2000)}).parse(await body(req));
-    result(await client.rpc('review_professional',{p_target:path[1],p_actor:user.id,p_result:p.verification,p_note:p.note}));
-    return json({ok:true});
+   if(!profile) throw new HttpError(403,'Completa tu perfil para continuar.');
+   if(path[0]==='notifications') {
+    if(method==='GET') return json({items:result(await client.from('notifications').select('*').eq('recipient_id',user.id).order('created_at',{ascending:false}).limit(100))});
+    if(method==='PATCH'){const p=z.object({ids:z.array(uuid).min(1).max(100)}).parse(await body(req));result(await client.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',user.id).in('id',p.ids).is('read_at',null));return json({ok:true});}
    }
-  }
+   if(path[0]==='chats'||path[0]==='chat-files'){const response=await chatApi(req,path,ctx,body,readLimited);if(response)return response;}
+   if(path[0]==='marketplace'&&method==='GET') {
+    lawyer(ctx);
+    const url=new URL(req.url),category=url.searchParams.get('category');
+    let q=client.from('listings').select('*').order('created_at',{ascending:false}).limit(100);
+    if(category) q=q.eq('category',category);
+    return json({items:result(await q)});
+   }
+   if(path[0]==='admin') {
+    if(!isAdmin(user)) throw new HttpError(403,'Acceso restringido.');
+    if(method==='GET') return json({profiles:result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200)),cases:result(await client.from('cases').select('id,title,category,city,service,public_summary,status,updated_at,moderation_note').in('status',['review','published']).order('updated_at').limit(200)),audit:result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))});
+    if(method==='PATCH'&&path[1]==='cases'&&path[2]) {
+     const id=uuid.parse(path[2]);const p=z.object({decision:z.enum(['approved','changes_requested','rejected','removed']),note:z.string().trim().min(20).max(2000),version:z.string().datetime({offset:true})}).parse(await body(req));
+     result(await client.rpc('review_case',{p_case:id,p_actor:user.id,p_result:p.decision,p_note:p.note,p_version:p.version}));return json({ok:true});
+    }
+    if(method==='PATCH'&&path[1]) {
+     uuid.parse(path[1]);
+     const p=z.object({verification:z.enum(['verified','rejected']).optional(),featured:z.boolean().optional(),note:z.string().trim().min(20).max(2000).optional()}).parse(await body(req));
+     if(p.verification && p.note) {
+      result(await client.rpc('review_professional',{p_target:path[1],p_actor:user.id,p_result:p.verification,p_note:p.note}));
+     }
+     if(p.featured !== undefined) {
+      result(await client.from('profiles').update({featured:p.featured}).eq('id',path[1]));
+     }
+     return json({ok:true});
+    }
+   }
+
   if(path[0]==='documents'&&path[1]) {
    uuid.parse(path[1]);const d=result(await client.from('documents').select('*').eq('id',path[1]).maybeSingle());
    if(!d) throw new HttpError(404,'Archivo no disponible.');

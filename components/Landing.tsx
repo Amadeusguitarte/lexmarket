@@ -1,10 +1,25 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { ArrowRight, Check, FileText, FolderOpen, HeartHandshake, Laptop, ListFilter, LockKeyhole, MessageCircle, Paperclip, Plus, Scale, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import LawyerFeaturedSection from './LawyerFeaturedSection';
+import type { LawyerData } from './LawyerCard';
 
 export function Brand(){return <span className="brand">lex<span>market</span><span className="brand-dot">.</span></span>;}
 
-export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>void;onLawyer:()=>void;onLogin:()=>void;onInfo:(s:string)=>void}) {
+export default function Landing({
+
+  onStart,
+  onLawyer,
+  onLogin,
+  onInfo,
+  onInviteLawyer,
+}:{
+  onStart:()=>void;
+  onLawyer:()=>void;
+  onLogin:()=>void;
+  onInfo:(s:string)=>void;
+  onInviteLawyer?:(lawyer:LawyerData)=>void;
+}) {
  const [example,setExample]=useState('Una tutela');
  const examples:Record<string,string>={'Una tutela':'Revisar y presentar mi tutela','Un asunto laboral':'Revisar una reclamación laboral','Una reclamación':'Dar el siguiente paso con mi reclamación','Un contrato':'Revisar y ajustar un contrato'};
 
@@ -21,7 +36,7 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
  return <div className="landing">
   <header className="public-header wrap">
    <a href="#" aria-label="LexMarket inicio"><Brand/></a>
-   <nav aria-label="Principal"><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><button className="text-button" onClick={onLawyer}>Para abogados</button></nav>
+   <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><button className="text-button" onClick={onLawyer}>Para abogados</button></nav>
    <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
   </header>
   <main>
@@ -133,6 +148,12 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
     </div>
     <small>Y otros asuntos que necesiten una mirada profesional.</small>
    </section>
+
+   <LawyerFeaturedSection
+    onViewProfile={id => location.href = `/abogados/${id}`}
+    onInvite={lawyer => onInviteLawyer ? onInviteLawyer(lawyer) : onStart()}
+   />
+
    <section className="journey-banner wrap"><img src="/lexmarket-journey.webp" width="1200" height="800" loading="lazy" alt="Una carpeta y documentos junto a un camino lila que lleva a una puerta abierta"/><div><span className="eyebrow">A TU RITMO</span><h2>Hay un siguiente paso.<br/>Encuentra con quién darlo.</h2><p>Reúne tus documentos, cuenta lo que buscas y conoce a los profesionales interesados en acompañarte.</p><button className="text-button" onClick={onStart}>Abrir mi espacio <ArrowRight size={17}/></button></div></section><section id="como-funciona" className="how-section"><div className="wrap"><div className="section-heading"><div><span className="overline">MENOS VUELTAS. MÁS CLARIDAD.</span><h2>De aquí, hacia adelante.</h2></div><p>Sin tener que contar la misma historia<br/>una y otra vez.</p></div><div className="steps-grid">{[{n:'01',icon:FolderOpen,title:'Abre tu espacio',text:'Comparte lo que tienes y cuéntanos qué te gustaría resolver. Puedes ir sumando documentos después.'},{n:'02',icon:Scale,title:'Conoce tus opciones',text:'Los abogados interesados te presentan una propuesta. Revisa su perfil, el alcance y los honorarios.'},{n:'03',icon:HeartHandshake,title:'Elige con quién avanzar',text:'Conversa, resuelve tus dudas y acuerda el acompañamiento que necesitas.'}].map(s=><article key={s.n} className="step-card"><div className="step-top"><s.icon size={25}/><span>{s.n}</span></div><h3>{s.title}</h3><p>{s.text}</p></article>)}</div></div></section>
    <section className="privacy-section wrap"><div className="privacy-art"><img src="/lexmarket-desk.svg" alt="Ilustración de un espacio de trabajo"/><span className="privacy-lock"><LockKeyhole size={22}/></span><span className="tag">Tú tienes el control</span></div><div><span className="overline">UN ESPACIO PARA TU TRANQUILIDAD</span><h2>Tu historia merece<br/>cuidado.</h2><p>Primero compartes un resumen. Tus archivos permanecen privados hasta que autorices a un abogado a revisarlos.</p><ul className="check-list"><li><Check size={17}/> Apruebas el resumen antes de publicarlo.</li><li><Check size={17}/> Decides quién puede abrir tu expediente.</li><li><Check size={17}/> Conoces el alcance antes de elegir.</li></ul></div></section>
    <section className="lawyer-banner wrap"><div><span className="overline">PARA ABOGADOS</span><h2>Tu próximo caso puede estar aquí.</h2><p>Explora asuntos de tu especialidad y propón cómo puedes acompañarlos.</p></div><button className="button light" onClick={onLawyer}>Crear perfil profesional <ArrowRight size={17}/></button></section>
@@ -147,3 +168,4 @@ export default function Landing({onStart,onLawyer,onLogin,onInfo}:{onStart:()=>v
   </main><footer className="wrap"><Brand/><span>Hecho para avanzar con más tranquilidad.</span><div><button onClick={()=>onInfo('privacy')}>Privacidad</button><button onClick={()=>onInfo('terms')}>Condiciones de la beta</button><button onClick={()=>onInfo('help')}>Ayuda</button></div></footer>
  </div>;
 }
+

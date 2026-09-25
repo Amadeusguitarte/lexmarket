@@ -11,8 +11,30 @@ import {importIntake} from '@/lib/import-intake';
 import {caseSchema} from '@/lib/shared';
 import {draftStore} from '@/lib/intake';
 import { api, browserDB } from '@/lib/browser';
+import InviteModal from '@/components/InviteModal';
+import type { LawyerData } from '@/components/LawyerCard';
+
 export default function Home() {
  const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
+ const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
+
+ const handleInvite = (lawyer: LawyerData) => {
+  if (!session) {
+   setRole('client');
+   setAuthMode('login');
+   setNotice('Inicia sesión o crea tu cuenta para invitar a este abogado.');
+   return;
+  }
+  setInviteLawyer(lawyer);
+  setLoadingCases(true);
+  api('cases').then(data => setUserCases(data.items || [])).catch(() => {}).finally(() => setLoadingCases(false));
+ };
+
+ const handleSendInvite = async (caseId: string, lawyerId: string) => {
+  await api(`professionals/${lawyerId}/invite`, 'POST', { case_id: caseId });
+  setNotice(`¡Invitación enviada exitosamente a ${inviteLawyer?.name}!`);
+ };
+
  useEffect(()=>{try{const saved=localStorage.getItem('lexmarket.pendingCase');const savedRole=localStorage.getItem('lexmarket.intendedRole');if(saved)setPendingCase(JSON.parse(saved));if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);}catch{}const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
  useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});},[]);
  useEffect(()=>{if(session)api('me').then(setMe).catch(e=>setError(e.message));else setMe(null);},[session]);
@@ -37,8 +59,10 @@ export default function Home() {
  };
  return <>
   {session&&me?.profile?<Workspace pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
-   <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('login')} onInfo={setInfo}/>}
+   <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('login')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
   {composer&&!session&&<CaseIntake onClose={()=>setComposer(false)} onReady={keepDraft}/>}
+  {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
+
 
   {session&&me&&!me.profile&&<Modal title={role==='lawyer'?'Tu perfil profesional':pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
   {authMode&&(!session||authMode==='update')&&<Modal title={authMode==='signup'?(role==='lawyer'?'Tu próximo caso empieza aquí':'Vamos a dar el siguiente paso'):authMode==='reset'?'Recupera tu acceso':authMode==='update'?'Elige una nueva contraseña':'Qué bueno verte de nuevo'} onClose={()=>setAuthMode('')}>
