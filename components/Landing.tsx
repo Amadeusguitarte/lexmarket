@@ -2,7 +2,9 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Check, FileText, FolderOpen, HeartHandshake, Laptop, ListFilter, LockKeyhole, MessageCircle, Paperclip, Plus, Scale, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import LawyerFeaturedSection from './LawyerFeaturedSection';
+import ProtectedFeesSection from './ProtectedFeesSection';
 import type { LawyerData } from './LawyerCard';
+
 
 export function Brand(){return <span className="brand">lex<span>market</span><span className="brand-dot">.</span></span>;}
 
@@ -153,6 +155,9 @@ export default function Landing({
     onViewProfile={id => location.href = `/abogados/${id}`}
     onInvite={lawyer => onInviteLawyer ? onInviteLawyer(lawyer) : onStart()}
    />
+
+   <ProtectedFeesSection />
+
 
    <section className="journey-banner wrap"><img src="/lexmarket-journey.webp" width="1200" height="800" loading="lazy" alt="Una carpeta y documentos junto a un camino lila que lleva a una puerta abierta"/><div><span className="eyebrow">A TU RITMO</span><h2>Hay un siguiente paso.<br/>Encuentra con quién darlo.</h2><p>Reúne tus documentos, cuenta lo que buscas y conoce a los profesionales interesados en acompañarte.</p><button className="text-button" onClick={onStart}>Abrir mi espacio <ArrowRight size={17}/></button></div></section><section id="como-funciona" className="how-section"><div className="wrap"><div className="section-heading"><div><span className="overline">MENOS VUELTAS. MÁS CLARIDAD.</span><h2>De aquí, hacia adelante.</h2></div><p>Sin tener que contar la misma historia<br/>una y otra vez.</p></div><div className="steps-grid">{[{n:'01',icon:FolderOpen,title:'Abre tu espacio',text:'Comparte lo que tienes y cuéntanos qué te gustaría resolver. Puedes ir sumando documentos después.'},{n:'02',icon:Scale,title:'Conoce tus opciones',text:'Los abogados interesados te presentan una propuesta. Revisa su perfil, el alcance y los honorarios.'},{n:'03',icon:HeartHandshake,title:'Elige con quién avanzar',text:'Conversa, resuelve tus dudas y acuerda el acompañamiento que necesitas.'}].map(s=><article key={s.n} className="step-card"><div className="step-top"><s.icon size={25}/><span>{s.n}</span></div><h3>{s.title}</h3><p>{s.text}</p></article>)}</div></div></section>
    <section className="privacy-section wrap"><div className="privacy-art"><img src="/lexmarket-desk.svg" alt="Ilustración de un espacio de trabajo"/><span className="privacy-lock"><LockKeyhole size={22}/></span><span className="tag">Tú tienes el control</span></div><div><span className="overline">UN ESPACIO PARA TU TRANQUILIDAD</span><h2>Tu historia merece<br/>cuidado.</h2><p>Primero compartes un resumen. Tus archivos permanecen privados hasta que autorices a un abogado a revisarlos.</p><ul className="check-list"><li><Check size={17}/> Apruebas el resumen antes de publicarlo.</li><li><Check size={17}/> Decides quién puede abrir tu expediente.</li><li><Check size={17}/> Conoces el alcance antes de elegir.</li></ul></div></section>
