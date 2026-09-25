@@ -7,7 +7,7 @@ export default function ProtectedFeesSection() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <section className="protected-fees-section" aria-label="Honorarios protegidos">
+    <section className="protected-fees-section wrap" aria-label="Honorarios protegidos">
       <div className="protected-fees-grid">
         {/* Left Column: Visual Asset with Floating Coin */}
         <div className="protected-fees-visual-wrapper">
@@ -28,7 +28,10 @@ export default function ProtectedFeesSection() {
         {/* Right Column: Copy and Editorial Steps */}
         <div className="protected-fees-content">
           <span className="fees-eyebrow">HONORARIOS PROTEGIDOS</span>
-          <h2 className="fees-headline">Tu pago avanza<br />con tu caso.</h2>
+          <h2 className="fees-headline">
+            <span className="fees-line">Tu pago avanza</span>
+            <span className="fees-line">con tu caso.</span>
+          </h2>
           <p className="fees-description">
             Acuerda los honorarios con tu abogado antes de empezar. El pago se mantiene protegido y se libera conforme se cumplen las etapas que hayan definido.
           </p>
@@ -66,3 +69,4 @@ export default function ProtectedFeesSection() {
     </section>
   );
 }
+

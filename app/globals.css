@@ -783,17 +783,13 @@ img{max-width:100%}
   padding: 100px 0 80px;
   position: relative;
   background: var(--paper);
-  width: 100%;
-  overflow: hidden;
 }
 
 .protected-fees-grid {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
   align-items: center;
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto 0 0;
 }
 
 .protected-fees-visual-wrapper {
@@ -801,13 +797,13 @@ img{max-width:100%}
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .protected-fees-canvas {
   position: relative;
-  width: 108%;
-  margin-left: -4%;
+  width: 100%;
+  max-width: 540px;
   display: block;
 }
 
@@ -846,9 +842,6 @@ img{max-width:100%}
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 20px;
-  padding-right: max(40px, calc((100vw - 1180px) / 2));
-  max-width: 580px;
 }
 
 .fees-eyebrow {
@@ -865,12 +858,17 @@ img{max-width:100%}
 
 .fees-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(36px, 3.6vw, 52px);
+  font-size: clamp(38px, 4vw, 56px);
   font-weight: 400;
   color: var(--ink);
-  line-height: 1.15;
+  line-height: 1.12;
   margin-bottom: 20px;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.035em;
+}
+
+.fees-headline .fees-line {
+  display: block;
+  white-space: nowrap;
 }
 
 .fees-description {
@@ -878,7 +876,7 @@ img{max-width:100%}
   line-height: 1.75;
   color: var(--muted);
   margin-bottom: 38px;
-  max-width: 480px;
+  max-width: 450px;
 }
 
 .fees-editorial-steps {
@@ -886,6 +884,7 @@ img{max-width:100%}
   flex-direction: column;
   margin-bottom: 38px;
   border-top: 1px solid var(--line);
+  max-width: 480px;
 }
 
 .fees-step-row {
@@ -999,10 +998,7 @@ img{max-width:100%}
     flex-direction: row;
   }
   .protected-fees-grid {
-    grid-template-columns: 1.1fr 1fr;
-  }
-  .protected-fees-content {
-    padding-right: 40px;
+    gap: 40px;
   }
 }
 
@@ -1013,24 +1009,20 @@ img{max-width:100%}
   .protected-fees-grid {
     grid-template-columns: 1fr;
     gap: 36px;
-    margin: 0 auto;
-    padding: 0 24px;
   }
   .protected-fees-visual-wrapper {
     justify-content: center;
   }
   .protected-fees-canvas {
     width: 100%;
-    max-width: 500px;
+    max-width: 480px;
     margin-left: 0;
-  }
-  .protected-fees-content {
-    padding-left: 0;
-    padding-right: 0;
-    max-width: 100%;
   }
   .fees-headline {
     font-size: 34px;
+  }
+  .fees-headline .fees-line {
+    white-space: normal;
   }
   .fees-modal-grid {
     grid-template-columns: 1fr;
@@ -1077,6 +1069,7 @@ img{max-width:100%}
     padding: 14px 0;
   }
 }
+
 
 
 
