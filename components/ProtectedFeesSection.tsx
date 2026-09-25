@@ -54,18 +54,15 @@ export default function ProtectedFeesSection() {
           </div>
 
           <div className="fees-cta-wrapper">
-            <button
-              type="button"
+            <a
+              href="/como-funciona"
               className="fees-cta-link"
-              onClick={() => setModalOpen(true)}
             >
               Conoce cómo funciona <ArrowUpRight size={16} />
-            </button>
+            </a>
           </div>
         </div>
       </div>
-
-      {modalOpen && <ProtectedFeesModal onClose={() => setModalOpen(false)} />}
     </section>
   );
 }
