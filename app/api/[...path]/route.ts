@@ -143,7 +143,30 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
      if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
      if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
      const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
-     result(await client.from('profiles').upsert({id:user.id,...p,avatar_url:safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture),...(!profile||reset?{verification:'pending',verified_at:null,verification_note:null}:{})}));
+     const profileData: Record<string, any> = {
+       id: user.id,
+       name: p.name,
+       role: p.role,
+       city: p.city || '',
+       bio: p.bio || '',
+       license: p.license || '',
+       specialties: p.specialties || [],
+       years_of_experience: p.years_of_experience ?? 0,
+       education: p.education || '',
+       languages: p.languages || ['Español'],
+       virtual_available: p.virtual_available ?? true,
+       in_person_available: p.in_person_available ?? true,
+       featured: p.featured ?? false,
+       avatar_url: safeAvatar(user.user_metadata?.avatar_url || user.user_metadata?.picture) || null
+     };
+
+     if (!profile || reset) {
+       profileData.verification = p.role === 'lawyer' ? 'pending' : 'verified';
+       profileData.verified_at = p.role === 'lawyer' ? null : new Date().toISOString();
+       profileData.verification_note = null;
+     }
+
+     result(await client.from('profiles').upsert(profileData));
      return json({ok:true});
     }
    }

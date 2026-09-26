@@ -6,7 +6,14 @@ export function db() {
  if(!url||!key) throw new HttpError(503,'Estamos preparando la apertura. Vuelve pronto.');
  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 }
-export function result<T>(r:{data:T;error:unknown}):T {if(r.error) throw new HttpError(409,'No se pudo guardar el cambio. Actualiza e inténtalo de nuevo.');return r.data;}
+export function result<T>(r:{data:T;error:unknown}):T {
+  if(r.error) {
+    console.error('Supabase DB Error:', r.error);
+    const msg = (r.error as any)?.message || (r.error as any)?.details;
+    throw new HttpError(409, msg || 'No se pudo guardar el cambio. Actualiza e inténtalo de nuevo.');
+  }
+  return r.data;
+}
 export function isAdmin(user:User) {return !!user.email_confirmed_at && (user.app_metadata?.lexmarket_admin===true || (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||''));}
 export async function auth(req:Request) {
  const token=req.headers.get('authorization')?.match(/^Bearer (.+)$/)?.[1];
