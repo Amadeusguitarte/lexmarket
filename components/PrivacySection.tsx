@@ -13,7 +13,26 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
       <div className="privacy-grid">
         {/* Left Column: Editorial Copy & Steps (Inverted layout) */}
         <div className="privacy-content">
-          <span className="fees-eyebrow">PRIVACIDAD BAJO TU CONTROL</span>
+          <span className="privacy-eyebrow">
+            <span className="privacy-lock-badge" aria-hidden="true">
+              <svg
+                className="animated-lock-svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect className="lock-body" x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path className="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <circle className="lock-keyhole" cx="12" cy="16" r="1.2" fill="currentColor" />
+              </svg>
+            </span>
+            PRIVACIDAD BAJO TU CONTROL
+          </span>
 
           <h2 className="privacy-headline">
             <span className="privacy-line">Tu caso puede ser visible.</span>
@@ -55,6 +74,28 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
         {/* Right Column: Multi-layer floating illustration (25% larger, rounded corners) */}
         <div className="privacy-visual-wrapper">
           <div className="privacy-canvas" tabIndex={0} role="img" aria-label="Visualización de expediente protegido y perfil anónimo flotante">
+            {/* Floating Security Seal with Animated Lock */}
+            <div className="privacy-floating-seal floating-seal" aria-hidden="true">
+              <span className="seal-lock-icon">
+                <svg
+                  className="animated-lock-svg"
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect className="lock-body" x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path className="lock-shackle" d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  <circle className="lock-keyhole" cx="12" cy="16" r="1.2" fill="currentColor" />
+                </svg>
+              </span>
+              <span>Expediente protegido</span>
+            </div>
+
             {/* Layer 1: Base Folder and Documents */}
             <img
               src="/Privacidad/Privacidad background.png"
