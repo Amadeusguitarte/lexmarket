@@ -20,7 +20,7 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
             <span className="fees-line">Tu identidad y tu expediente, no.</span>
           </h2>
 
-          <p className="fees-description">
+          <p className="fees-description privacy-description">
             Publica un resumen de tu situación de forma anónima para que los abogados entiendan tu caso. Tu identidad y tus documentos permanecen privados hasta que tú decidas con quién compartirlos.
           </p>
 

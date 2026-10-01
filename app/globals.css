@@ -873,12 +873,13 @@ img{max-width:100%}
   white-space: nowrap;
 }
 
-.fees-description {
-  font-size: 15px;
+.fees-description,
+.privacy-description {
+  font-size: 15.5px;
   line-height: 1.75;
   color: var(--muted);
   margin-bottom: 38px;
-  max-width: 450px;
+  max-width: 480px;
 }
 
 .fees-editorial-steps {
