@@ -1636,11 +1636,13 @@ img{max-width:100%}
 .privacy-canvas {
   position: relative;
   width: 100%;
-  max-width: 580px;
+  max-width: 520px;
   aspect-ratio: 1 / 1;
   display: block;
   user-select: none;
-  filter: drop-shadow(0 25px 50px rgba(60, 45, 55, 0.08));
+  border-radius: 36px;
+  overflow: hidden;
+  box-shadow: 0 20px 48px rgba(60, 45, 55, 0.08);
   cursor: default;
 }
 
@@ -1743,7 +1745,7 @@ img{max-width:100%}
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 520px;
+  max-width: 500px;
 }
 
 .privacy-eyebrow {
@@ -1751,19 +1753,19 @@ img{max-width:100%}
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--purple);
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .privacy-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(34px, 3.8vw, 48px);
+  font-size: clamp(38px, 4vw, 54px);
   font-weight: 400;
   color: var(--ink);
-  line-height: 1.15;
+  line-height: 1.12;
   margin-bottom: 22px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }
 
 .privacy-headline-line {
@@ -1772,39 +1774,39 @@ img{max-width:100%}
 
 .privacy-description {
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--muted);
-  margin-bottom: 34px;
-  max-width: 480px;
+  margin-bottom: 38px;
+  max-width: 460px;
 }
 
 .privacy-features-list {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 26px;
+  max-width: 480px;
 }
 
 .privacy-feature-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .privacy-feature-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--ink);
   margin: 0;
   line-height: 1.35;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .privacy-feature-text {
-  font-size: 13.5px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.65;
   color: var(--muted);
   margin: 0;
-  max-width: 460px;
 }
 
 /* Responsive Media Queries */
@@ -1836,18 +1838,20 @@ img{max-width:100%}
   .privacy-canvas {
     max-width: 420px;
     margin: 0 auto;
+    border-radius: 28px;
   }
   .privacy-headline {
-    font-size: 32px;
+    font-size: 34px;
   }
 }
 
 @media (max-width: 480px) {
   .privacy-canvas {
     max-width: 320px;
+    border-radius: 22px;
   }
   .privacy-headline {
-    font-size: 28px;
+    font-size: 29px;
   }
   .privacy-description {
     font-size: 14px;
