@@ -82,61 +82,71 @@ export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Background Connecting Timeline Track with Animated Light Beam */}
-          <div className="how-timeline-rail" aria-hidden="true">
-            <div
-              className="how-timeline-beam"
-              style={{
-                left: `${(activeStep / (STEPS.length - 1)) * 100}%`
-              }}
-            />
-          </div>
+          {/* Dedicated Cards Track with Central Timeline Rail */}
+          <div className="how-cards-track">
+            {/* Central Background Connecting Timeline Rail with Animated Light Beam */}
+            <div className="how-timeline-rail" aria-hidden="true">
+              <div
+                className="how-timeline-beam"
+                style={{
+                  left: `${(activeStep / (STEPS.length - 1)) * 100}%`
+                }}
+              />
+              {/* Central Connector Chevron Nodes in Card Gaps */}
+              <div
+                className={`timeline-connector-node node-1 ${activeStep >= 1 ? 'active' : ''}`}
+                style={{ left: '25%' }}
+              >
+                <ArrowRight size={13} />
+              </div>
+              <div
+                className={`timeline-connector-node node-2 ${activeStep >= 2 ? 'active' : ''}`}
+                style={{ left: '75%' }}
+              >
+                <ArrowRight size={13} />
+              </div>
+            </div>
 
-          {/* Steps Grid */}
-          <div className="steps-grid how-steps-grid">
-            {STEPS.map((step) => {
-              const Icon = step.icon;
-              const isActive = activeStep === step.index;
+            {/* Steps Grid */}
+            <div className="steps-grid how-steps-grid">
+              {STEPS.map((step) => {
+                const Icon = step.icon;
+                const isActive = activeStep === step.index;
 
-              return (
-                <article
-                  key={step.n}
-                  className={`step-card ${isActive ? 'active-step' : ''}`}
-                  onClick={() => setActiveStep(step.index)}
-                  tabIndex={0}
-                  role="button"
-                  aria-pressed={isActive}
-                  aria-label={`Paso ${step.n}: ${step.title}`}
-                >
-                  {/* Top Node Beacon on Timeline */}
-                  <div className="step-beacon" aria-hidden="true">
-                    <span className="beacon-ring" />
-                    <span className="beacon-dot" />
-                  </div>
-
-                  {/* Step Top Row */}
-                  <div className="step-top">
-                    <div className="step-icon-box">
-                      <Icon size={24} className="step-icon" />
+                return (
+                  <article
+                    key={step.n}
+                    className={`step-card ${isActive ? 'active-step' : ''}`}
+                    onClick={() => setActiveStep(step.index)}
+                    tabIndex={0}
+                    role="button"
+                    aria-pressed={isActive}
+                    aria-label={`Paso ${step.n}: ${step.title}`}
+                  >
+                    {/* Step Top Row */}
+                    <div className="step-top">
+                      <div className="step-icon-box">
+                        <Icon size={24} className="step-icon" />
+                      </div>
+                      <span className="step-number">{step.n}</span>
                     </div>
-                    <span className="step-number">{step.n}</span>
-                  </div>
 
-                  {/* Tag Pill */}
-                  <div className="step-tag-pill">
-                    <span className="tag-dot" />
-                    <span>{step.tag}</span>
-                  </div>
+                    {/* Tag Pill */}
+                    <div className="step-tag-pill">
+                      <span className="tag-dot" />
+                      <span>{step.tag}</span>
+                    </div>
 
-                  {/* Step Content */}
-                  <h3>{step.title}</h3>
-                  <p>{step.text}</p>
+                    {/* Step Content */}
+                    <h3>{step.title}</h3>
+                    <p>{step.text}</p>
 
-                  {/* Bottom Rim Light Progress for Active Step */}
-                  <div className="step-rim-progress" aria-hidden="true" />
-                </article>
-              );
-            })}
+                    {/* Bottom Rim Light Progress for Active Step */}
+                    <div className="step-rim-progress" aria-hidden="true" />
+                  </article>
+                );
+              })}
+            </div>
           </div>
 
           {/* Interactive Indicator Pills Below */}
