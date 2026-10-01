@@ -161,7 +161,7 @@ export default function Landing({
 
 
     <section id="como-funciona" className="how-section"><div className="wrap"><div className="section-heading"><div><span className="overline">MENOS VUELTAS. MÁS CLARIDAD.</span><h2>De aquí, hacia adelante.</h2></div><p>Sin tener que contar la misma historia<br/>una y otra vez.</p></div><div className="steps-grid">{[{n:'01',icon:FolderOpen,title:'Abre tu espacio',text:'Comparte lo que tienes y cuéntanos qué te gustaría resolver. Puedes ir sumando documentos después.'},{n:'02',icon:Scale,title:'Conoce tus opciones',text:'Los abogados interesados te presentan una propuesta. Revisa su perfil, el alcance y los honorarios.'},{n:'03',icon:HeartHandshake,title:'Elige con quién avanzar',text:'Conversa, resuelve tus dudas y acuerda el acompañamiento que necesitas.'}].map(s=><article key={s.n} className="step-card"><div className="step-top"><s.icon size={25}/><span>{s.n}</span></div><h3>{s.title}</h3><p>{s.text}</p></article>)}</div></div></section>
-   <PrivacySection />
+   <PrivacySection onStart={onStart} />
    <section className="lawyer-banner wrap"><div><span className="overline">PARA ABOGADOS</span><h2>Tu próximo caso puede estar aquí.</h2><p>Explora asuntos de tu especialidad y propón cómo puedes acompañarlos.</p></div><button className="button light" onClick={onLawyer}>Crear perfil profesional <ArrowRight size={17}/></button></section>
    <section id="preguntas" className="faq wrap"><div><span className="overline">ANTES DE EMPEZAR</span><h2>Quizás te preguntes…</h2></div><div>{[
     ['¿Qué puedo compartir?','Una tutela, reclamación, demanda, contrato o cualquier asunto que quieras revisar con un abogado. Puedes adjuntar documentos y agregar notas o conversaciones que te hayan ayudado a prepararlo.'],

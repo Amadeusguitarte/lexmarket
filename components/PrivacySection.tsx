@@ -1,12 +1,58 @@
 'use client';
 
 import React from 'react';
+import { ArrowRight } from 'lucide-react';
 
-export default function PrivacySection() {
+interface PrivacySectionProps {
+  onStart?: () => void;
+}
+
+export default function PrivacySection({ onStart }: PrivacySectionProps) {
   return (
     <section className="privacy-section wrap" aria-label="Privacidad bajo tu control">
       <div className="privacy-grid">
-        {/* Left Column: Multi-layer floating illustration using original PNGs */}
+        {/* Left Column: Editorial Copy & Steps (Inverted layout) */}
+        <div className="privacy-content">
+          <span className="fees-eyebrow">PRIVACIDAD BAJO TU CONTROL</span>
+
+          <h2 className="fees-headline">
+            <span className="fees-line">Tu caso puede ser visible.</span>
+            <span className="fees-line">Tu identidad y tu expediente, no.</span>
+          </h2>
+
+          <p className="fees-description">
+            Publica un resumen de tu situación de forma anónima para que los abogados entiendan tu caso. Tu identidad y tus documentos permanecen privados hasta que tú decidas con quién compartirlos.
+          </p>
+
+          <div className="fees-editorial-steps">
+            <div className="fees-step-row">
+              <span className="fees-step-num">01</span>
+              <span className="fees-step-label">Publicas de forma anónima</span>
+            </div>
+
+            <div className="fees-step-row">
+              <span className="fees-step-num">02</span>
+              <span className="fees-step-label">Tu expediente permanece privado</span>
+            </div>
+
+            <div className="fees-step-row">
+              <span className="fees-step-num">03</span>
+              <span className="fees-step-label">Tú decides quién puede ver más</span>
+            </div>
+          </div>
+
+          <div className="fees-cta-wrapper">
+            <button
+              type="button"
+              onClick={onStart}
+              className="fees-cta-link"
+            >
+              Empezar con mi caso <ArrowRight size={16} className="fees-cta-arrow" />
+            </button>
+          </div>
+        </div>
+
+        {/* Right Column: Multi-layer floating illustration (25% larger, rounded corners) */}
         <div className="privacy-visual-wrapper">
           <div className="privacy-canvas" tabIndex={0} role="img" aria-label="Visualización de expediente protegido y perfil anónimo flotante">
             {/* Layer 1: Base Folder and Documents */}
@@ -40,43 +86,6 @@ export default function PrivacySection() {
               className="privacy-layer privacy-layer-boton floating-boton"
               loading="lazy"
             />
-          </div>
-        </div>
-
-        {/* Right Column: Editorial Copy */}
-        <div className="privacy-content">
-          <span className="privacy-eyebrow">PRIVACIDAD BAJO TU CONTROL</span>
-          
-          <h2 className="privacy-headline">
-            <span className="privacy-headline-line">Tu caso puede ser visible.</span>
-            <span className="privacy-headline-line">Tu identidad y tu expediente, no.</span>
-          </h2>
-
-          <p className="privacy-description">
-            Publica un resumen de tu situación de forma anónima para que los abogados entiendan tu caso. Tu identidad y tus documentos permanecen privados hasta que tú decidas con quién compartirlos.
-          </p>
-
-          <div className="privacy-features-list">
-            <div className="privacy-feature-item">
-              <h3 className="privacy-feature-title">Publicas de forma anónima</h3>
-              <p className="privacy-feature-text">
-                Los abogados pueden conocer tu situación sin ver de entrada quién eres.
-              </p>
-            </div>
-
-            <div className="privacy-feature-item">
-              <h3 className="privacy-feature-title">Tu expediente permanece privado</h3>
-              <p className="privacy-feature-text">
-                Pruebas, contratos y demás archivos siguen protegidos dentro de tu caso.
-              </p>
-            </div>
-
-            <div className="privacy-feature-item">
-              <h3 className="privacy-feature-title">Tú decides quién puede ver más</h3>
-              <p className="privacy-feature-text">
-                Solo compartes tu identidad y el expediente completo con los abogados que tú autorices.
-              </p>
-            </div>
           </div>
         </div>
       </div>
