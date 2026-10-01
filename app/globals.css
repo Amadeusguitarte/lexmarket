@@ -1627,8 +1627,8 @@ img{max-width:100%}
 
 .privacy-grid {
   display: grid;
-  grid-template-columns: 1fr 1.25fr;
-  gap: 65px;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 50px;
   align-items: center;
 }
 
@@ -1768,14 +1768,15 @@ img{max-width:100%}
 
 .privacy-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(38px, 4vw, 54px);
+  font-size: clamp(27px, 2.6vw, 38px);
   font-weight: 400;
   color: var(--ink);
-  line-height: 1.12;
-  margin-bottom: 22px;
-  letter-spacing: -0.035em;
+  line-height: 1.18;
+  margin-bottom: 20px;
+  letter-spacing: -0.03em;
 }
 
+.privacy-headline .privacy-line,
 .privacy-headline-line {
   display: block;
 }

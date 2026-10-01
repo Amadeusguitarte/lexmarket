@@ -15,9 +15,9 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
         <div className="privacy-content">
           <span className="fees-eyebrow">PRIVACIDAD BAJO TU CONTROL</span>
 
-          <h2 className="fees-headline">
-            <span className="fees-line">Tu caso puede ser visible.</span>
-            <span className="fees-line">Tu identidad y tu expediente, no.</span>
+          <h2 className="privacy-headline">
+            <span className="privacy-line">Tu caso puede ser visible.</span>
+            <span className="privacy-line">Tu identidad y tu expediente, no.</span>
           </h2>
 
           <p className="fees-description privacy-description">
