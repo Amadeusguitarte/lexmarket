@@ -1606,6 +1606,255 @@ img{max-width:100%}
   }
 }
 
+/* ==========================================================================
+   Privacy Section ("Privacidad bajo tu control")
+   ========================================================================== */
+
+.privacy-section {
+  display: block !important;
+  padding: 105px 0 85px;
+  position: relative;
+  background: var(--paper);
+}
+
+.privacy-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 65px;
+  align-items: center;
+}
+
+/* Visual Canvas & Multi-Layer Floating Effects */
+.privacy-visual-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.privacy-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  aspect-ratio: 1 / 1;
+  display: block;
+  user-select: none;
+  filter: drop-shadow(0 25px 50px rgba(60, 45, 55, 0.08));
+  cursor: default;
+}
+
+.privacy-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.privacy-layer-bg {
+  z-index: 1;
+  animation: privacy-float-bg 8s ease-in-out infinite;
+}
+
+.privacy-layer-perfil {
+  z-index: 2;
+}
+
+.privacy-layer-anonimo {
+  z-index: 3;
+}
+
+.privacy-layer-boton {
+  z-index: 4;
+}
+
+/* Subtle, organic floating animations */
+@keyframes privacy-float-bg {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes privacy-float-perfil {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0.45deg);
+  }
+}
+
+@keyframes privacy-float-anonimo {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-13px) rotate(-0.6deg);
+  }
+}
+
+@keyframes privacy-float-boton {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
+}
+
+.floating-perfil {
+  animation: privacy-float-perfil 6.6s ease-in-out infinite;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-anonimo {
+  animation: privacy-float-anonimo 5.4s ease-in-out infinite 0.4s;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-boton {
+  animation: privacy-float-boton 4.8s ease-in-out infinite 0.8s;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+}
+
+/* Interactive hover responsiveness on desktop */
+@media (hover: hover) {
+  .privacy-canvas:hover .floating-anonimo {
+    transform: translateY(-17px) rotate(-1deg) scale(1.015);
+  }
+  .privacy-canvas:hover .floating-perfil {
+    transform: translateY(-12px) rotate(0.8deg);
+  }
+  .privacy-canvas:hover .floating-boton {
+    transform: translateY(-9px) scale(1.04);
+    filter: drop-shadow(0 10px 22px rgba(107, 45, 62, 0.35));
+  }
+}
+
+/* Editorial Copy Styling */
+.privacy-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 520px;
+}
+
+.privacy-eyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.privacy-headline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 3.8vw, 48px);
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 22px;
+  letter-spacing: -0.03em;
+}
+
+.privacy-headline-line {
+  display: block;
+}
+
+.privacy-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: 34px;
+  max-width: 480px;
+}
+
+.privacy-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.privacy-feature-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-feature-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.privacy-feature-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  max-width: 460px;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+  .privacy-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .privacy-canvas {
+    max-width: 460px;
+  }
+}
+
+@media (max-width: 820px) {
+  .privacy-section {
+    padding: 70px 0 60px;
+  }
+  .privacy-grid {
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+  .privacy-visual-wrapper {
+    order: 1;
+  }
+  .privacy-content {
+    order: 2;
+    max-width: 100%;
+  }
+  .privacy-canvas {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .privacy-headline {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .privacy-canvas {
+    max-width: 320px;
+  }
+  .privacy-headline {
+    font-size: 28px;
+  }
+  .privacy-description {
+    font-size: 14px;
+  }
+}
+
+
 
 
 
