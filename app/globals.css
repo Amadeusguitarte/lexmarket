@@ -1615,6 +1615,372 @@ img{max-width:100%}
 }
 
 /* ==========================================================================
+   Interactive "Cómo Funciona" Timeline & Step Illumination
+   ========================================================================== */
+
+.how-section {
+  background: #f7f2ea;
+  padding: 95px 0 105px;
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid rgba(225, 215, 228, 0.6);
+}
+
+.how-section .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.how-section .section-heading h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 3.8vw, 48px);
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.how-section .section-heading p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 0;
+  max-width: 320px;
+}
+
+/* Timeline Wrapper */
+.how-interactive-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 28px;
+}
+
+/* Background Timeline Connecting Rail */
+.how-timeline-rail {
+  position: absolute;
+  top: 28px;
+  left: calc(16.66% - 10px);
+  right: calc(16.66% - 10px);
+  height: 3px;
+  background: rgba(107, 45, 62, 0.12);
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Traveling Animated Light Beam */
+.how-timeline-beam {
+  position: absolute;
+  top: -3px;
+  width: 160px;
+  height: 9px;
+  margin-left: -80px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(107, 45, 62, 0.4) 20%,
+    rgba(181, 154, 205, 1) 50%,
+    #ffffff 65%,
+    rgba(107, 45, 62, 0.8) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 16px rgba(181, 154, 205, 0.95), 0 0 30px rgba(107, 45, 62, 0.6);
+  transition: left 0.75s cubic-bezier(0.34, 1.3, 0.64, 1);
+  pointer-events: none;
+}
+
+/* Steps Grid */
+.how-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Step Card */
+.how-steps-grid .step-card {
+  position: relative;
+  background: #ffffff;
+  padding: 38px 30px 32px;
+  border-radius: 24px;
+  border: 1px solid rgba(220, 210, 224, 0.85);
+  box-shadow: 0 6px 24px rgba(60, 45, 55, 0.04);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.how-steps-grid .step-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(107, 45, 62, 0.3);
+  box-shadow: 0 18px 42px rgba(60, 45, 55, 0.08);
+}
+
+/* Active Illuminated Step State */
+.how-steps-grid .step-card.active-step {
+  transform: translateY(-9px);
+  background: linear-gradient(180deg, #ffffff 0%, #fdfbfe 100%);
+  border-color: rgba(107, 45, 62, 0.45);
+  box-shadow: 0 24px 56px rgba(107, 45, 62, 0.14),
+              0 0 0 1.5px rgba(107, 45, 62, 0.25),
+              0 0 35px rgba(181, 154, 205, 0.18);
+}
+
+/* Top Beacon Node on the Timeline Rail */
+.step-beacon {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f7f2ea;
+  border: 2px solid #dfd2de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.beacon-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c3b4be;
+  transition: all 0.45s ease;
+}
+
+.how-steps-grid .step-card.active-step .step-beacon {
+  background: #ffffff;
+  border-color: var(--purple);
+  transform: translateX(-50%) scale(1.22);
+  box-shadow: 0 0 0 5px rgba(107, 45, 62, 0.16),
+              0 0 18px rgba(181, 154, 205, 0.7);
+}
+
+.how-steps-grid .step-card.active-step .beacon-dot {
+  background: var(--purple);
+  box-shadow: 0 0 8px var(--purple);
+}
+
+/* Card Header */
+.how-steps-grid .step-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.step-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #f9f5f1;
+  border: 1px solid #ebdcd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.how-steps-grid .step-card.active-step .step-icon-box {
+  background: var(--purple);
+  color: #ffffff;
+  border-color: var(--purple);
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 10px 24px rgba(107, 45, 62, 0.32);
+}
+
+.step-number {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #b7a3c7;
+  font-family: Inter, sans-serif;
+  transition: all 0.35s ease;
+}
+
+.how-steps-grid .step-card.active-step .step-number {
+  color: var(--purple);
+  font-weight: 700;
+  transform: scale(1.08);
+}
+
+/* Tag Pill */
+.step-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #7b6f78;
+  background: #f8f3ec;
+  border: 1px solid #e7ded5;
+  border-radius: 12px;
+  padding: 4px 11px;
+  width: fit-content;
+  margin-bottom: 18px;
+  transition: all 0.35s ease;
+}
+
+.tag-dot {
+  width: 5.5px;
+  height: 5.5px;
+  border-radius: 50%;
+  background: #ab9da8;
+  transition: all 0.35s ease;
+}
+
+.how-steps-grid .step-card.active-step .step-tag-pill {
+  background: #f4eaf2;
+  border-color: rgba(107, 45, 62, 0.25);
+  color: var(--purple);
+}
+
+.how-steps-grid .step-card.active-step .tag-dot {
+  background: var(--purple);
+  box-shadow: 0 0 6px var(--purple);
+}
+
+/* Card Body */
+.how-steps-grid .step-card h3 {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  transition: color 0.3s ease;
+}
+
+.how-steps-grid .step-card.active-step h3 {
+  color: var(--ink);
+}
+
+.how-steps-grid .step-card p {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--muted);
+  margin: 0;
+  flex: 1;
+}
+
+/* Glowing Bottom Rim Progress */
+.step-rim-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.how-steps-grid .step-card.active-step .step-rim-progress {
+  background: linear-gradient(
+    90deg,
+    rgba(181, 154, 205, 0.8) 0%,
+    var(--purple) 50%,
+    #4a1d2a 100%
+  );
+  box-shadow: 0 0 10px rgba(107, 45, 62, 0.4);
+}
+
+/* Indicator Dots Below */
+.how-step-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 42px;
+}
+
+.step-dot-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(225, 215, 228, 0.7);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.step-dot-btn:hover {
+  background: #ffffff;
+  border-color: rgba(107, 45, 62, 0.3);
+}
+
+.step-dot-btn.active {
+  background: #ffffff;
+  border-color: var(--purple);
+  box-shadow: 0 4px 16px rgba(107, 45, 62, 0.12);
+}
+
+.dot-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #8c7e89;
+  transition: color 0.25s ease;
+}
+
+.step-dot-btn.active .dot-label {
+  color: var(--purple);
+}
+
+.dot-bar {
+  display: block;
+  width: 14px;
+  height: 3.5px;
+  border-radius: 2px;
+  background: #e2d6c5;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.step-dot-btn.active .dot-bar {
+  width: 28px;
+  background: var(--purple);
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .how-timeline-rail {
+    display: none;
+  }
+  .step-beacon {
+    display: none;
+  }
+  .how-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .how-section {
+    padding: 65px 0 75px;
+  }
+  .how-section .section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+
+/* ==========================================================================
    Privacy Section ("Privacidad bajo tu control")
    ========================================================================== */
 
