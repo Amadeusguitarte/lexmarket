@@ -92,19 +92,6 @@ export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
                   left: `${(activeStep / (STEPS.length - 1)) * 100}%`
                 }}
               />
-              {/* Central Connector Chevron Nodes in Card Gaps */}
-              <div
-                className={`timeline-connector-node node-1 ${activeStep >= 1 ? 'active' : ''}`}
-                style={{ left: '25%' }}
-              >
-                <ArrowRight size={13} />
-              </div>
-              <div
-                className={`timeline-connector-node node-2 ${activeStep >= 2 ? 'active' : ''}`}
-                style={{ left: '75%' }}
-              >
-                <ArrowRight size={13} />
-              </div>
             </div>
 
             {/* Steps Grid */}
@@ -123,6 +110,12 @@ export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
                     aria-pressed={isActive}
                     aria-label={`Paso ${step.n}: ${step.title}`}
                   >
+                    {/* Top Beacon Circle (Fully visible, completely outside any clipping mask) */}
+                    <div className="step-beacon" aria-hidden="true">
+                      <span className="beacon-ring" />
+                      <span className="beacon-dot" />
+                    </div>
+
                     {/* Step Top Row */}
                     <div className="step-top">
                       <div className="step-icon-box">

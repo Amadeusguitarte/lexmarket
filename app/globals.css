@@ -1656,17 +1656,20 @@ img{max-width:100%}
 .how-interactive-wrapper {
   position: relative;
   width: 100%;
+  overflow: visible;
 }
 
 .how-cards-track {
   position: relative;
   width: 100%;
+  padding-top: 24px;
+  overflow: visible;
 }
 
-/* Background Timeline Connecting Rail (Vertically Centered across the cards) */
+/* Background Timeline Connecting Rail (Vertically Centered across the cards, clean horizontal line) */
 .how-timeline-rail {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 12px);
   transform: translateY(-50%);
   left: calc(16.66% - 10px);
   right: calc(16.66% - 10px);
@@ -1700,34 +1703,6 @@ img{max-width:100%}
   z-index: 1;
 }
 
-/* Central Connector Chevron Nodes in Card Gaps */
-.timeline-connector-node {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #f7f2ea;
-  border: 1.5px solid #dcd1dc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9a8898;
-  z-index: 3;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(60, 45, 55, 0.06);
-}
-
-.timeline-connector-node.active {
-  background: #ffffff;
-  border-color: var(--purple);
-  color: var(--purple);
-  transform: translate(-50%, -50%) scale(1.12);
-  box-shadow: 0 0 0 3px rgba(107, 45, 62, 0.12),
-              0 0 14px rgba(181, 154, 205, 0.5);
-}
-
 /* Steps Grid */
 .how-steps-grid {
   display: grid;
@@ -1735,6 +1710,7 @@ img{max-width:100%}
   gap: 30px;
   position: relative;
   z-index: 2;
+  overflow: visible;
 }
 
 /* Step Card */
@@ -1749,6 +1725,7 @@ img{max-width:100%}
   flex-direction: column;
   cursor: pointer;
   outline: none;
+  overflow: visible;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1769,6 +1746,77 @@ img{max-width:100%}
   box-shadow: 0 24px 56px rgba(107, 45, 62, 0.14),
               0 0 0 1.5px rgba(107, 45, 62, 0.25),
               0 0 35px rgba(181, 154, 205, 0.18);
+}
+
+/* Top Beacon Node (Full 360-degree circle with zero clipping mask) */
+.step-beacon {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #dfd2de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(60, 45, 55, 0.08);
+  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.beacon-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  transition: all 0.45s ease;
+  pointer-events: none;
+}
+
+.beacon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c3b4be;
+  transition: all 0.45s ease;
+}
+
+.how-steps-grid .step-card.active-step .step-beacon {
+  background: #ffffff;
+  border-color: var(--purple);
+  transform: translateX(-50%) scale(1.18);
+  box-shadow: 0 0 0 5px rgba(107, 45, 62, 0.16),
+              0 6px 18px rgba(107, 45, 62, 0.2),
+              0 0 24px rgba(181, 154, 205, 0.7);
+}
+
+.how-steps-grid .step-card.active-step .beacon-ring {
+  border-color: rgba(107, 45, 62, 0.35);
+  animation: beacon-pulse 2.2s infinite ease-out;
+}
+
+.how-steps-grid .step-card.active-step .beacon-dot {
+  background: var(--purple);
+  box-shadow: 0 0 8px var(--purple);
+}
+
+@keyframes beacon-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 
 /* Card Header */

@@ -61,11 +61,6 @@ document.querySelectorAll('.example-pill').forEach(button => {
     if (beam && cards.length > 1) {
       beam.style.left = ((idx / (cards.length - 1)) * 100) + '%';
     }
-
-    const node1 = document.querySelector('.timeline-connector-node.node-1');
-    const node2 = document.querySelector('.timeline-connector-node.node-2');
-    if (node1) node1.classList.toggle('active', idx >= 1);
-    if (node2) node2.classList.toggle('active', idx >= 2);
   }
 
   function startCycle() {
