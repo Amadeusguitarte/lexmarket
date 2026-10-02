@@ -5,6 +5,7 @@ import LawyerProfileView from '@/components/LawyerProfileView';
 import InviteModal from '@/components/InviteModal';
 import CaseIntake from '@/components/CaseIntake';
 import { Brand } from '@/components/Landing';
+import PublicHeaderWrapper from '@/components/PublicHeader';
 import type { LawyerData } from '@/components/LawyerCard';
 import type { Row } from '@/components/Forms';
 import { api, browserDB } from '@/lib/browser';
@@ -63,18 +64,20 @@ export default function AbogadoProfilePage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="landing">
-      <header className="public-header wrap">
-        <a href="/" aria-label="LexMarket inicio"><Brand /></a>
-        <nav aria-label="Principal">
-          <a href="/">Inicio</a>
-          <a href="/abogados">Abogados</a>
-        </nav>
-        {session ? (
-          <a href="/" className="button small">Mi espacio <ArrowRight size={15} /></a>
-        ) : (
-          <a href="/?auth=login" className="button small outline">Entrar <ArrowRight size={15} /></a>
-        )}
-      </header>
+      <PublicHeaderWrapper>
+        <div className="public-header wrap">
+          <a href="/" aria-label="LexMarket inicio"><Brand /></a>
+          <nav aria-label="Principal">
+            <a href="/">Inicio</a>
+            <a href="/abogados">Abogados</a>
+          </nav>
+          {session ? (
+            <a href="/" className="button small">Mi espacio <ArrowRight size={15} /></a>
+          ) : (
+            <a href="/?auth=login" className="button small outline">Entrar <ArrowRight size={15} /></a>
+          )}
+        </div>
+      </PublicHeaderWrapper>
 
       <LawyerProfileView
         id={id}

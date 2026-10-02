@@ -18,6 +18,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { Brand } from '@/components/Landing';
+import PublicHeaderWrapper from '@/components/PublicHeader';
 
 export default function ComoFuncionaPage() {
   const [activeTab, setActiveTab] = useState<'cliente' | 'abogado'>('cliente');
@@ -25,19 +26,21 @@ export default function ComoFuncionaPage() {
   return (
     <div className="how-it-works-page">
       {/* Header */}
-      <header className="public-header wrap">
-        <Link href="/" aria-label="LexMarket inicio">
-          <Brand />
-        </Link>
-        <nav aria-label="Principal">
-          <Link href="/abogados">Explorar Abogados</Link>
-          <Link href="/como-funciona" className="active-nav">Cómo funciona</Link>
-          <a href="#preguntas">Preguntas</a>
-        </nav>
-        <Link href="/?auth=login" className="button small outline">
-          Entrar <ArrowRight size={15} />
-        </Link>
-      </header>
+      <PublicHeaderWrapper>
+        <div className="public-header wrap">
+          <Link href="/" aria-label="LexMarket inicio">
+            <Brand />
+          </Link>
+          <nav aria-label="Principal">
+            <Link href="/abogados">Explorar Abogados</Link>
+            <Link href="/como-funciona" className="active-nav">Cómo funciona</Link>
+            <a href="#preguntas">Preguntas</a>
+          </nav>
+          <Link href="/?auth=login" className="button small outline">
+            Entrar <ArrowRight size={15} />
+          </Link>
+        </div>
+      </PublicHeaderWrapper>
 
       <main>
         {/* Hero Section */}

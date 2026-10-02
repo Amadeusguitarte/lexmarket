@@ -137,6 +137,43 @@ const previewClose = document.getElementById('preview-close');
 if (previewClose) {
   previewClose.onclick = () => document.getElementById('preview-info').close();
 }
+
+// Smart Header Hide on Scroll Down / Reveal on Scroll Up
+(function() {
+  const headerWrapper = document.querySelector('.public-header-wrapper');
+  if (!headerWrapper) return;
+
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        const currentScrollY = window.scrollY;
+        const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+        const diff = currentScrollY - lastScrollY;
+
+        if (currentScrollY <= 25) {
+          headerWrapper.classList.remove('header-hidden');
+          headerWrapper.classList.remove('header-scrolled');
+        } else if (currentScrollY < maxScrollY - 20) {
+          headerWrapper.classList.add('header-scrolled');
+          if (Math.abs(diff) > 8) {
+            if (diff > 0 && currentScrollY > 80) {
+              headerWrapper.classList.add('header-hidden');
+            } else if (diff < 0) {
+              headerWrapper.classList.remove('header-hidden');
+            }
+          }
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+})();
 `;
 const adjustedMarkup=markup.replace(/src="\/(?!\/)([^"]+)"/g, 'src="../public/$1"');
 const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LexMarket · Vista de diseño</title><style>'+css+'</style></head><body>'+adjustedMarkup+'<dialog id="preview-info" class="modal"><h2>Una primera mirada a LexMarket</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>'+script+'</script></body></html>';

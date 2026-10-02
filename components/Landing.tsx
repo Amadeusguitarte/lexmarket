@@ -8,6 +8,8 @@ import PrivacySection from './PrivacySection';
 import type { LawyerData } from './LawyerCard';
 
 
+import PublicHeaderWrapper from './PublicHeader';
+
 export function Brand(){return <span className="brand">lex<span>market</span><span className="brand-dot">.</span></span>;}
 
 export default function Landing({
@@ -38,11 +40,13 @@ export default function Landing({
  }, []);
 
  return <div className="landing">
-  <header className="public-header wrap">
-   <a href="#" aria-label="LexMarket inicio"><Brand/></a>
-   <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><button className="text-button" onClick={onLawyer}>Para abogados</button></nav>
-   <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
-  </header>
+  <PublicHeaderWrapper>
+   <div className="public-header wrap">
+    <a href="#" aria-label="LexMarket inicio"><Brand/></a>
+    <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><button className="text-button" onClick={onLawyer}>Para abogados</button></nav>
+    <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
+   </div>
+  </PublicHeaderWrapper>
   <main>
    <section className="hero wrap">
      {/* Background Line Art Images - placed at hero level to bleed off viewport */}
