@@ -143,39 +143,65 @@ if (previewClose) {
   const headerWrapper = document.querySelector('.public-header-wrapper');
   if (!headerWrapper) return;
 
-  let lastScrollY = window.scrollY;
+  let lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let ticking = false;
+
+  function evaluateHeader(isScrollEvent) {
+    const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+    const diff = currentScrollY - lastScrollY;
+
+    if (currentScrollY <= 25) {
+      headerWrapper.classList.remove('header-hidden');
+      headerWrapper.classList.remove('header-scrolled');
+    } else {
+      headerWrapper.classList.add('header-scrolled');
+
+      if (!isScrollEvent) {
+        if (currentScrollY > 80) {
+          headerWrapper.classList.add('header-hidden');
+        } else {
+          headerWrapper.classList.remove('header-hidden');
+        }
+      } else if (currentScrollY < maxScrollY - 20) {
+        if (Math.abs(diff) > 8) {
+          if (diff > 0 && currentScrollY > 80) {
+            headerWrapper.classList.add('header-hidden');
+          } else if (diff < 0) {
+            headerWrapper.classList.remove('header-hidden');
+          }
+        }
+      }
+    }
+
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
 
   window.addEventListener('scroll', function() {
     if (!ticking) {
       window.requestAnimationFrame(function() {
-        const currentScrollY = window.scrollY;
-        const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
-        const diff = currentScrollY - lastScrollY;
-
-        if (currentScrollY <= 25) {
-          headerWrapper.classList.remove('header-hidden');
-          headerWrapper.classList.remove('header-scrolled');
-        } else if (currentScrollY < maxScrollY - 20) {
-          headerWrapper.classList.add('header-scrolled');
-          if (Math.abs(diff) > 8) {
-            if (diff > 0 && currentScrollY > 80) {
-              headerWrapper.classList.add('header-hidden');
-            } else if (diff < 0) {
-              headerWrapper.classList.remove('header-hidden');
-            }
-          }
-        }
-
-        lastScrollY = currentScrollY;
-        ticking = false;
+        evaluateHeader(true);
       });
       ticking = true;
     }
   }, { passive: true });
+
+  // Immediate evaluation and event triggers for reload / scroll restoration / anchor hash
+  evaluateHeader(false);
+  window.addEventListener('DOMContentLoaded', function() { evaluateHeader(false); });
+  window.addEventListener('load', function() { evaluateHeader(false); });
+  window.addEventListener('pageshow', function() { evaluateHeader(false); });
+  window.addEventListener('hashchange', function() {
+    setTimeout(function() { evaluateHeader(false); }, 50);
+  });
+  setTimeout(function() { evaluateHeader(false); }, 60);
+  setTimeout(function() { evaluateHeader(false); }, 200);
 })();
 `;
-const adjustedMarkup=markup.replace(/src="\/(?!\/)([^"]+)"/g, 'src="../public/$1"');
+const adjustedMarkup=markup
+  .replace(/src="\/(?!\/)([^"]+)"/g, 'src="../public/$1"')
+  .replace(/(<header class="public-header-wrapper[^"]*">)/, '$1<script>(function(){try{var h=document.querySelector(".public-header-wrapper");var y=window.scrollY||document.documentElement.scrollTop||0;if(h&&y>80){h.classList.add("header-hidden","header-scrolled");}else if(h&&y>25){h.classList.add("header-scrolled");}}catch(e){}})();</script>');
 const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LexMarket · Vista de diseño</title><style>'+css+'</style></head><body>'+adjustedMarkup+'<dialog id="preview-info" class="modal"><h2>Una primera mirada a LexMarket</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>'+script+'</script></body></html>';
 await writeFile(new URL('../docs/preview.html',import.meta.url),html);
 console.log('docs/preview.html generated from the real landing component');

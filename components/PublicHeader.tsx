@@ -18,44 +18,67 @@ export function PublicHeaderWrapper({
     let lastScrollY = window.scrollY;
     let ticking = false;
 
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const maxScrollY =
-            document.documentElement.scrollHeight - window.innerHeight;
-          const diff = currentScrollY - lastScrollY;
+    const evaluateHeader = (isScrollEvent: boolean) => {
+      const currentScrollY = window.scrollY;
+      const maxScrollY =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const diff = currentScrollY - lastScrollY;
 
-          // If at or near the very top of the page:
-          // Keep header visible, transparent, and in natural resting size
-          if (currentScrollY <= 25) {
+      if (currentScrollY <= 25) {
+        // At the very top: natural transparent resting state over the spacer
+        setHidden(false);
+        setScrolled(false);
+      } else {
+        // Anywhere scrolled: always frosted glass, never transparent over content
+        setScrolled(true);
+
+        if (!isScrollEvent) {
+          // On page load / reload with scroll restoration or anchor hash
+          if (currentScrollY > 80) {
+            setHidden(true);
+          } else {
             setHidden(false);
-            setScrolled(false);
-          } else if (currentScrollY < maxScrollY - 20) {
-            // Once scrolled past top threshold, enable the floating glass treatment
-            setScrolled(true);
-
-            // Minimum scroll delta threshold (8px) to prevent twitching/jitter on small finger movements
-            if (Math.abs(diff) > 8) {
-              if (diff > 0 && currentScrollY > 80) {
-                // Scrolling down -> hide smoothly
-                setHidden(true);
-              } else if (diff < 0) {
-                // Scrolling up -> reveal smoothly
-                setHidden(false);
-              }
+          }
+        } else if (currentScrollY < maxScrollY - 20) {
+          if (Math.abs(diff) > 8) {
+            if (diff > 0 && currentScrollY > 80) {
+              // Scrolling down -> hide smoothly
+              setHidden(true);
+            } else if (diff < 0) {
+              // Scrolling up -> reveal frosted
+              setHidden(false);
             }
           }
+        }
+      }
 
-          lastScrollY = currentScrollY;
-          ticking = false;
-        });
+      lastScrollY = currentScrollY;
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => evaluateHeader(true));
         ticking = true;
       }
     };
 
+    // Evaluate immediately on mount
+    evaluateHeader(false);
+
+    // Browser scroll restoration can occur asynchronously right after mount:
+    const t1 = setTimeout(() => evaluateHeader(false), 60);
+    const t2 = setTimeout(() => evaluateHeader(false), 200);
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('pageshow', () => evaluateHeader(false));
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('pageshow', () => evaluateHeader(false));
+    };
   }, []);
 
   return (
