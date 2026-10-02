@@ -133,9 +133,6 @@ export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
                     {/* Step Content */}
                     <h3>{step.title}</h3>
                     <p>{step.text}</p>
-
-                    {/* Bottom Rim Light Progress for Active Step */}
-                    <div className="step-rim-progress" aria-hidden="true" />
                   </article>
                 );
               })}

@@ -1922,27 +1922,6 @@ img{max-width:100%}
   flex: 1;
 }
 
-/* Glowing Bottom Rim Progress */
-.step-rim-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3.5px;
-  background: transparent;
-  border-radius: 0 0 24px 24px;
-  transition: all 0.3s ease;
-}
-
-.how-steps-grid .step-card.active-step .step-rim-progress {
-  background: linear-gradient(
-    90deg,
-    rgba(181, 154, 205, 0.8) 0%,
-    var(--purple) 50%,
-    #4a1d2a 100%
-  );
-  box-shadow: 0 0 10px rgba(107, 45, 62, 0.4);
-}
 
 /* Indicator Dots Below */
 .how-step-indicators {
