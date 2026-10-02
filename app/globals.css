@@ -2391,13 +2391,13 @@ img{max-width:100%}
 
 /* Scrolled state: Rich Vinotinto (Burgundy / Wine) header */
 .public-header-wrapper.header-scrolled {
-  background: rgba(82, 34, 47, 0.96);
+  background: rgba(83, 21, 44, 0.97);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 10px 30px -10px rgba(35, 12, 18, 0.45),
-    0 2px 8px rgba(35, 12, 18, 0.20);
+    0 10px 30px -10px rgba(45, 8, 22, 0.45),
+    0 2px 8px rgba(45, 8, 22, 0.20);
 }
 
 .public-header {
@@ -2422,7 +2422,7 @@ img{max-width:100%}
 }
 
 .header-scrolled .brand-dot {
-  color: #f3c2cf;
+  color: #f6a5b8;
 }
 
 .public-header nav a,
