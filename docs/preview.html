@@ -2389,14 +2389,15 @@ img{max-width:100%}
   pointer-events: none;
 }
 
+/* Scrolled state: Rich Vinotinto (Burgundy / Wine) header */
 .public-header-wrapper.header-scrolled {
-  background: rgba(251, 248, 243, 0.94);
+  background: rgba(82, 34, 47, 0.96);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(230, 222, 208, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 10px 30px -10px rgba(44, 37, 38, 0.08),
-    0 1px 3px rgba(44, 37, 38, 0.04);
+    0 10px 30px -10px rgba(35, 12, 18, 0.45),
+    0 2px 8px rgba(35, 12, 18, 0.20);
 }
 
 .public-header {
@@ -2409,6 +2410,62 @@ img{max-width:100%}
 
 .header-scrolled .public-header {
   height: 70px;
+}
+
+/* Typography and buttons adapting to Vinotinto background */
+.public-header .brand {
+  transition: color 0.25s ease;
+}
+
+.header-scrolled .brand {
+  color: #ffffff;
+}
+
+.header-scrolled .brand-dot {
+  color: #f3c2cf;
+}
+
+.public-header nav a,
+.public-header nav .text-button {
+  transition: color 0.25s ease;
+}
+
+.header-scrolled nav a,
+.header-scrolled nav .text-button {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.header-scrolled nav a:hover,
+.header-scrolled nav .text-button:hover,
+.header-scrolled nav a.active-nav {
+  color: #ffffff;
+}
+
+.public-header .button.small.outline {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.header-scrolled .button.small.outline {
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.header-scrolled .button.small.outline:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.65);
+  color: #ffffff;
+}
+
+.header-scrolled .button.small:not(.outline) {
+  background: #ffffff;
+  color: var(--purple-dark);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.header-scrolled .button.small:not(.outline):hover:not(:disabled) {
+  background: #fbf8f3;
 }
 
 @media (max-width: 800px) {
