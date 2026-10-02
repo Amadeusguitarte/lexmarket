@@ -74,8 +74,8 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
         {/* Right Column: Multi-layer floating illustration (25% larger, rounded corners) */}
         <div className="privacy-visual-wrapper">
           <div className="privacy-canvas" tabIndex={0} role="img" aria-label="Visualización de expediente protegido y perfil anónimo flotante">
-            {/* Floating Security Seal with Animated Lock */}
-            <div className="privacy-floating-seal floating-seal" aria-hidden="true">
+            {/* Security Seal with Animated Lock */}
+            <div className="privacy-floating-seal" aria-hidden="true">
               <span className="seal-lock-icon">
                 <svg
                   className="animated-lock-svg"

@@ -2222,7 +2222,7 @@ img{max-width:100%}
   }
 }
 
-/* Floating Security Seal on Visual Canvas */
+/* Static Security Seal on Visual Canvas (Fixed, does not float) */
 .privacy-floating-seal {
   position: absolute;
   top: 26px;
@@ -2241,7 +2241,6 @@ img{max-width:100%}
   font-weight: 600;
   color: var(--ink);
   box-shadow: 0 10px 28px rgba(60, 45, 55, 0.1);
-  animation: privacy-float-perfil 6s ease-in-out infinite 0.6s;
   pointer-events: auto;
 }
 
