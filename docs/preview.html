@@ -1681,24 +1681,23 @@ img{max-width:100%}
   pointer-events: none;
 }
 
-/* Traveling Animated Light Beam - Silky smooth glide, strictly in the background */
+/* Traveling Animated Line - Clean, smooth segment in the same vinotinto tone */
 .how-timeline-beam {
   position: absolute;
-  top: -2px;
+  top: 0;
   width: 140px;
-  height: 7px;
+  height: 3px;
   margin-left: -70px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(107, 45, 62, 0.35) 20%,
-    rgba(181, 154, 205, 1) 50%,
-    #ffffff 65%,
-    rgba(107, 45, 62, 0.75) 85%,
+    rgba(107, 45, 62, 0.4) 20%,
+    #6b2d3e 50%,
+    rgba(107, 45, 62, 0.4) 80%,
     transparent 100%
   );
-  box-shadow: 0 0 16px rgba(181, 154, 205, 0.95), 0 0 28px rgba(107, 45, 62, 0.55);
+  box-shadow: 0 0 8px rgba(107, 45, 62, 0.4);
   transition: left 1.15s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
   z-index: 0 !important;
@@ -1748,8 +1747,7 @@ img{max-width:100%}
   background-color: #ffffff !important;
   border-color: rgba(107, 45, 62, 0.45);
   box-shadow: 0 24px 56px rgba(107, 45, 62, 0.14),
-              0 0 0 1.5px rgba(107, 45, 62, 0.25),
-              0 0 35px rgba(181, 154, 205, 0.18);
+              0 0 0 1.5px rgba(107, 45, 62, 0.25);
 }
 
 /* Top Beacon Node (Full 360-degree circle with zero clipping mask) */
@@ -1794,8 +1792,7 @@ img{max-width:100%}
   border-color: var(--purple);
   transform: translateX(-50%) scale(1.18);
   box-shadow: 0 0 0 5px rgba(107, 45, 62, 0.16),
-              0 6px 18px rgba(107, 45, 62, 0.2),
-              0 0 24px rgba(181, 154, 205, 0.7);
+              0 6px 18px rgba(107, 45, 62, 0.2);
 }
 
 .how-steps-grid .step-card.active-step .beacon-ring {
