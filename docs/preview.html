@@ -1664,9 +1664,10 @@ img{max-width:100%}
   width: 100%;
   padding-top: 24px;
   overflow: visible;
+  isolation: isolate;
 }
 
-/* Background Timeline Connecting Rail (Vertically Centered across the cards, clean horizontal line) */
+/* Background Timeline Connecting Rail (Strictly behind every card) */
 .how-timeline-rail {
   position: absolute;
   top: calc(50% + 12px);
@@ -1676,11 +1677,11 @@ img{max-width:100%}
   height: 3px;
   background: rgba(107, 45, 62, 0.14);
   border-radius: 4px;
-  z-index: 1;
+  z-index: 0 !important;
   pointer-events: none;
 }
 
-/* Traveling Animated Light Beam */
+/* Traveling Animated Light Beam - Silky smooth glide, strictly in the background */
 .how-timeline-beam {
   position: absolute;
   top: -2px;
@@ -1698,9 +1699,9 @@ img{max-width:100%}
     transparent 100%
   );
   box-shadow: 0 0 16px rgba(181, 154, 205, 0.95), 0 0 28px rgba(107, 45, 62, 0.55);
-  transition: left 0.75s cubic-bezier(0.34, 1.3, 0.64, 1);
+  transition: left 1.15s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0 !important;
 }
 
 /* Steps Grid */
@@ -1709,14 +1710,16 @@ img{max-width:100%}
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   position: relative;
-  z-index: 2;
+  z-index: 4;
   overflow: visible;
 }
 
-/* Step Card */
+/* Step Card - Fully opaque solid white, always above the rail */
 .how-steps-grid .step-card {
   position: relative;
-  background: #ffffff;
+  z-index: 5;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   padding: 38px 30px 32px;
   border-radius: 24px;
   border: 1px solid rgba(220, 210, 224, 0.85);
@@ -1726,10 +1729,9 @@ img{max-width:100%}
   cursor: pointer;
   outline: none;
   overflow: visible;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .how-steps-grid .step-card:hover {
@@ -1740,8 +1742,10 @@ img{max-width:100%}
 
 /* Active Illuminated Step State */
 .how-steps-grid .step-card.active-step {
+  z-index: 6;
   transform: translateY(-9px);
-  background: linear-gradient(180deg, #ffffff 0%, #fdfbfe 100%);
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   border-color: rgba(107, 45, 62, 0.45);
   box-shadow: 0 24px 56px rgba(107, 45, 62, 0.14),
               0 0 0 1.5px rgba(107, 45, 62, 0.25),
@@ -1764,7 +1768,7 @@ img{max-width:100%}
   justify-content: center;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(60, 45, 55, 0.08);
-  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.75s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 
@@ -1773,7 +1777,7 @@ img{max-width:100%}
   inset: -4px;
   border-radius: 50%;
   border: 1.5px solid transparent;
-  transition: all 0.45s ease;
+  transition: all 0.6s ease;
   pointer-events: none;
 }
 
@@ -1782,7 +1786,7 @@ img{max-width:100%}
   height: 10px;
   border-radius: 50%;
   background: #c3b4be;
-  transition: all 0.45s ease;
+  transition: all 0.6s ease;
 }
 
 .how-steps-grid .step-card.active-step .step-beacon {
@@ -1837,7 +1841,7 @@ img{max-width:100%}
   align-items: center;
   justify-content: center;
   color: var(--purple);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .how-steps-grid .step-card.active-step .step-icon-box {
@@ -1854,7 +1858,7 @@ img{max-width:100%}
   letter-spacing: 0.08em;
   color: #b7a3c7;
   font-family: Inter, sans-serif;
-  transition: all 0.35s ease;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .how-steps-grid .step-card.active-step .step-number {
@@ -2423,7 +2427,12 @@ document.querySelectorAll('.example-pill').forEach(button => {
       if (!isPaused) {
         setStep((currentStep + 1) % cards.length);
       }
-    }, 3200);
+    }, 4000);
+  }
+
+  function stopCycle() {
+    if (interval) clearInterval(interval);
+    interval = null;
   }
 
   cards.forEach((card, idx) => {
@@ -2452,8 +2461,25 @@ document.querySelectorAll('.example-pill').forEach(button => {
     wrapper.addEventListener('mouseleave', () => { isPaused = false; });
   }
 
-  setStep(0);
-  startCycle();
+  // Observer to start at step 01 as soon as scrolled into view
+  const section = document.getElementById('como-funciona');
+  if (section && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setStep(0);
+          startCycle();
+        } else {
+          stopCycle();
+          setStep(0);
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(section);
+  } else {
+    setStep(0);
+    startCycle();
+  }
 })();
 
 document.querySelectorAll('button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {

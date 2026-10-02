@@ -69,7 +69,12 @@ document.querySelectorAll('.example-pill').forEach(button => {
       if (!isPaused) {
         setStep((currentStep + 1) % cards.length);
       }
-    }, 3200);
+    }, 4000);
+  }
+
+  function stopCycle() {
+    if (interval) clearInterval(interval);
+    interval = null;
   }
 
   cards.forEach((card, idx) => {
@@ -98,8 +103,25 @@ document.querySelectorAll('.example-pill').forEach(button => {
     wrapper.addEventListener('mouseleave', () => { isPaused = false; });
   }
 
-  setStep(0);
-  startCycle();
+  // Observer to start at step 01 as soon as scrolled into view
+  const section = document.getElementById('como-funciona');
+  if (section && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setStep(0);
+          startCycle();
+        } else {
+          stopCycle();
+          setStep(0);
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(section);
+  } else {
+    setStep(0);
+    startCycle();
+  }
 })();
 
 document.querySelectorAll('button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {

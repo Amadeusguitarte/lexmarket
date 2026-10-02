@@ -46,23 +46,61 @@ interface HowItWorksSectionProps {
 export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [isInView, setIsInView] = useState<boolean>(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-advance sequence: 0 -> 1 -> 2 -> 0 every 3.2 seconds
+  // Trigger from step 01 as soon as scroll enters this section
   useEffect(() => {
-    if (isPaused) return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveStep(0);
+            setIsInView(true);
+          } else {
+            setIsInView(false);
+            setActiveStep(0);
+            if (timerRef.current) clearInterval(timerRef.current);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Smooth sequence rotation: only advances while in view and not paused
+  useEffect(() => {
+    if (!isInView || isPaused) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
 
     timerRef.current = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % STEPS.length);
-    }, 3200);
+    }, 4000);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused]);
+  }, [isInView, isPaused]);
 
   return (
-    <section id="como-funciona" className="how-section" aria-label="Cómo funciona LexMarket">
+    <section
+      ref={sectionRef}
+      id="como-funciona"
+      className="how-section"
+      aria-label="Cómo funciona LexMarket"
+    >
       <div className="wrap">
         {/* Section Heading */}
         <div className="section-heading">
