@@ -43,7 +43,7 @@ export default function Landing({
   <PublicHeaderWrapper>
    <div className="public-header wrap">
     <a href="#" aria-label="LexMarket inicio"><Brand/></a>
-    <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><button className="text-button" onClick={onLawyer}>Para abogados</button></nav>
+    <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><a href="/para-abogados" className="text-button" style={{textDecoration:'none',display:'inline-flex',alignItems:'center'}}>Para abogados</a></nav>
     <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
    </div>
   </PublicHeaderWrapper>
@@ -167,7 +167,7 @@ export default function Landing({
 
     <HowItWorksSection onStart={onStart} />
    <PrivacySection onStart={onStart} />
-   <section className="lawyer-banner wrap"><div><span className="overline">PARA ABOGADOS</span><h2>Tu próximo caso puede estar aquí.</h2><p>Explora asuntos de tu especialidad y propón cómo puedes acompañarlos.</p></div><button className="button light" onClick={onLawyer}>Crear perfil profesional <ArrowRight size={17}/></button></section>
+   <section className="lawyer-banner wrap"><div><span className="overline">PARA ABOGADOS</span><h2>Tu próximo caso puede estar aquí.</h2><p>Explora asuntos de tu especialidad y propón cómo puedes acompañarlos con honorarios protegidos.</p></div><a href="/para-abogados" className="button light">Conoce cómo unirte <ArrowRight size={17}/></a></section>
    <section id="preguntas" className="faq wrap"><div><span className="overline">ANTES DE EMPEZAR</span><h2>Quizás te preguntes…</h2></div><div>{[
     ['¿Qué puedo compartir?','Una tutela, reclamación, demanda, contrato o cualquier asunto que quieras revisar con un abogado. Puedes adjuntar documentos y agregar notas o conversaciones que te hayan ayudado a prepararlo.'],
     ['¿Necesito tener todo terminado?','Puedes empezar con lo que tengas. Lo importante es explicar qué buscas y compartir el material que ayude a entender tu asunto. El profesional revisará contigo lo que haga falta.'],

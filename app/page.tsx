@@ -14,8 +14,16 @@ import { api, browserDB } from '@/lib/browser';
 import InviteModal from '@/components/InviteModal';
 import type { LawyerData } from '@/components/LawyerCard';
 
+function LinkedinIcon({ size = 18 }: { size?: number }) {
+ return (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
+   <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+  </svg>
+ );
+}
+
 export default function Home() {
- const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
+ const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
  const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
 
  const handleInvite = (lawyer: LawyerData) => {
@@ -35,14 +43,16 @@ export default function Home() {
   setNotice(`¡Invitación enviada exitosamente a ${inviteLawyer?.name}!`);
  };
 
- useEffect(()=>{try{const saved=localStorage.getItem('lexmarket.pendingCase');const savedRole=localStorage.getItem('lexmarket.intendedRole');if(saved)setPendingCase(JSON.parse(saved));if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);}catch{}const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
- useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});},[]);
+ useEffect(()=>{try{const saved=localStorage.getItem('lexmarket.pendingCase');const savedRole=localStorage.getItem('lexmarket.intendedRole');if(saved)setPendingCase(JSON.parse(saved));if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);if(typeof window!=='undefined'){const sp=new URLSearchParams(window.location.search);const qAuth=sp.get('auth');const qRole=sp.get('role');if(qRole==='lawyer'||qRole==='client'){setRole(qRole);try{localStorage.setItem('lexmarket.intendedRole',qRole);}catch{}}if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}}}catch{}const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
+ useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});void linkedinAvailable().then(setLinkedinReady).catch(()=>{});},[]);
  useEffect(()=>{if(session)api('me').then(setMe).catch(e=>setError(e.message));else setMe(null);},[session]);
  async function run(fn:()=>Promise<void>) {setBusy(true);setError('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'No pudimos completar la acción.');}finally{setBusy(false);}}
  function start(r:string){setRole(r);try{localStorage.setItem('lexmarket.intendedRole',r);}catch{}if(r==='client')setComposer(true);else setAuthMode('signup');}
  function keepDraft(data:Row){setPendingCase(data);try{localStorage.setItem('lexmarket.pendingCase',JSON.stringify(data));}catch{}setComposer(false);setAuthMode('signup');setNotice('Tu borrador está preparado. Entra o crea tu cuenta para guardarlo en privado.');}
  async function googleAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.google===true;}
+ async function linkedinAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.linkedin===true||settings.external?.linkedin_oidc===true;}
  async function continueWithGoogle(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}if(!await googleAvailable()){setGoogleReady(false);throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}});if(error)throw error;});}
+ async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:location.origin}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:location.origin}});if(err2)throw error;}});}
  async function saveProfile(data:Row){await api('me','PUT',data);setMe(await api('me'));}
  async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado. Abre el caso para revisar el resumen antes de compartirlo.');});}
  const authSubmit=(form:HTMLFormElement)=>run(async()=>{const data=new FormData(form),db=browserDB();if(!db){setInfo('setup');return;}const email=String(data.get('email')||''),password=String(data.get('password')||'');
@@ -68,8 +78,11 @@ export default function Home() {
   {authMode&&(!session||authMode==='update')&&<Modal title={authMode==='signup'?(role==='lawyer'?'Tu próximo caso empieza aquí':'Vamos a dar el siguiente paso'):authMode==='reset'?'Recupera tu acceso':authMode==='update'?'Elige una nueva contraseña':'Qué bueno verte de nuevo'} onClose={()=>setAuthMode('')}>
    <p className="muted">{pendingCase&&authMode==='signup'?'Tu borrador se conserva en este dispositivo. Crea tu cuenta para guardarlo y llevarlo a abogados.':authMode==='signup'?'Crea tu cuenta y continúa a tu ritmo.':'Tu espacio de LexMarket te espera.'}</p>
    {!browserDB()?<div className="notice-panel">Estamos preparando la apertura. El registro estará disponible al conectar los servicios de la plataforma.</div>:<>
-    {googleReady&&(authMode==='signup'||authMode==='login')&&<button type="button" className="oauth-button" onClick={()=>void continueWithGoogle()} disabled={busy}><Chrome size={18}/> Continuar con Google</button>}
-    {googleReady&&(authMode==='signup'||authMode==='login')&&<div className="auth-divider"><span>o continúa con tu correo</span></div>}
+    {(googleReady||linkedinReady)&&(authMode==='signup'||authMode==='login')&&<div className="oauth-buttons-group">
+     {googleReady&&<button type="button" className="oauth-button google" onClick={()=>void continueWithGoogle()} disabled={busy}><Chrome size={18}/> Continuar con Google</button>}
+     {linkedinReady&&<button type="button" className="oauth-button linkedin" onClick={()=>void continueWithLinkedIn()} disabled={busy}><LinkedinIcon size={18}/> Continuar con LinkedIn</button>}
+    </div>}
+    {(googleReady||linkedinReady)&&(authMode==='signup'||authMode==='login')&&<div className="auth-divider"><span>o continúa con tu correo</span></div>}
     <form className="form-stack" onSubmit={e=>{e.preventDefault();void authSubmit(e.currentTarget);}}>
     {authMode!=='update'&&<Field label="Correo electrónico"><input name="email" type="email" autoComplete="email" required maxLength={254}/></Field>}
     {authMode!=='reset'&&<Field label="Contraseña" hint={authMode!=='login'?'Al menos 10 caracteres.':undefined}><input name="password" type="password" autoComplete={authMode==='login'?'current-password':'new-password'} required minLength={authMode==='login'?1:10} maxLength={128}/></Field>}

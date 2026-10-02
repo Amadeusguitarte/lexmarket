@@ -67,7 +67,9 @@ export default function AbogadosPage() {
           <a href="/" aria-label="LexMarket inicio"><Brand /></a>
           <nav aria-label="Principal">
             <a href="/">Inicio</a>
-            <a href="/abogados">Abogados</a>
+            <a href="/abogados" className="active-nav">Abogados</a>
+            <a href="/como-funciona">Cómo funciona</a>
+            <a href="/para-abogados">Para abogados</a>
           </nav>
           {session ? (
             <a href="/" className="button small">Mi espacio <ArrowRight size={15} /></a>

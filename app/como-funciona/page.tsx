@@ -34,6 +34,7 @@ export default function ComoFuncionaPage() {
           <nav aria-label="Principal">
             <Link href="/abogados">Explorar Abogados</Link>
             <Link href="/como-funciona" className="active-nav">Cómo funciona</Link>
+            <Link href="/para-abogados">Para abogados</Link>
             <a href="#preguntas">Preguntas</a>
           </nav>
           <Link href="/?auth=login" className="button small outline">
