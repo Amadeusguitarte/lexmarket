@@ -2822,7 +2822,7 @@ img{max-width:100%}
     transform: rotate(1deg) translateY(0);
   }
   50% {
-    transform: rotate(1.5deg) translateY(-3.5px);
+    transform: rotate(2deg) translateY(-6px);
   }
 }
 
@@ -2831,7 +2831,7 @@ img{max-width:100%}
     transform: rotate(-7deg) translateY(0);
   }
   50% {
-    transform: rotate(-8deg) translateY(-1.5px);
+    transform: rotate(-9.5deg) translateY(2px);
   }
 }
 
@@ -2967,7 +2967,7 @@ img{max-width:100%}
   flex-direction: column;
   gap: 9px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  animation: widget-card-float 5.5s ease-in-out infinite;
+  animation: widget-card-float 4.2s ease-in-out infinite;
 }
 
 .lawyer-benefit-card:hover .controls-widget-card {
@@ -3009,11 +3009,11 @@ img{max-width:100%}
 }
 
 .ctrl-row:nth-child(1) .ctrl-fill {
-  animation: slider-idle-fill-1 4.5s ease-in-out infinite;
+  animation: slider-idle-fill-1 3.2s ease-in-out infinite;
 }
 
 .ctrl-row:nth-child(2) .ctrl-fill {
-  animation: slider-idle-fill-2 4.8s ease-in-out infinite 0.4s;
+  animation: slider-idle-fill-2 3.5s ease-in-out infinite 0.3s;
 }
 
 .ctrl-thumb {
@@ -3030,11 +3030,11 @@ img{max-width:100%}
 }
 
 .ctrl-row:nth-child(1) .ctrl-thumb {
-  animation: slider-idle-thumb-1 4.5s ease-in-out infinite;
+  animation: slider-idle-thumb-1 3.2s ease-in-out infinite;
 }
 
 .ctrl-row:nth-child(2) .ctrl-thumb {
-  animation: slider-idle-thumb-2 4.8s ease-in-out infinite 0.4s;
+  animation: slider-idle-thumb-2 3.5s ease-in-out infinite 0.3s;
 }
 
 .lawyer-benefit-card:hover .ctrl-row:nth-child(1) .ctrl-fill {
@@ -3108,28 +3108,28 @@ img{max-width:100%}
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
   }
 }
 
 @keyframes slider-idle-fill-1 {
-  0%, 100% { width: 68%; }
-  50% { width: 73%; }
+  0%, 100% { width: 55%; }
+  50% { width: 85%; }
 }
 
 @keyframes slider-idle-thumb-1 {
-  0%, 100% { left: 68%; }
-  50% { left: 73%; }
+  0%, 100% { left: 55%; }
+  50% { left: 85%; }
 }
 
 @keyframes slider-idle-fill-2 {
-  0%, 100% { width: 52%; }
-  50% { width: 58%; }
+  0%, 100% { width: 42%; }
+  50% { width: 75%; }
 }
 
 @keyframes slider-idle-thumb-2 {
-  0%, 100% { left: 52%; }
-  50% { left: 58%; }
+  0%, 100% { left: 42%; }
+  50% { left: 75%; }
 }
 
 /* Stage 4: Tags Floating in 3D */
@@ -3151,15 +3151,15 @@ img{max-width:100%}
 }
 
 .tags-row.row-1 {
-  animation: tags-float-row1 4.6s ease-in-out infinite;
+  animation: tags-float-row1 3.2s ease-in-out infinite;
 }
 
 .tags-row.row-2 {
-  animation: tags-float-row2 5.2s ease-in-out infinite 0.3s;
+  animation: tags-float-row2 3.6s ease-in-out infinite 0.2s;
 }
 
 .tags-row.row-3 {
-  animation: tags-float-row3 5.8s ease-in-out infinite 0.6s;
+  animation: tags-float-row3 4.2s ease-in-out infinite 0.5s;
 }
 
 .tag-chip {
@@ -3237,7 +3237,7 @@ img{max-width:100%}
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-3.5px);
+    transform: translateY(-5px);
   }
 }
 
@@ -3246,7 +3246,7 @@ img{max-width:100%}
     transform: translateY(0);
   }
   50% {
-    transform: translateY(2.5px);
+    transform: translateY(4px);
   }
 }
 
@@ -3255,7 +3255,7 @@ img{max-width:100%}
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-2px);
+    transform: translateY(-3.5px);
   }
 }
 
@@ -3903,6 +3903,22 @@ img{max-width:100%}
   color: var(--purple) !important;
   box-shadow: 0 4px 14px rgba(107, 45, 62, 0.12);
   transform: translateY(-1px);
+}
+
+.lawyer-account-btn,
+a.lawyer-account-btn {
+  background: #ffffff !important;
+  color: #2c2526 !important;
+  border: 1.5px solid #d4c2b2 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(44, 37, 38, 0.06) !important;
+}
+
+.lawyer-account-btn:hover,
+a.lawyer-account-btn:hover {
+  background: #f1e8dc !important;
+  border-color: #6b2d3e !important;
+  color: #6b2d3e !important;
 }
 
 .lawyer-final-cta .final-cta-subnote {

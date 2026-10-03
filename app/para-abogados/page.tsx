@@ -617,7 +617,19 @@ export default function ParaAbogadosPage() {
               <Link href="/?auth=signup&role=lawyer" className="button">
                 Crear perfil profesional <ArrowRight size={17} />
               </Link>
-              <Link href="/?auth=login&role=lawyer" className="button outline">
+              <Link
+                href="/?auth=login&role=lawyer"
+                className="button outline lawyer-account-btn"
+                style={{
+                  color: '#2c2526',
+                  borderColor: '#d4c2b2',
+                  background: '#ffffff',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  boxShadow: '0 2px 8px rgba(44, 37, 38, 0.06)'
+                }}
+              >
                 Ya tengo una cuenta
               </Link>
             </div>
