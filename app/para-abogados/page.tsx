@@ -483,7 +483,7 @@ export default function ParaAbogadosPage() {
 
         {/* Verification and Institutional Trust Section */}
         <section className="lawyer-verification-section wrap">
-          <div className="verification-card">
+          <div className="lawyer-verification-card">
             <div className="verification-content">
               <div className="verification-header-pill">
                 <UserCheck size={14} />
