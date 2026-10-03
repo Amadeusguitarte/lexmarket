@@ -25,7 +25,11 @@ import {
   Users,
   MapPin,
   Wifi,
-  TrendingUp
+  TrendingUp,
+  Landmark,
+  Search,
+  Award,
+  ChevronRight
 } from 'lucide-react';
 import { Brand } from '@/components/Landing';
 import PublicHeaderWrapper from '@/components/PublicHeader';
@@ -481,31 +485,133 @@ export default function ParaAbogadosPage() {
         <section className="lawyer-verification-section wrap">
           <div className="verification-card">
             <div className="verification-content">
-              <div className="lawyer-hero-badge">
-                <UserCheck size={15} />
+              <div className="verification-header-pill">
+                <UserCheck size={14} />
                 <span>ESTÁNDAR ÉTICO Y PROFESIONAL</span>
               </div>
-              <h2>Verificación rigurosa con Tarjeta Profesional</h2>
-              <p>
-                Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en LexMarket son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.
-              </p>
+
+              <div className="verification-hero-block">
+                <div className="tarjeta-illustration-wrap" aria-hidden="true">
+                  <svg width="150" height="135" viewBox="0 0 150 135" fill="none" xmlns="http://www.w3.org/2000/svg" className="tarjeta-svg">
+                    {/* Ambient warm background glow circle */}
+                    <circle cx="68" cy="68" r="62" fill="#FAF3EA" />
+
+                    {/* Back ID card */}
+                    <g transform="rotate(-8 60 62)">
+                      <rect x="18" y="24" width="86" height="58" rx="7" fill="#FBF8F2" stroke="#EADBCA" strokeWidth="1.2" />
+                      <path d="M36 34 C36 31 46 31 46 34 C46 38 41 42 41 44 C41 42 36 38 36 34 Z" stroke="#D1BEA5" strokeWidth="1" fill="#F5ECDE" />
+                      <line x1="52" y1="36" x2="86" y2="36" stroke="#E5D8C7" strokeWidth="1.5" strokeLinecap="round" />
+                      <line x1="52" y1="42" x2="78" y2="42" stroke="#E5D8C7" strokeWidth="1.2" strokeLinecap="round" />
+                    </g>
+
+                    {/* Front ID card */}
+                    <g transform="rotate(-1 68 68)">
+                      <rect x="24" y="30" width="88" height="60" rx="7" fill="#FFFFFF" stroke="#E8DCCA" strokeWidth="1.2" />
+                      <g transform="translate(36, 40) scale(0.7)">
+                        <path d="M12 2 C8 4 3 4 3 8 C3 14 8 18 12 21 C16 18 21 14 21 8 C21 4 16 4 12 2 Z" fill="#F6EFE5" stroke="#C8AD8D" strokeWidth="1.2" />
+                        <line x1="6" y1="9" x2="18" y2="9" stroke="#C8AD8D" strokeWidth="1" />
+                        <line x1="6" y1="13" x2="18" y2="13" stroke="#C8AD8D" strokeWidth="1" />
+                        <circle cx="12" cy="11" r="1.5" fill="#C8AD8D" />
+                      </g>
+                      <line x1="58" y1="46" x2="98" y2="46" stroke="#DFD2C0" strokeWidth="1.6" strokeLinecap="round" />
+                      <line x1="58" y1="53" x2="88" y2="53" stroke="#E8DDCE" strokeWidth="1.3" strokeLinecap="round" />
+                      <line x1="36" y1="68" x2="80" y2="68" stroke="#EFE4D6" strokeWidth="1.3" strokeLinecap="round" />
+                      <line x1="36" y1="74" x2="68" y2="74" stroke="#EFE4D6" strokeWidth="1.3" strokeLinecap="round" />
+                    </g>
+
+                    {/* Official Burgundy Verified Wax Seal */}
+                    <g transform="translate(104, 76)">
+                      <circle cx="0" cy="2" r="19" fill="rgba(80, 20, 30, 0.18)" />
+                      <circle cx="0" cy="0" r="18" fill="#5D1622" />
+                      <circle cx="0" cy="0" r="15" fill="none" stroke="#872B3B" strokeWidth="1.2" strokeDasharray="2 1" />
+                      <path d="M-6 0.5 L-2 4.5 L6 -3.5" fill="none" stroke="#FFFFFF" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+                  </svg>
+                </div>
+
+                <div className="verification-title-copy">
+                  <h2>Verificación rigurosa <br />con Tarjeta Profesional</h2>
+                  <p>
+                    Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en LexMarket son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Horizontal Process Strip */}
+              <div className="verification-process-strip">
+                <div className="strip-official-col">
+                  <div className="strip-official-icon">
+                    <Landmark size={20} strokeWidth={1.8} />
+                  </div>
+                  <div className="strip-official-text">
+                    <strong>Validación oficial</strong>
+                    <span>Consulta activa en el Registro Nacional de Abogados (SIRNA)</span>
+                  </div>
+                </div>
+
+                <div className="strip-vertical-divider" aria-hidden="true" />
+
+                <div className="strip-steps-col">
+                  <div className="strip-step">
+                    <div className="strip-step-icon">
+                      <FileText size={14} />
+                    </div>
+                    <div className="strip-step-info">
+                      <strong>1. Solicitud</strong>
+                      <span>Datos del abogado</span>
+                    </div>
+                  </div>
+
+                  <ChevronRight size={14} className="strip-step-arrow" aria-hidden="true" />
+
+                  <div className="strip-step">
+                    <div className="strip-step-icon">
+                      <Search size={14} />
+                    </div>
+                    <div className="strip-step-info">
+                      <strong>2. Validación</strong>
+                      <span>Consulta en SIRNA</span>
+                    </div>
+                  </div>
+
+                  <ChevronRight size={14} className="strip-step-arrow" aria-hidden="true" />
+
+                  <div className="strip-step">
+                    <div className="strip-step-icon verified-step-icon">
+                      <Check size={14} strokeWidth={2.4} />
+                    </div>
+                    <div className="strip-step-info">
+                      <strong>3. Habilitación</strong>
+                      <span>Perfil verificado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Verification Bullets */}
               <div className="verification-bullets">
                 <div className="v-bullet">
-                  <BadgeCheck size={18} className="v-icon" />
+                  <div className="v-bullet-icon">
+                    <ShieldCheck size={18} strokeWidth={1.9} />
+                  </div>
                   <div>
                     <strong>Vigencia y habilitación activa</strong>
                     <span>Validamos que la tarjeta profesional no cuente con sanciones o suspensiones vigentes.</span>
                   </div>
                 </div>
                 <div className="v-bullet">
-                  <Scale size={18} className="v-icon" />
+                  <div className="v-bullet-icon">
+                    <Scale size={18} strokeWidth={1.9} />
+                  </div>
                   <div>
                     <strong>Cumplimiento de la Ley 1123 de 2007</strong>
                     <span>Promovemos las mejores prácticas del Código Disciplinario del Abogado en cada interacción.</span>
                   </div>
                 </div>
                 <div className="v-bullet">
-                  <ShieldCheck size={18} className="v-icon" />
+                  <div className="v-bullet-icon">
+                    <Award size={18} strokeWidth={1.9} />
+                  </div>
                   <div>
                     <strong>Distintivo de verificación en tu perfil</strong>
                     <span>Los clientes visualizan tu insignia oficial de profesional verificado, generando confianza inmediata.</span>
@@ -514,17 +620,22 @@ export default function ParaAbogadosPage() {
               </div>
             </div>
 
+            {/* Right Column: Profile Preview Card */}
             <div className="verification-visual">
               <div className="profile-preview-card">
                 <div className="preview-top">
                   <div className="preview-avatar">
-                    <span>DR</span>
+                    <img
+                      src="/lawyers/camilo-restrepo.jpg"
+                      alt="Dr. Camilo Restrepo"
+                      className="preview-avatar-img"
+                    />
                   </div>
                   <div className="preview-meta">
-                    <div className="preview-name-row">
-                      <h4>Dr. Camilo Restrepo</h4>
-                      <span className="verified-chip"><BadgeCheck size={13} /> Verificado</span>
-                    </div>
+                    <h4 className="preview-lawyer-name">Dr. Camilo Restrepo</h4>
+                    <span className="verified-chip">
+                      <Check size={12} strokeWidth={2.4} /> Verificado
+                    </span>
                     <span className="preview-spec">Especialista en Derecho Comercial y Litigios</span>
                     <span className="preview-tp">T.P. No. 248.910 del C. S. de la J.</span>
                   </div>
@@ -535,10 +646,12 @@ export default function ParaAbogadosPage() {
                     <strong>100%</strong>
                     <span>Hitos cumplidos</span>
                   </div>
+                  <div className="preview-stat-divider" aria-hidden="true" />
                   <div className="preview-stat-item">
                     <strong>4.9 / 5</strong>
                     <span>Calificación clientes</span>
                   </div>
+                  <div className="preview-stat-divider" aria-hidden="true" />
                   <div className="preview-stat-item">
                     <strong>12 años</strong>
                     <span>Experiencia</span>

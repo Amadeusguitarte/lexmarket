@@ -5,7 +5,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import ParaAbogadosPage from '../app/para-abogados/page';
 
 const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
-const markup = renderToStaticMarkup(React.createElement(ParaAbogadosPage));
+const rawMarkup = renderToStaticMarkup(React.createElement(ParaAbogadosPage));
+const markup = rawMarkup.replace(/src="\/(?!\/)([^"]+)"/g, 'src="../public/$1"');
 
 const html = `<!doctype html>
 <html lang="es">
