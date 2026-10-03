@@ -3820,87 +3820,605 @@ img{max-width:100%}
   }
 }
 
-/* Workflow Section */
-.lawyer-workflow-section {
-  padding: 72px 0 80px;
+/* Workflow Editorial Split Section with Cascading Mockups */
+.lawyer-workflow-editorial {
+  padding: 85px 0 100px;
 }
 
-.lawyer-steps-container {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  max-width: 860px;
+.lawyer-workflow-editorial.wrap {
+  width: min(1120px, calc(100% - 60px));
+  margin-inline: auto;
+}
+
+.workflow-editorial-head {
+  margin-bottom: 50px;
+}
+
+.workflow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fbf0ea;
+  border: 1px solid #f4ded4;
+  border-radius: 999px;
+  padding: 5px 14px;
+  color: #661e27;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 auto 18px;
+  width: fit-content;
+}
+
+.workflow-badge-icon {
+  color: #661e27;
+}
+
+.workflow-editorial-title {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: clamp(34px, 3.4vw, 44px);
+  color: #1a1416;
+  margin: 0 0 14px;
+  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.workflow-editorial-title em {
+  font-style: italic;
+  font-family: Georgia, 'Playfair Display', serif;
+  color: #661e27;
+}
+
+.workflow-editorial-subtitle {
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: #685e61;
+  max-width: 580px;
   margin: 0 auto;
 }
 
-.lawyer-step-item {
-  display: flex;
-  gap: 28px;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 32px 36px;
-  align-items: flex-start;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+/* 2-Column Grid */
+.workflow-editorial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+  position: relative;
 }
 
-.step-number-circle {
-  width: 52px;
-  height: 52px;
+/* Left Column: Timeline */
+.workflow-timeline-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding-left: 6px;
+}
+
+.workflow-timeline-rail {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  bottom: 30px;
+  width: 1.5px;
+  background: #e5d7c8;
+  z-index: 1;
+}
+
+.workflow-step-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  transition: transform 0.25s ease;
+}
+
+.workflow-step-row:hover {
+  transform: translateX(3px);
+}
+
+.workflow-step-bullet-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.workflow-step-circle {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--purple);
+  background: #661e27;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 13.5px;
   font-weight: 700;
   font-family: Georgia, serif;
+  box-shadow: 0 4px 14px rgba(102, 30, 39, 0.22);
   flex-shrink: 0;
-  box-shadow: 0 6px 18px rgba(107, 45, 62, 0.25);
+  z-index: 2;
 }
 
-.step-content {
+.workflow-step-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fcf5ee;
+  border: 1px solid #f2e2d4;
+  color: #661e27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(102, 30, 39, 0.05);
+}
+
+.workflow-step-content {
   flex: 1;
+  min-width: 0;
+  padding-top: 2px;
 }
 
-.step-phase {
-  font-size: 11px;
+.workflow-step-tag {
+  display: block;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--purple);
-  display: block;
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  color: #661e27;
+  margin-bottom: 5px;
 }
 
-.step-content h3 {
-  font-size: 20px;
+.workflow-step-heading {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--ink);
-  margin: 0 0 10px;
+  color: #1a1416;
+  margin: 0 0 7px;
+  line-height: 1.25;
 }
 
-.step-content p {
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--muted);
-  margin: 0 0 16px;
+.workflow-step-text {
+  font-size: 13px;
+  line-height: 1.58;
+  color: #685e61;
+  margin: 0 0 11px;
 }
 
-.step-tags {
+.workflow-step-chips {
   display: flex;
   flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wf-chip {
+  background: #f4ece1;
+  border: 1px solid #e7dcd0;
+  border-radius: 7px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #2d2426;
+  white-space: nowrap;
+}
+
+/* Right Column: Cascading UI Mockup Stage */
+.workflow-cascade-stage {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  perspective: 1000px;
+}
+
+.workflow-ambient-glow {
+  position: absolute;
+  right: -10px;
+  top: 50px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 233, 222, 0.75) 0%, rgba(254, 246, 240, 0.35) 60%, transparent 75%);
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.workflow-arrows-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.wf-card {
+  will-change: transform;
+}
+
+/* Card 1: Explorador de Casos */
+.wf-card-explorer {
+  position: relative;
+  width: 330px;
+  margin-left: 20px;
+  z-index: 2;
+  animation: wf-float-card1 6.5s ease-in-out infinite;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.wf-card-explorer-bg {
+  position: absolute;
+  right: -10px;
+  top: -6px;
+  width: 70px;
+  height: 100%;
+  background: #be8e98;
+  border-radius: 18px;
+  transform: rotate(4deg);
+  z-index: -1;
+}
+
+.wf-card-explorer-inner {
+  background: #ffffff;
+  border: 1px solid #ebdcca;
+  border-radius: 18px;
+  padding: 13px;
+  box-shadow: 0 14px 34px rgba(60, 30, 40, 0.08);
+}
+
+.wf-search-bar {
+  background: #fdfbf9;
+  border: 1px solid #eedecf;
+  border-radius: 10px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #786c70;
+  margin-bottom: 10px;
+}
+
+.wf-search-icon {
+  color: #8c7c82;
+  flex-shrink: 0;
+}
+
+.wf-search-placeholder {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10.5px;
+}
+
+.wf-filter-icon {
+  color: #8c7c82;
+  flex-shrink: 0;
+}
+
+.wf-case-row {
+  background: #fdfaf7;
+  border: 1px solid #f2e6da;
+  border-radius: 11px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.wf-case-row-active {
+  background: #fdf2ee;
+  border-color: #f6ded5;
+}
+
+.wf-case-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #f7ede3;
+  color: #661e27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wf-case-icon-box.active-icon {
+  background: #fce8e4;
+  color: #661e27;
+}
+
+.wf-case-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-bar {
+  height: 5px;
+  border-radius: 3px;
+}
+
+.bar-dark {
+  background: #ddd0c2;
+}
+
+.bar-light {
+  background: #ebe0d4;
+}
+
+.bar-active {
+  background: #cba3aa;
+}
+
+.bar-active-light {
+  background: #ddc2c7;
+}
+
+.w-70 { width: 70%; }
+.w-45 { width: 45%; }
+.w-80 { width: 80%; }
+.w-55 { width: 55%; }
+.w-60 { width: 60%; }
+.w-full { width: 100%; }
+
+.wf-chevron {
+  color: #8c7c82;
+  flex-shrink: 0;
+}
+
+/* Card 2: Propuesta por hitos */
+.wf-card-milestones {
+  position: relative;
+  width: 345px;
+  margin-top: -46px;
+  margin-left: 36px;
+  z-index: 3;
+  background: #ffffff;
+  border: 1px solid #ebdcca;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 20px 48px rgba(60, 30, 40, 0.12);
+  transform: rotate(1.5deg);
+  animation: wf-float-card2 5.8s ease-in-out infinite 0.2s;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.wf-milestones-title {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1416;
+  margin: 0 0 11px;
+  letter-spacing: -0.01em;
+}
+
+.wf-milestones-list {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-.step-tags .tag {
-  background: var(--lavender-soft);
-  border: 1px solid #e7dcce;
-  border-radius: 8px;
-  padding: 4px 11px;
+.wf-milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11.5px;
-  font-weight: 600;
-  color: var(--purple-dark);
+  font-weight: 500;
+  color: #2c2426;
+}
+
+.wf-milestone-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wf-milestone-check.checked {
+  background: #fbece7;
+  color: #661e27;
+}
+
+.wf-milestone-check.pending {
+  border: 1.5px solid #d8cbbe;
+}
+
+.wf-milestone-label {
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.wf-milestone-label.text-muted {
+  color: #786c70;
+}
+
+.wf-milestone-skeleton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.bar-line {
+  background: #eee2d4;
+  height: 4.5px;
+}
+
+.bar-line-light {
+  background: #f3eae0;
+  height: 4.5px;
+}
+
+.wf-pill-dot {
+  width: 14px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ebe0d4;
+}
+
+.wf-pill-dot.dot-light {
+  background: #f3eae0;
+}
+
+/* Card 3: Honorarios transferidos */
+.wf-card-payment {
+  position: relative;
+  width: 330px;
+  margin-top: -30px;
+  margin-left: 65px;
+  z-index: 4;
+  background: #ffffff;
+  border: 1px solid #ebdcca;
+  border-radius: 18px;
+  padding: 13px 15px;
+  box-shadow: 0 22px 50px rgba(60, 30, 40, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: rotate(-1deg);
+  animation: wf-float-card3 5.2s ease-in-out infinite 0.4s;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.wf-payment-check-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #661e27;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(102, 30, 39, 0.28);
+}
+
+.wf-payment-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wf-payment-info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1416;
+  margin-bottom: 2px;
+}
+
+.wf-payment-info p {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #706669;
+  margin: 0;
+}
+
+.wf-payment-bank-col {
+  background: #fbf5ee;
+  border: 1px solid #f2e4d6;
+  border-radius: 11px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.wf-bank-icon-box {
+  color: #702735;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wf-bank-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 22px;
+}
+
+.bar-bank {
+  height: 3px;
+  background: #e8d7c8;
+}
+
+/* Hover elevation interaction */
+@media (hover: hover) {
+  .workflow-cascade-stage:hover .wf-card-explorer {
+    transform: translateY(-8px) rotate(-4deg);
+  }
+  .workflow-cascade-stage:hover .wf-card-milestones {
+    transform: translateY(-12px) rotate(2deg) scale(1.02);
+  }
+  .workflow-cascade-stage:hover .wf-card-payment {
+    transform: translateY(-14px) rotate(-1.5deg) scale(1.03);
+  }
+}
+
+/* Keyframe animations for cards */
+@keyframes wf-float-card1 {
+  0%, 100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-2.6deg);
+  }
+}
+
+@keyframes wf-float-card2 {
+  0%, 100% {
+    transform: translateY(0) rotate(1.5deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(2deg);
+  }
+}
+
+@keyframes wf-float-card3 {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-0.5deg);
+  }
+}
+
+@media (max-width: 960px) {
+  .workflow-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .workflow-cascade-stage {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .wf-card-explorer {
+    margin-left: 0;
+  }
+  .wf-card-milestones {
+    margin-left: 20px;
+  }
+  .wf-card-payment {
+    margin-left: 35px;
+  }
 }
 
 /* Comparison Section */

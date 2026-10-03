@@ -30,7 +30,9 @@ import {
   Landmark,
   Search,
   Award,
-  ChevronRight
+  ChevronRight,
+  SlidersHorizontal,
+  Wallet
 } from 'lucide-react';
 import { Brand } from '@/components/Landing';
 import PublicHeaderWrapper from '@/components/PublicHeader';
@@ -444,63 +446,220 @@ export default function ParaAbogadosPage() {
           </div>
         </section>
 
-        {/* How It Works for Lawyers (Step-by-step) */}
-        <section id="como-funciona-abogado" className="lawyer-workflow-section wrap">
-          <div className="section-head text-center">
-            <span className="overline">EL FLUJO DE TRABAJO</span>
-            <h2>De la postulación a la liquidación en 3 pasos.</h2>
-            <p className="section-subtitle">
+        {/* How It Works for Lawyers - Editorial Split with Interactive Cascade Mockups */}
+        <section id="como-funciona-abogado" className="lawyer-workflow-editorial wrap">
+          {/* Centered Editorial Section Header */}
+          <div className="section-head text-center workflow-editorial-head">
+            <div className="workflow-badge">
+              <FileText size={12} className="workflow-badge-icon" />
+              <span>UN FLUJO CLARO Y SEGURO</span>
+            </div>
+            <h2 className="workflow-editorial-title">
+              De la postulación a la liquidación <br />
+              <em>en 3 pasos.</em>
+            </h2>
+            <p className="workflow-editorial-subtitle">
               Un flujo intuitivo diseñado para integrarse a la rutina de tu práctica profesional individual o de firma.
             </p>
           </div>
 
-          <div className="lawyer-steps-container">
-            <div className="lawyer-step-item">
-              <div className="step-number-circle">01</div>
-              <div className="step-content">
-                <span className="step-phase">FILTRADO Y EVALUACIÓN</span>
-                <h3>Explora casos afines a tu especialidad</h3>
-                <p>
-                  Revisa casos calificados en Bogotá, Medellín, Cali, Barranquilla y todo el territorio nacional. Lee el resumen público aprobado y, si el asunto coincide con tu experiencia, solicita acceso al expediente reservado.
-                </p>
-                <div className="step-tags">
-                  <span className="tag">Civil y Comercial</span>
-                  <span className="tag">Laboral y Seguridad Social</span>
-                  <span className="tag">Familia</span>
-                  <span className="tag">Administrativo</span>
-                  <span className="tag">Penal</span>
+          {/* 2-Column Split: Left Timeline Nodes | Right Floating Cascading UI Mockups */}
+          <div className="workflow-editorial-grid">
+            {/* Left Column: Vertical Timeline connected with continuous rail */}
+            <div className="workflow-timeline-column">
+              <div className="workflow-timeline-rail" aria-hidden="true" />
+
+              {/* Step 01 */}
+              <div className="workflow-step-row">
+                <div className="workflow-step-bullet-group">
+                  <div className="workflow-step-circle">01</div>
+                  <div className="workflow-step-icon-box">
+                    <FolderOpen size={18} strokeWidth={1.8} />
+                  </div>
+                </div>
+                <div className="workflow-step-content">
+                  <span className="workflow-step-tag">FILTRADO Y EVALUACIÓN</span>
+                  <h3 className="workflow-step-heading">Explora casos afines a tu especialidad</h3>
+                  <p className="workflow-step-text">
+                    Revisa casos calificados en Bogotá, Medellín, Cali, Barranquilla y todo el territorio nacional. Lee el resumen público aprobado y, si el asunto coincide con tu experiencia, solicita acceso al expediente reservado.
+                  </p>
+                  <div className="workflow-step-chips">
+                    <span className="wf-chip">Civil y Comercial</span>
+                    <span className="wf-chip">Laboral y Seguridad Social</span>
+                    <span className="wf-chip">Familia</span>
+                    <span className="wf-chip">Administrativo</span>
+                    <span className="wf-chip">Penal</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 02 */}
+              <div className="workflow-step-row">
+                <div className="workflow-step-bullet-group">
+                  <div className="workflow-step-circle">02</div>
+                  <div className="workflow-step-icon-box">
+                    <FileText size={18} strokeWidth={1.8} />
+                  </div>
+                </div>
+                <div className="workflow-step-content">
+                  <span className="workflow-step-tag">PROPUESTA E HITOS</span>
+                  <h3 className="workflow-step-heading">Plantea tu estrategia y define tus etapas</h3>
+                  <p className="workflow-step-text">
+                    Presenta una propuesta clara: explica tu enfoque jurídico, los documentos requeridos y desglosa el trabajo en hitos verificables (ej. concepto previo, radicación de demanda, contestación). El cliente aprueba y deposita los fondos del primer hito en custodia.
+                  </p>
+                  <div className="workflow-step-chips">
+                    <span className="wf-chip">Honorarios por etapas</span>
+                    <span className="wf-chip">Poder especial integrado</span>
+                    <span className="wf-chip">Fondos asegurados</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 03 */}
+              <div className="workflow-step-row">
+                <div className="workflow-step-bullet-group">
+                  <div className="workflow-step-circle">03</div>
+                  <div className="workflow-step-icon-box">
+                    <Wallet size={18} strokeWidth={1.8} />
+                  </div>
+                </div>
+                <div className="workflow-step-content">
+                  <span className="workflow-step-tag">EJECUCIÓN Y COBRO</span>
+                  <h3 className="workflow-step-heading">Sube evidencias de avance y recibe tus honorarios</h3>
+                  <p className="workflow-step-text">
+                    Carga el radicado del juzgado, memorial presentado o entregable acordado en el espacio compartido. El cliente valida el cumplimiento del hito y la plataforma transfiere automáticamente los honorarios custodiados a tu cuenta bancaria.
+                  </p>
+                  <div className="workflow-step-chips">
+                    <span className="wf-chip">Transferencia bancaria directa</span>
+                    <span className="wf-chip">Trazabilidad para tu cliente</span>
+                    <span className="wf-chip">Constancia de entrega</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="lawyer-step-item">
-              <div className="step-number-circle">02</div>
-              <div className="step-content">
-                <span className="step-phase">PROPUESTA E HITOS</span>
-                <h3>Plantea tu estrategia y define tus etapas</h3>
-                <p>
-                  Presenta una propuesta clara: explica tu enfoque jurídico, los documentos requeridos y desglosa el trabajo en hitos verificables (ej. concepto previo, radicación de demanda, contestación). El cliente aprueba y deposita los fondos del primer hito en custodia.
-                </p>
-                <div className="step-tags">
-                  <span className="tag">Honorarios por etapas</span>
-                  <span className="tag">Poder especial integrado</span>
-                  <span className="tag">Fondos asegurados</span>
+            {/* Right Column: Cascading UI Mockup Cards with Organic Floating Motion */}
+            <div className="workflow-cascade-stage" aria-label="Simulación visual del flujo operativo">
+              {/* Soft ambient background glow */}
+              <div className="workflow-ambient-glow" aria-hidden="true" />
+
+              {/* Connecting Flow Arrows SVG */}
+              <svg className="workflow-arrows-svg" viewBox="0 0 460 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <marker id="wfArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <path d="M 0 0 L 6 3 L 0 6 z" fill="#661e27" />
+                  </marker>
+                </defs>
+                {/* Arrow 1: curving into Card 1 */}
+                <path d="M 12 145 C -20 215 15 240 22 235" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
+                {/* Arrow 2: curving into Card 3 */}
+                <path d="M 28 320 C -2 390 12 435 48 440" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
+              </svg>
+
+              {/* Card 1: Explorador de Casos */}
+              <div className="wf-card wf-card-explorer">
+                <div className="wf-card-explorer-bg" aria-hidden="true" />
+                <div className="wf-card-explorer-inner">
+                  {/* Search Bar */}
+                  <div className="wf-search-bar">
+                    <Search size={13} className="wf-search-icon" />
+                    <span className="wf-search-placeholder">Buscar casos por área del derecho...</span>
+                    <SlidersHorizontal size={13} className="wf-filter-icon" />
+                  </div>
+
+                  {/* Case Item 1 */}
+                  <div className="wf-case-row">
+                    <div className="wf-case-icon-box">
+                      <FolderOpen size={14} />
+                    </div>
+                    <div className="wf-case-bars">
+                      <div className="wf-bar bar-dark w-70" />
+                      <div className="wf-bar bar-light w-45" />
+                    </div>
+                    <ChevronRight size={14} className="wf-chevron" />
+                  </div>
+
+                  {/* Case Item 2 (Active Pinkish) */}
+                  <div className="wf-case-row wf-case-row-active">
+                    <div className="wf-case-icon-box active-icon">
+                      <FileText size={14} />
+                    </div>
+                    <div className="wf-case-bars">
+                      <div className="wf-bar bar-active w-80" />
+                      <div className="wf-bar bar-active-light w-55" />
+                    </div>
+                    <ChevronRight size={14} className="wf-chevron" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="lawyer-step-item">
-              <div className="step-number-circle">03</div>
-              <div className="step-content">
-                <span className="step-phase">EJECUCIÓN Y COBRO</span>
-                <h3>Sube evidencias de avance y recibe tus honorarios</h3>
-                <p>
-                  Carga el radicado del juzgado, memorial presentado o entregable acordado en el espacio compartido. El cliente valida el cumplimiento del hito y la plataforma transfiere automáticamente los honorarios custodiados a tu cuenta bancaria.
-                </p>
-                <div className="step-tags">
-                  <span className="tag">Transferencia bancaria directa</span>
-                  <span className="tag">Trazabilidad para tu cliente</span>
-                  <span className="tag">Constancia de entrega</span>
+              {/* Card 2: Propuesta por hitos */}
+              <div className="wf-card wf-card-milestones">
+                <h4 className="wf-milestones-title">Propuesta por hitos</h4>
+                <div className="wf-milestones-list">
+                  {/* Milestone 1 - Checked */}
+                  <div className="wf-milestone-item">
+                    <div className="wf-milestone-check checked">
+                      <Check size={9} strokeWidth={2.8} />
+                    </div>
+                    <span className="wf-milestone-label">Concepto previo</span>
+                    <div className="wf-milestone-skeleton">
+                      <div className="wf-bar bar-line w-60" />
+                      <div className="wf-pill-dot" />
+                    </div>
+                  </div>
+
+                  {/* Milestone 2 - Checked */}
+                  <div className="wf-milestone-item">
+                    <div className="wf-milestone-check checked">
+                      <Check size={9} strokeWidth={2.8} />
+                    </div>
+                    <span className="wf-milestone-label">Radicación de demanda</span>
+                    <div className="wf-milestone-skeleton">
+                      <div className="wf-bar bar-line w-60" />
+                      <div className="wf-pill-dot" />
+                    </div>
+                  </div>
+
+                  {/* Milestone 3 - Pending */}
+                  <div className="wf-milestone-item">
+                    <div className="wf-milestone-check pending" />
+                    <span className="wf-milestone-label text-muted">Contestación</span>
+                    <div className="wf-milestone-skeleton">
+                      <div className="wf-bar bar-line-light w-60" />
+                      <div className="wf-pill-dot dot-light" />
+                    </div>
+                  </div>
+
+                  {/* Milestone 4 - Pending */}
+                  <div className="wf-milestone-item">
+                    <div className="wf-milestone-check pending" />
+                    <span className="wf-milestone-label text-muted">Audiencia</span>
+                    <div className="wf-milestone-skeleton">
+                      <div className="wf-bar bar-line-light w-60" />
+                      <div className="wf-pill-dot dot-light" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Honorarios transferidos */}
+              <div className="wf-card wf-card-payment">
+                <div className="wf-payment-check-circle">
+                  <Check size={18} strokeWidth={2.8} />
+                </div>
+                <div className="wf-payment-info">
+                  <strong>Honorarios transferidos</strong>
+                  <p>El hito fue aprobado y los fondos se han liberado a tu cuenta.</p>
+                </div>
+                <div className="wf-payment-bank-col">
+                  <div className="wf-bank-icon-box">
+                    <Landmark size={15} strokeWidth={1.8} />
+                  </div>
+                  <div className="wf-bank-bars">
+                    <div className="wf-bar bar-bank w-full" />
+                    <div className="wf-bar bar-bank w-full" />
+                  </div>
                 </div>
               </div>
             </div>
