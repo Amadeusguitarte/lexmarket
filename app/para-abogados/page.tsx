@@ -544,16 +544,16 @@ export default function ParaAbogadosPage() {
               <div className="workflow-ambient-glow" aria-hidden="true" />
 
               {/* Connecting Flow Arrows SVG */}
-              <svg className="workflow-arrows-svg" viewBox="0 0 460 520" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <svg className="workflow-arrows-svg" viewBox="0 0 540 620" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
                   <marker id="wfArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                     <path d="M 0 0 L 6 3 L 0 6 z" fill="#661e27" />
                   </marker>
                 </defs>
-                {/* Arrow 1: curving into Card 1 */}
-                <path d="M 12 145 C -20 215 15 240 22 235" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
+                {/* Arrow 1: curving into Card 2 */}
+                <path d="M 45 190 C 2 245 14 290 48 296" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
                 {/* Arrow 2: curving into Card 3 */}
-                <path d="M 28 320 C -2 390 12 435 48 440" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
+                <path d="M 56 415 C 8 475 22 525 66 532" stroke="#702735" strokeWidth="1.3" strokeDasharray="3.5 3" markerEnd="url(#wfArrow)" />
               </svg>
 
               {/* Card 1: Explorador de Casos */}
@@ -562,33 +562,33 @@ export default function ParaAbogadosPage() {
                 <div className="wf-card-explorer-inner">
                   {/* Search Bar */}
                   <div className="wf-search-bar">
-                    <Search size={13} className="wf-search-icon" />
+                    <Search size={15} className="wf-search-icon" />
                     <span className="wf-search-placeholder">Buscar casos por área del derecho...</span>
-                    <SlidersHorizontal size={13} className="wf-filter-icon" />
+                    <SlidersHorizontal size={15} className="wf-filter-icon" />
                   </div>
 
                   {/* Case Item 1 */}
                   <div className="wf-case-row">
                     <div className="wf-case-icon-box">
-                      <FolderOpen size={14} />
+                      <FolderOpen size={16} />
                     </div>
                     <div className="wf-case-bars">
                       <div className="wf-bar bar-dark w-70" />
                       <div className="wf-bar bar-light w-45" />
                     </div>
-                    <ChevronRight size={14} className="wf-chevron" />
+                    <ChevronRight size={16} className="wf-chevron" />
                   </div>
 
                   {/* Case Item 2 (Active Pinkish) */}
                   <div className="wf-case-row wf-case-row-active">
                     <div className="wf-case-icon-box active-icon">
-                      <FileText size={14} />
+                      <FileText size={16} />
                     </div>
                     <div className="wf-case-bars">
                       <div className="wf-bar bar-active w-80" />
                       <div className="wf-bar bar-active-light w-55" />
                     </div>
-                    <ChevronRight size={14} className="wf-chevron" />
+                    <ChevronRight size={16} className="wf-chevron" />
                   </div>
                 </div>
               </div>
@@ -600,7 +600,7 @@ export default function ParaAbogadosPage() {
                   {/* Milestone 1 - Checked */}
                   <div className="wf-milestone-item">
                     <div className="wf-milestone-check checked">
-                      <Check size={9} strokeWidth={2.8} />
+                      <Check size={11} strokeWidth={2.8} />
                     </div>
                     <span className="wf-milestone-label">Concepto previo</span>
                     <div className="wf-milestone-skeleton">
@@ -612,7 +612,7 @@ export default function ParaAbogadosPage() {
                   {/* Milestone 2 - Checked */}
                   <div className="wf-milestone-item">
                     <div className="wf-milestone-check checked">
-                      <Check size={9} strokeWidth={2.8} />
+                      <Check size={11} strokeWidth={2.8} />
                     </div>
                     <span className="wf-milestone-label">Radicación de demanda</span>
                     <div className="wf-milestone-skeleton">
@@ -646,7 +646,7 @@ export default function ParaAbogadosPage() {
               {/* Card 3: Honorarios transferidos */}
               <div className="wf-card wf-card-payment">
                 <div className="wf-payment-check-circle">
-                  <Check size={18} strokeWidth={2.8} />
+                  <Check size={22} strokeWidth={2.8} />
                 </div>
                 <div className="wf-payment-info">
                   <strong>Honorarios transferidos</strong>
@@ -654,7 +654,7 @@ export default function ParaAbogadosPage() {
                 </div>
                 <div className="wf-payment-bank-col">
                   <div className="wf-bank-icon-box">
-                    <Landmark size={15} strokeWidth={1.8} />
+                    <Landmark size={18} strokeWidth={1.8} />
                   </div>
                   <div className="wf-bank-bars">
                     <div className="wf-bar bar-bank w-full" />

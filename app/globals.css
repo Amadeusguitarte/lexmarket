@@ -3882,8 +3882,8 @@ img{max-width:100%}
 /* 2-Column Grid */
 .workflow-editorial-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 36px;
   align-items: center;
   position: relative;
 }
@@ -4011,21 +4011,22 @@ img{max-width:100%}
 .workflow-cascade-stage {
   position: relative;
   width: 100%;
-  min-height: 480px;
+  min-height: 560px;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   perspective: 1000px;
 }
 
 .workflow-ambient-glow {
   position: absolute;
-  right: -10px;
-  top: 50px;
-  width: 380px;
-  height: 380px;
+  right: -20px;
+  top: 40px;
+  width: 480px;
+  height: 480px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(246, 233, 222, 0.75) 0%, rgba(254, 246, 240, 0.35) 60%, transparent 75%);
-  filter: blur(25px);
+  filter: blur(28px);
   pointer-events: none;
   z-index: 1;
 }
@@ -4047,8 +4048,9 @@ img{max-width:100%}
 /* Card 1: Explorador de Casos */
 .wf-card-explorer {
   position: relative;
-  width: 330px;
-  margin-left: 20px;
+  width: 440px;
+  max-width: 100%;
+  margin-right: 24px;
   z-index: 2;
   animation: wf-float-card1 6.5s ease-in-out infinite;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
@@ -4056,12 +4058,12 @@ img{max-width:100%}
 
 .wf-card-explorer-bg {
   position: absolute;
-  right: -10px;
-  top: -6px;
-  width: 70px;
+  right: -16px;
+  top: -8px;
+  width: 90px;
   height: 100%;
   background: #be8e98;
-  border-radius: 18px;
+  border-radius: 20px;
   transform: rotate(4deg);
   z-index: -1;
 }
@@ -4069,22 +4071,22 @@ img{max-width:100%}
 .wf-card-explorer-inner {
   background: #ffffff;
   border: 1px solid #ebdcca;
-  border-radius: 18px;
-  padding: 13px;
-  box-shadow: 0 14px 34px rgba(60, 30, 40, 0.08);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 16px 40px rgba(60, 30, 40, 0.08);
 }
 
 .wf-search-bar {
   background: #fdfbf9;
   border: 1px solid #eedecf;
-  border-radius: 10px;
-  padding: 7px 10px;
+  border-radius: 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 12px;
   color: #786c70;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .wf-search-icon {
@@ -4097,7 +4099,7 @@ img{max-width:100%}
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10.5px;
+  font-size: 12px;
 }
 
 .wf-filter-icon {
@@ -4108,12 +4110,12 @@ img{max-width:100%}
 .wf-case-row {
   background: #fdfaf7;
   border: 1px solid #f2e6da;
-  border-radius: 11px;
-  padding: 8px 10px;
+  border-radius: 13px;
+  padding: 11px 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 7px;
+  gap: 12px;
+  margin-bottom: 9px;
 }
 
 .wf-case-row-active {
@@ -4122,9 +4124,9 @@ img{max-width:100%}
 }
 
 .wf-case-icon-box {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: #f7ede3;
   color: #661e27;
   display: flex;
@@ -4142,11 +4144,11 @@ img{max-width:100%}
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .wf-bar {
-  height: 5px;
+  height: 6px;
   border-radius: 3px;
 }
 
@@ -4181,15 +4183,16 @@ img{max-width:100%}
 /* Card 2: Propuesta por hitos */
 .wf-card-milestones {
   position: relative;
-  width: 345px;
-  margin-top: -46px;
-  margin-left: 36px;
+  width: 470px;
+  max-width: 100%;
+  margin-top: -26px;
+  margin-right: 10px;
   z-index: 3;
   background: #ffffff;
   border: 1px solid #ebdcca;
-  border-radius: 18px;
-  padding: 16px 18px;
-  box-shadow: 0 20px 48px rgba(60, 30, 40, 0.12);
+  border-radius: 20px;
+  padding: 20px 24px;
+  box-shadow: 0 24px 54px rgba(60, 30, 40, 0.12);
   transform: rotate(1.5deg);
   animation: wf-float-card2 5.8s ease-in-out infinite 0.2s;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
@@ -4197,31 +4200,31 @@ img{max-width:100%}
 
 .wf-milestones-title {
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a1416;
-  margin: 0 0 11px;
+  margin: 0 0 14px;
   letter-spacing: -0.01em;
 }
 
 .wf-milestones-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 11px;
 }
 
 .wf-milestone-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11.5px;
+  gap: 10px;
+  font-size: 13px;
   font-weight: 500;
   color: #2c2426;
 }
 
 .wf-milestone-check {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -4239,7 +4242,7 @@ img{max-width:100%}
 }
 
 .wf-milestone-label {
-  font-size: 11.5px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -4251,24 +4254,24 @@ img{max-width:100%}
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
 }
 
 .bar-line {
   background: #eee2d4;
-  height: 4.5px;
+  height: 5.5px;
 }
 
 .bar-line-light {
   background: #f3eae0;
-  height: 4.5px;
+  height: 5.5px;
 }
 
 .wf-pill-dot {
-  width: 14px;
-  height: 6px;
-  border-radius: 3px;
+  width: 18px;
+  height: 7px;
+  border-radius: 3.5px;
   background: #ebe0d4;
 }
 
@@ -4279,26 +4282,27 @@ img{max-width:100%}
 /* Card 3: Honorarios transferidos */
 .wf-card-payment {
   position: relative;
-  width: 330px;
-  margin-top: -30px;
-  margin-left: 65px;
+  width: 440px;
+  max-width: 100%;
+  margin-top: 12px;
+  margin-right: -6px;
   z-index: 4;
   background: #ffffff;
   border: 1px solid #ebdcca;
-  border-radius: 18px;
-  padding: 13px 15px;
-  box-shadow: 0 22px 50px rgba(60, 30, 40, 0.14);
+  border-radius: 20px;
+  padding: 16px 20px;
+  box-shadow: 0 24px 56px rgba(60, 30, 40, 0.14);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   transform: rotate(-1deg);
   animation: wf-float-card3 5.2s ease-in-out infinite 0.4s;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 }
 
 .wf-payment-check-circle {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #661e27;
   color: #ffffff;
@@ -4316,15 +4320,15 @@ img{max-width:100%}
 
 .wf-payment-info strong {
   display: block;
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 700;
   color: #1a1416;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .wf-payment-info p {
-  font-size: 10.5px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.45;
   color: #706669;
   margin: 0;
 }
@@ -4332,12 +4336,12 @@ img{max-width:100%}
 .wf-payment-bank-col {
   background: #fbf5ee;
   border: 1px solid #f2e4d6;
-  border-radius: 11px;
-  padding: 7px 9px;
+  border-radius: 13px;
+  padding: 9px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -4351,12 +4355,12 @@ img{max-width:100%}
 .wf-bank-bars {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 22px;
+  gap: 4px;
+  width: 26px;
 }
 
 .bar-bank {
-  height: 3px;
+  height: 3.5px;
   background: #e8d7c8;
 }
 
@@ -4407,17 +4411,21 @@ img{max-width:100%}
     gap: 48px;
   }
   .workflow-cascade-stage {
-    max-width: 400px;
+    max-width: 480px;
     margin: 0 auto;
+    align-items: center;
   }
   .wf-card-explorer {
-    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
   }
   .wf-card-milestones {
-    margin-left: 20px;
+    margin-right: 0;
+    width: 100%;
   }
   .wf-card-payment {
-    margin-left: 35px;
+    margin-right: 0;
+    width: 100%;
   }
 }
 
