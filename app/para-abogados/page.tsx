@@ -22,7 +22,10 @@ import {
   FileText,
   BadgeCheck,
   Zap,
-  Users
+  Users,
+  MapPin,
+  Wifi,
+  TrendingUp
 } from 'lucide-react';
 import { Brand } from '@/components/Landing';
 import PublicHeaderWrapper from '@/components/PublicHeader';
@@ -104,25 +107,163 @@ export default function ParaAbogadosPage() {
           </div>
 
           <div className="lawyer-benefits-grid">
+            {/* Card 01 - Expedientes Listos */}
             <div className="lawyer-benefit-card">
+              <span className="benefit-index">01</span>
+
+              <div className="benefit-visual-stage stage-1">
+                <div className="dossier-graphic-wrapper">
+                  <div className="dossier-back-folder">
+                    <span className="folder-tab-snippet">Ex...</span>
+                  </div>
+                  <div className="dossier-front-file">
+                    <div className="dossier-file-header">Expediente</div>
+                    <ul className="dossier-check-list">
+                      <li><Check size={11} className="ico-chk" /> Hechos</li>
+                      <li><Check size={11} className="ico-chk" /> Pretensiones</li>
+                      <li><Check size={11} className="ico-chk" /> Soportes</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
               <span className="benefit-badge">EXPEDIENTES LISTOS</span>
-              <h3 className="benefit-title">Evalúa casos estructurados antes de decidir</h3>
-              <p className="benefit-desc">Hechos, pretensiones y soportes organizados antes de que decidas participar.</p>
+              <h3 className="benefit-title">Evalúa antes de decidir</h3>
+              <p className="benefit-desc">Hechos, pretensiones y soportes organizados antes de que participes.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-arrow-circle" aria-hidden="true">
+                  <ArrowRight size={13} />
+                </div>
+              </div>
             </div>
+
+            {/* Card 02 - Fondos Respaldados */}
             <div className="lawyer-benefit-card">
+              <span className="benefit-index">02</span>
+
+              <div className="benefit-visual-stage stage-2">
+                <div className="escrow-graphic-wrapper">
+                  <div className="escrow-node">
+                    <div className="escrow-circle active-done">
+                      <Check size={13} strokeWidth={2.6} />
+                    </div>
+                    <span className="escrow-node-label">Depósito<br />del cliente</span>
+                  </div>
+                  <div className="escrow-connector" />
+                  <div className="escrow-node">
+                    <div className="escrow-circle soft-card">
+                      <FileText size={13} />
+                    </div>
+                    <span className="escrow-node-label">Trabajo<br />por etapas</span>
+                  </div>
+                  <div className="escrow-connector" />
+                  <div className="escrow-node">
+                    <div className="escrow-circle soft-card">
+                      <LockKeyhole size={13} />
+                    </div>
+                    <span className="escrow-node-label">Liberación<br />de fondos</span>
+                  </div>
+                </div>
+              </div>
+
               <span className="benefit-badge">FONDOS RESPALDADOS</span>
-              <h3 className="benefit-title">Fondos asegurados antes de cada hito</h3>
+              <h3 className="benefit-title">Empieza con fondos respaldados</h3>
               <p className="benefit-desc">El cliente deposita previamente el valor acordado antes de que comiences cada etapa.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-arrow-circle" aria-hidden="true">
+                  <ArrowRight size={13} />
+                </div>
+              </div>
             </div>
+
+            {/* Card 03 - Libertad Profesional */}
             <div className="lawyer-benefit-card">
+              <span className="benefit-index">03</span>
+
+              <div className="benefit-visual-stage stage-3">
+                <div className="controls-widget-card">
+                  <div className="ctrl-row">
+                    <span className="ctrl-title">Honorarios</span>
+                    <div className="ctrl-track">
+                      <div className="ctrl-fill" style={{ width: '68%' }} />
+                      <div className="ctrl-thumb" style={{ left: '68%' }} />
+                    </div>
+                    <span className="ctrl-icon-tag">$</span>
+                  </div>
+                  <div className="ctrl-row">
+                    <span className="ctrl-title">Condiciones</span>
+                    <div className="ctrl-track">
+                      <div className="ctrl-fill" style={{ width: '52%' }} />
+                      <div className="ctrl-thumb" style={{ left: '52%' }} />
+                    </div>
+                    <span className="ctrl-icon-tag">≡</span>
+                  </div>
+                  <div className="ctrl-row">
+                    <span className="ctrl-title">Casos a aceptar</span>
+                    <div className="ctrl-switch-active">
+                      <div className="ctrl-switch-knob" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <span className="benefit-badge">LIBERTAD PROFESIONAL</span>
-              <h3 className="benefit-title">Tarifas y criterio propio</h3>
-              <p className="benefit-desc">Tú defines honorarios, condiciones y qué casos aceptar.</p>
+              <h3 className="benefit-title">Tú defines tus condiciones</h3>
+              <p className="benefit-desc">Establece tus honorarios, condiciones y qué casos aceptar.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-arrow-circle" aria-hidden="true">
+                  <ArrowRight size={13} />
+                </div>
+              </div>
             </div>
+
+            {/* Card 04 - Oportunidades Relevantes */}
             <div className="lawyer-benefit-card">
+              <span className="benefit-index">04</span>
+
+              <div className="benefit-visual-stage stage-4">
+                <div className="tags-floating-wrapper">
+                  <div className="tags-row row-1">
+                    <div className="tag-chip chip-solid">
+                      <Briefcase size={12} />
+                      <span>Laboral</span>
+                    </div>
+                    <div className="tag-chip chip-glass">
+                      <FileText size={12} />
+                      <span>Civil</span>
+                    </div>
+                  </div>
+                  <div className="tags-row row-2">
+                    <div className="tag-chip chip-glass-wide">
+                      <TrendingUp size={12} />
+                      <span>Comercial</span>
+                    </div>
+                  </div>
+                  <div className="tags-row row-3">
+                    <div className="tag-chip chip-micro">
+                      <MapPin size={11} />
+                      <span>Bogotá</span>
+                    </div>
+                    <div className="tag-chip chip-micro">
+                      <Wifi size={11} />
+                      <span>Remoto</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <span className="benefit-badge">OPORTUNIDADES RELEVANTES</span>
-              <h3 className="benefit-title">Casos alineados con tu práctica</h3>
-              <p className="benefit-desc">Encuentra casos e invitaciones compatibles con tus áreas de práctica jurídica.</p>
+              <h3 className="benefit-title">Encuentra casos relevantes</h3>
+              <p className="benefit-desc">Recibe invitaciones y descubre casos compatibles con tus áreas de práctica jurídica.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-arrow-circle" aria-hidden="true">
+                  <ArrowRight size={13} />
+                </div>
+              </div>
             </div>
           </div>
         </section>

@@ -2647,14 +2647,14 @@ img{max-width:100%}
 }
 
 /* ==========================================================================
-   Microsección: Por qué trabajar con LexMarket (4 pilares conceptuales)
+   Microsección: Por qué trabajar con LexMarket (4 pilares conceptuales táctiles)
    ========================================================================== */
 .lawyer-benefits-section {
-  padding: 64px 0 76px;
+  padding: 64px 0 80px;
 }
 
 .benefits-head {
-  margin-bottom: 30px !important;
+  margin-bottom: 32px !important;
 }
 
 .benefits-head .overline {
@@ -2671,23 +2671,343 @@ img{max-width:100%}
 }
 
 .lawyer-benefit-card {
+  position: relative;
   background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 28px 24px;
+  border: 1px solid #ebdccf;
+  border-radius: 24px;
+  padding: 22px 22px 18px;
   text-align: left;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .lawyer-benefit-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.06);
-  border-color: #d8cdbe;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(107, 45, 62, 0.08);
+  border-color: #dfcebf;
 }
 
+.benefit-index {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a49793;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  font-family: inherit;
+}
+
+.benefit-visual-stage {
+  height: 146px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.95) 0%, rgba(247, 241, 233, 0.85) 100%);
+  border: 1px solid #f1ece4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Stage 1: Dossier Graphic */
+.dossier-graphic-wrapper {
+  position: relative;
+  width: 146px;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dossier-back-folder {
+  position: absolute;
+  left: 6px;
+  top: 14px;
+  width: 130px;
+  height: 86px;
+  border-radius: 10px;
+  background: #ecd9de;
+  border: 1px solid #dcbcc5;
+  transform: rotate(-7deg);
+  box-shadow: 0 6px 16px rgba(60, 20, 30, 0.08);
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 10px;
+}
+
+.folder-tab-snippet {
+  font-size: 9px;
+  font-weight: 700;
+  color: #a36171;
+}
+
+.dossier-front-file {
+  position: relative;
+  z-index: 2;
+  width: 122px;
+  background: #ffffff;
+  border: 1px solid #e7dfd5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(40, 20, 25, 0.12);
+  transform: rotate(1deg);
+  transition: transform 0.25s ease;
+}
+
+.lawyer-benefit-card:hover .dossier-front-file {
+  transform: rotate(0deg) translateY(-2px);
+}
+
+.dossier-file-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 7px;
+}
+
+.dossier-check-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dossier-check-list li {
+  font-size: 9.5px;
+  font-weight: 550;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dossier-check-list .ico-chk {
+  color: #d94a6b;
+  stroke-width: 2.8;
+  flex-shrink: 0;
+}
+
+/* Stage 2: Escrow Flow */
+.escrow-graphic-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.escrow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  flex: 1;
+  z-index: 2;
+}
+
+.escrow-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.escrow-circle.active-done {
+  background: var(--purple);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(107, 45, 62, 0.35);
+}
+
+.escrow-circle.soft-card {
+  background: #ffffff;
+  color: var(--purple);
+  border: 1px solid #e7ded5;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+
+.escrow-node-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.escrow-node:not(:first-child) .escrow-node-label {
+  color: var(--muted);
+}
+
+.escrow-connector {
+  flex: 1;
+  height: 2px;
+  background: #e5dacd;
+  margin-top: -22px;
+  z-index: 1;
+}
+
+/* Stage 3: Control Panel Widget */
+.controls-widget-card {
+  width: 172px;
+  background: #ffffff;
+  border: 1px solid #ebdccf;
+  border-radius: 13px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 22px rgba(50, 30, 35, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ctrl-title {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1;
+  white-space: nowrap;
+}
+
+.ctrl-track {
+  position: relative;
+  width: 66px;
+  height: 5px;
+  background: #f0e7dc;
+  border-radius: 3px;
+}
+
+.ctrl-fill {
+  height: 100%;
+  background: var(--purple);
+  border-radius: 3px;
+}
+
+.ctrl-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ctrl-icon-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  width: 12px;
+  text-align: right;
+}
+
+.ctrl-switch-active {
+  width: 26px;
+  height: 15px;
+  border-radius: 8px;
+  background: var(--purple);
+  position: relative;
+  cursor: default;
+}
+
+.ctrl-switch-knob {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Stage 4: Tags Floating in 3D */
+.tags-floating-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+}
+
+.tags-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.chip-solid {
+  background: var(--purple);
+  color: #ffffff;
+  padding: 5px 11px;
+  box-shadow: 0 4px 14px rgba(107, 45, 62, 0.28);
+}
+
+.chip-glass {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid #e7ded5;
+  padding: 5px 11px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.chip-glass-wide {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid #e7ded5;
+  padding: 5px 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.chip-micro {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  border: 1px solid #ece4dc;
+  border-radius: 12px;
+  padding: 3px 9px;
+  font-size: 9px;
+  font-weight: 550;
+}
+
+.lawyer-benefit-card:hover .chip-solid {
+  transform: translateY(-2px);
+}
+
+.lawyer-benefit-card:hover .chip-glass {
+  transform: translateY(1px);
+}
+
+/* Bottom details of benefit card */
 .benefit-badge {
   display: inline-block;
   font-size: 9.5px;
@@ -2698,27 +3018,54 @@ img{max-width:100%}
   border: 1px solid #ebdccf;
   border-radius: 6px;
   padding: 4px 9px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   width: fit-content;
   text-transform: uppercase;
 }
 
 .benefit-title {
   font-family: Georgia, serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 600;
   color: var(--ink);
-  line-height: 1.3;
-  margin: 0 0 10px;
-  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin: 0 0 8px;
+  letter-spacing: -0.015em;
 }
 
 .benefit-desc {
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12.5px;
+  line-height: 1.55;
   color: var(--muted);
   margin: 0;
   flex: 1;
+}
+
+.benefit-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.benefit-arrow-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e7ded6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lawyer-benefit-card:hover .benefit-arrow-circle {
+  background: var(--purple);
+  color: #ffffff;
+  border-color: var(--purple);
+  transform: translateX(2px);
 }
 
 /* 4 Pillars */
