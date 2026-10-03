@@ -2673,11 +2673,11 @@ img{max-width:100%}
 .lawyer-benefit-card {
   position: relative;
   background: #ffffff;
-  border: 1px solid #ebdccf;
+  border: 1px solid rgba(230, 218, 207, 0.9);
   border-radius: 24px;
-  padding: 22px 22px 18px;
+  padding: 14px 14px 26px;
   text-align: left;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 18px rgba(35, 15, 20, 0.035);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -2685,28 +2685,16 @@ img{max-width:100%}
 }
 
 .lawyer-benefit-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(107, 45, 62, 0.08);
-  border-color: #dfcebf;
-}
-
-.benefit-index {
-  position: absolute;
-  top: 18px;
-  right: 22px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #a49793;
-  letter-spacing: 0.05em;
-  z-index: 2;
-  font-family: inherit;
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(90, 30, 45, 0.07);
+  border-color: #d8c6b7;
 }
 
 .benefit-visual-stage {
-  height: 146px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.95) 0%, rgba(247, 241, 233, 0.85) 100%);
-  border: 1px solid #f1ece4;
+  height: 156px;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, #f6efe6 100%);
+  border: 1px solid #eee5dc;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2715,11 +2703,24 @@ img{max-width:100%}
   overflow: hidden;
 }
 
+.benefit-index {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92847c;
+  letter-spacing: 0.04em;
+  z-index: 3;
+  line-height: 1;
+  font-family: inherit;
+}
+
 /* Stage 1: Dossier Graphic */
 .dossier-graphic-wrapper {
   position: relative;
-  width: 146px;
-  height: 112px;
+  width: 150px;
+  height: 116px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2728,12 +2729,12 @@ img{max-width:100%}
 .dossier-back-folder {
   position: absolute;
   left: 6px;
-  top: 14px;
-  width: 130px;
-  height: 86px;
-  border-radius: 10px;
-  background: #ecd9de;
-  border: 1px solid #dcbcc5;
+  top: 12px;
+  width: 132px;
+  height: 88px;
+  border-radius: 12px;
+  background: #eed9de;
+  border: 1px solid #dcb5bf;
   transform: rotate(-7deg);
   box-shadow: 0 6px 16px rgba(60, 20, 30, 0.08);
   display: flex;
@@ -2750,12 +2751,12 @@ img{max-width:100%}
 .dossier-front-file {
   position: relative;
   z-index: 2;
-  width: 122px;
+  width: 124px;
   background: #ffffff;
-  border: 1px solid #e7dfd5;
-  border-radius: 10px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 24px rgba(40, 20, 25, 0.12);
+  border: 1px solid #e5dbd0;
+  border-radius: 12px;
+  padding: 11px 13px;
+  box-shadow: 0 10px 24px rgba(40, 20, 25, 0.1);
   transform: rotate(1deg);
   transition: transform 0.25s ease;
 }
@@ -2765,7 +2766,7 @@ img{max-width:100%}
 }
 
 .dossier-file-header {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--ink);
   margin-bottom: 7px;
@@ -2783,14 +2784,14 @@ img{max-width:100%}
 .dossier-check-list li {
   font-size: 9.5px;
   font-weight: 550;
-  color: var(--muted);
+  color: #4a3e3c;
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
 .dossier-check-list .ico-chk {
-  color: #d94a6b;
+  color: #853043;
   stroke-width: 2.8;
   flex-shrink: 0;
 }
@@ -2859,7 +2860,7 @@ img{max-width:100%}
 
 /* Stage 3: Control Panel Widget */
 .controls-widget-card {
-  width: 172px;
+  width: 174px;
   background: #ffffff;
   border: 1px solid #ebdccf;
   border-radius: 13px;
@@ -3018,54 +3019,27 @@ img{max-width:100%}
   border: 1px solid #ebdccf;
   border-radius: 6px;
   padding: 4px 9px;
-  margin-bottom: 10px;
+  margin: 0 6px 10px;
   width: fit-content;
   text-transform: uppercase;
 }
 
 .benefit-title {
   font-family: Georgia, serif;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--ink);
   line-height: 1.25;
-  margin: 0 0 8px;
+  margin: 0 6px 8px;
   letter-spacing: -0.015em;
 }
 
 .benefit-desc {
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.55;
   color: var(--muted);
-  margin: 0;
+  margin: 0 6px 0;
   flex: 1;
-}
-
-.benefit-card-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
-}
-
-.benefit-arrow-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid #e7ded6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--purple);
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.lawyer-benefit-card:hover .benefit-arrow-circle {
-  background: var(--purple);
-  color: #ffffff;
-  border-color: var(--purple);
-  transform: translateX(2px);
 }
 
 /* 4 Pillars */
