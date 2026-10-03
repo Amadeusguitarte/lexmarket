@@ -2727,6 +2727,8 @@ img{max-width:100%}
   display: flex;
   align-items: flex-start;
   padding: 6px 10px;
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dossier-folder-float 5s ease-in-out infinite;
 }
 
 .folder-tab-snippet {
@@ -2745,11 +2747,22 @@ img{max-width:100%}
   padding: 11px 13px;
   box-shadow: 0 10px 24px rgba(40, 20, 25, 0.1);
   transform: rotate(1deg);
-  transition: transform 0.25s ease;
+  transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dossier-file-float 5s ease-in-out infinite;
 }
 
 .lawyer-benefit-card:hover .dossier-front-file {
-  transform: rotate(0deg) translateY(-2px);
+  transform: rotate(0deg) translateY(-8px) scale(1.02);
+  box-shadow: 0 18px 36px rgba(60, 20, 30, 0.14);
+  border-color: #dfcebf;
+  animation-play-state: paused;
+}
+
+.lawyer-benefit-card:hover .dossier-back-folder {
+  transform: rotate(-10deg) translate(-3px, 2px);
+  background: #f4dfe4;
+  border-color: #d8aeb7;
+  animation-play-state: paused;
 }
 
 .dossier-file-header {
@@ -2775,12 +2788,51 @@ img{max-width:100%}
   display: flex;
   align-items: center;
   gap: 5px;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lawyer-benefit-card:hover .dossier-check-list li:nth-child(1) {
+  transform: translateX(3px);
+  transition-delay: 0.03s;
+}
+
+.lawyer-benefit-card:hover .dossier-check-list li:nth-child(2) {
+  transform: translateX(3px);
+  transition-delay: 0.08s;
+}
+
+.lawyer-benefit-card:hover .dossier-check-list li:nth-child(3) {
+  transform: translateX(3px);
+  transition-delay: 0.13s;
 }
 
 .dossier-check-list .ico-chk {
   color: #853043;
   stroke-width: 2.8;
   flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lawyer-benefit-card:hover .dossier-check-list .ico-chk {
+  transform: scale(1.22);
+}
+
+@keyframes dossier-file-float {
+  0%, 100% {
+    transform: rotate(1deg) translateY(0);
+  }
+  50% {
+    transform: rotate(1.5deg) translateY(-3.5px);
+  }
+}
+
+@keyframes dossier-folder-float {
+  0%, 100% {
+    transform: rotate(-7deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-8deg) translateY(-1.5px);
+  }
 }
 
 /* Stage 2: Escrow Flow */
@@ -2801,6 +2853,7 @@ img{max-width:100%}
   gap: 8px;
   flex: 1;
   z-index: 2;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .escrow-circle {
@@ -2810,13 +2863,14 @@ img{max-width:100%}
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .escrow-circle.active-done {
   background: var(--purple);
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(107, 45, 62, 0.35);
+  animation: escrow-pulse-done 3.6s ease-in-out infinite;
 }
 
 .escrow-circle.soft-card {
@@ -2826,23 +2880,79 @@ img{max-width:100%}
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
+.lawyer-benefit-card:hover .escrow-node:nth-child(1) .escrow-circle {
+  transform: scale(1.1);
+  box-shadow: 0 6px 18px rgba(107, 45, 62, 0.45);
+}
+
+.lawyer-benefit-card:hover .escrow-node:nth-child(3) .escrow-circle {
+  transform: translateY(-3px) scale(1.1);
+  background: #fdf5f7;
+  border-color: rgba(107, 45, 62, 0.4);
+  box-shadow: 0 6px 16px rgba(107, 45, 62, 0.16);
+}
+
+.lawyer-benefit-card:hover .escrow-node:nth-child(5) .escrow-circle {
+  transform: translateY(-2px) scale(1.08);
+  border-color: #dfcebf;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+}
+
+.lawyer-benefit-card:hover .escrow-node:nth-child(5) svg {
+  transform: rotate(-10deg) scale(1.08);
+  transition: transform 0.26s ease;
+}
+
 .escrow-node-label {
   font-size: 8.5px;
   font-weight: 600;
   line-height: 1.25;
   color: var(--ink);
+  transition: color 0.2s ease;
 }
 
 .escrow-node:not(:first-child) .escrow-node-label {
   color: var(--muted);
 }
 
+.lawyer-benefit-card:hover .escrow-node:nth-child(3) .escrow-node-label {
+  color: var(--ink);
+}
+
 .escrow-connector {
   flex: 1;
   height: 2px;
-  background: #e5dacd;
+  background: linear-gradient(90deg, var(--purple) 0%, #e2d7cc 50%, var(--purple) 100%);
+  background-size: 200% 100%;
   margin-top: -22px;
   z-index: 1;
+  transition: all 0.3s ease;
+  animation: escrow-wire-flow 4s ease-in-out infinite;
+}
+
+.lawyer-benefit-card:hover .escrow-connector {
+  background: linear-gradient(90deg, var(--purple) 0%, var(--purple) 70%, #d4a5b0 100%);
+  height: 2.5px;
+}
+
+@keyframes escrow-wire-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes escrow-pulse-done {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(107, 45, 62, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 4px 18px rgba(107, 45, 62, 0.55);
+    transform: scale(1.04);
+  }
 }
 
 /* Stage 3: Control Panel Widget */
@@ -2856,6 +2966,15 @@ img{max-width:100%}
   display: flex;
   flex-direction: column;
   gap: 9px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: widget-card-float 5.5s ease-in-out infinite;
+}
+
+.lawyer-benefit-card:hover .controls-widget-card {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 30px rgba(50, 30, 35, 0.1);
+  border-color: #dfcebf;
+  animation-play-state: paused;
 }
 
 .ctrl-row {
@@ -2879,12 +2998,22 @@ img{max-width:100%}
   height: 5px;
   background: #f0e7dc;
   border-radius: 3px;
+  overflow: visible;
 }
 
 .ctrl-fill {
   height: 100%;
   background: var(--purple);
   border-radius: 3px;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ctrl-row:nth-child(1) .ctrl-fill {
+  animation: slider-idle-fill-1 4.5s ease-in-out infinite;
+}
+
+.ctrl-row:nth-child(2) .ctrl-fill {
+  animation: slider-idle-fill-2 4.8s ease-in-out infinite 0.4s;
 }
 
 .ctrl-thumb {
@@ -2897,6 +3026,37 @@ img{max-width:100%}
   background: var(--purple);
   border: 2px solid #ffffff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+}
+
+.ctrl-row:nth-child(1) .ctrl-thumb {
+  animation: slider-idle-thumb-1 4.5s ease-in-out infinite;
+}
+
+.ctrl-row:nth-child(2) .ctrl-thumb {
+  animation: slider-idle-thumb-2 4.8s ease-in-out infinite 0.4s;
+}
+
+.lawyer-benefit-card:hover .ctrl-row:nth-child(1) .ctrl-fill {
+  width: 86% !important;
+  animation: none;
+}
+
+.lawyer-benefit-card:hover .ctrl-row:nth-child(1) .ctrl-thumb {
+  left: 86% !important;
+  transform: translate(-50%, -50%) scale(1.15);
+  animation: none;
+}
+
+.lawyer-benefit-card:hover .ctrl-row:nth-child(2) .ctrl-fill {
+  width: 76% !important;
+  animation: none;
+}
+
+.lawyer-benefit-card:hover .ctrl-row:nth-child(2) .ctrl-thumb {
+  left: 76% !important;
+  transform: translate(-50%, -50%) scale(1.15);
+  animation: none;
 }
 
 .ctrl-icon-tag {
@@ -2905,6 +3065,12 @@ img{max-width:100%}
   color: var(--muted);
   width: 12px;
   text-align: right;
+  transition: all 0.25s ease;
+}
+
+.lawyer-benefit-card:hover .ctrl-icon-tag {
+  color: var(--purple);
+  transform: scale(1.2);
 }
 
 .ctrl-switch-active {
@@ -2914,6 +3080,11 @@ img{max-width:100%}
   background: var(--purple);
   position: relative;
   cursor: default;
+  transition: all 0.25s ease;
+}
+
+.lawyer-benefit-card:hover .ctrl-switch-active {
+  box-shadow: 0 0 10px rgba(107, 45, 62, 0.3);
 }
 
 .ctrl-switch-knob {
@@ -2925,6 +3096,40 @@ img{max-width:100%}
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lawyer-benefit-card:hover .ctrl-switch-knob {
+  transform: scale(1.1);
+}
+
+@keyframes widget-card-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes slider-idle-fill-1 {
+  0%, 100% { width: 68%; }
+  50% { width: 73%; }
+}
+
+@keyframes slider-idle-thumb-1 {
+  0%, 100% { left: 68%; }
+  50% { left: 73%; }
+}
+
+@keyframes slider-idle-fill-2 {
+  0%, 100% { width: 52%; }
+  50% { width: 58%; }
+}
+
+@keyframes slider-idle-thumb-2 {
+  0%, 100% { left: 52%; }
+  50% { left: 58%; }
 }
 
 /* Stage 4: Tags Floating in 3D */
@@ -2942,6 +3147,19 @@ img{max-width:100%}
   align-items: center;
   justify-content: center;
   gap: 7px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tags-row.row-1 {
+  animation: tags-float-row1 4.6s ease-in-out infinite;
+}
+
+.tags-row.row-2 {
+  animation: tags-float-row2 5.2s ease-in-out infinite 0.3s;
+}
+
+.tags-row.row-3 {
+  animation: tags-float-row3 5.8s ease-in-out infinite 0.6s;
 }
 
 .tag-chip {
@@ -2951,7 +3169,7 @@ img{max-width:100%}
   border-radius: 9px;
   font-size: 10px;
   font-weight: 600;
-  transition: transform 0.2s ease;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .chip-solid {
@@ -2988,11 +3206,57 @@ img{max-width:100%}
 }
 
 .lawyer-benefit-card:hover .chip-solid {
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 8px 22px rgba(107, 45, 62, 0.38);
 }
 
 .lawyer-benefit-card:hover .chip-glass {
-  transform: translateY(1px);
+  transform: translateY(-2px) translateX(2px);
+  border-color: #d6c5b6;
+}
+
+.lawyer-benefit-card:hover .chip-glass-wide {
+  transform: scale(1.06);
+  border-color: var(--purple);
+  color: var(--purple);
+  box-shadow: 0 6px 18px rgba(107, 45, 62, 0.12);
+}
+
+.lawyer-benefit-card:hover .tags-row.row-3 .chip-micro:first-child {
+  transform: translateX(-3px);
+  border-color: #dfcebf;
+}
+
+.lawyer-benefit-card:hover .tags-row.row-3 .chip-micro:last-child {
+  transform: translateX(3px);
+  border-color: #dfcebf;
+}
+
+@keyframes tags-float-row1 {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3.5px);
+  }
+}
+
+@keyframes tags-float-row2 {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2.5px);
+  }
+}
+
+@keyframes tags-float-row3 {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 /* Bottom details of benefit card */
