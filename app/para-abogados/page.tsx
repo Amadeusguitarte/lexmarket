@@ -110,7 +110,6 @@ export default function ParaAbogadosPage() {
             {/* Card 01 - Expedientes Listos */}
             <div className="lawyer-benefit-card">
               <div className="benefit-visual-stage stage-1">
-                <span className="benefit-index">01</span>
                 <div className="dossier-graphic-wrapper">
                   <div className="dossier-back-folder">
                     <span className="folder-tab-snippet">Ex...</span>
@@ -129,12 +128,15 @@ export default function ParaAbogadosPage() {
               <span className="benefit-badge">EXPEDIENTES LISTOS</span>
               <h3 className="benefit-title">Evalúa antes de decidir</h3>
               <p className="benefit-desc">Hechos, pretensiones y soportes organizados antes de que participes.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-number-circle" aria-hidden="true">01</div>
+              </div>
             </div>
 
             {/* Card 02 - Fondos Respaldados */}
             <div className="lawyer-benefit-card">
               <div className="benefit-visual-stage stage-2">
-                <span className="benefit-index">02</span>
                 <div className="escrow-graphic-wrapper">
                   <div className="escrow-node">
                     <div className="escrow-circle active-done">
@@ -162,12 +164,15 @@ export default function ParaAbogadosPage() {
               <span className="benefit-badge">FONDOS RESPALDADOS</span>
               <h3 className="benefit-title">Empieza con fondos respaldados</h3>
               <p className="benefit-desc">El cliente deposita previamente el valor acordado antes de que comiences cada etapa.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-number-circle" aria-hidden="true">02</div>
+              </div>
             </div>
 
             {/* Card 03 - Libertad Profesional */}
             <div className="lawyer-benefit-card">
               <div className="benefit-visual-stage stage-3">
-                <span className="benefit-index">03</span>
                 <div className="controls-widget-card">
                   <div className="ctrl-row">
                     <span className="ctrl-title">Honorarios</span>
@@ -197,12 +202,15 @@ export default function ParaAbogadosPage() {
               <span className="benefit-badge">LIBERTAD PROFESIONAL</span>
               <h3 className="benefit-title">Tú defines tus condiciones</h3>
               <p className="benefit-desc">Establece tus honorarios, condiciones y qué casos aceptar.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-number-circle" aria-hidden="true">03</div>
+              </div>
             </div>
 
             {/* Card 04 - Oportunidades Relevantes */}
             <div className="lawyer-benefit-card">
               <div className="benefit-visual-stage stage-4">
-                <span className="benefit-index">04</span>
                 <div className="tags-floating-wrapper">
                   <div className="tags-row row-1">
                     <div className="tag-chip chip-solid">
@@ -236,6 +244,10 @@ export default function ParaAbogadosPage() {
               <span className="benefit-badge">OPORTUNIDADES RELEVANTES</span>
               <h3 className="benefit-title">Encuentra casos relevantes</h3>
               <p className="benefit-desc">Recibe invitaciones y descubre casos compatibles con tus áreas de práctica jurídica.</p>
+
+              <div className="benefit-card-footer">
+                <div className="benefit-number-circle" aria-hidden="true">04</div>
+              </div>
             </div>
           </div>
         </section>

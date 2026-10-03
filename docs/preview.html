@@ -2675,7 +2675,7 @@ img{max-width:100%}
   background: #ffffff;
   border: 1px solid rgba(230, 218, 207, 0.9);
   border-radius: 24px;
-  padding: 14px 14px 26px;
+  padding: 14px 14px 18px;
   text-align: left;
   box-shadow: 0 4px 18px rgba(35, 15, 20, 0.035);
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.2s ease;
@@ -2701,19 +2701,6 @@ img{max-width:100%}
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
-}
-
-.benefit-index {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #92847c;
-  letter-spacing: 0.04em;
-  z-index: 3;
-  line-height: 1;
-  font-family: inherit;
 }
 
 /* Stage 1: Dossier Graphic */
@@ -3040,6 +3027,39 @@ img{max-width:100%}
   color: var(--muted);
   margin: 0 6px 0;
   flex: 1;
+}
+
+.benefit-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding: 0 4px;
+}
+
+.benefit-number-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #ebdccf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  color: var(--purple);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.lawyer-benefit-card:hover .benefit-number-circle {
+  background: var(--purple);
+  color: #ffffff;
+  border-color: var(--purple);
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(107, 45, 62, 0.25);
 }
 
 /* 4 Pillars */
