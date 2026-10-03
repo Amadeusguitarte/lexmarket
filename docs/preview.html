@@ -3412,20 +3412,310 @@ img{max-width:100%}
   max-width: 410px;
 }
 
-/* Dossier Visual Stage */
+/* Dossier Visual Stage - Pure Code Multi-Layer Animated Composition */
 .pillars-dossier-visual {
   position: relative;
   width: 100%;
   max-width: 440px;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
-.dossier-editorial-img {
+.pillars-dossier-stage {
+  position: relative;
   width: 100%;
-  height: auto;
-  display: block;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 10px 24px rgba(90, 56, 64, 0.06));
+  height: 350px;
+  perspective: 1000px;
+}
+
+/* Ambient organic glowing background waves */
+.dossier-ambient-wave {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
+  filter: blur(20px);
+  z-index: 1;
+}
+
+.wave-back {
+  left: -20px;
+  top: 60px;
+  width: 420px;
+  height: 240px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(246, 233, 222, 0.8) 0%, rgba(254, 246, 240, 0.45) 55%, transparent 75%);
+}
+
+.wave-front {
+  left: 20px;
+  bottom: 0;
+  width: 380px;
+  height: 180px;
+  background: radial-gradient(ellipse at 50% 60%, rgba(240, 222, 208, 0.55) 0%, rgba(252, 243, 236, 0.25) 60%, transparent 80%);
+}
+
+/* Orbit trajectory line with glowing dot */
+.dossier-orbit-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.orbit-dot-point {
+  transform-origin: 335px 38px;
+  animation: dossier-orbit-pulse 3.6s ease-in-out infinite;
+}
+
+/* Layer Base */
+.dossier-layer {
+  position: absolute;
+  will-change: transform;
+}
+
+/* Layer 1: Back dusty-mauve card */
+.layer-back-mauve {
+  left: 64px;
+  top: 42px;
+  width: 172px;
+  height: 232px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #c2919a 0%, #aa7782 100%);
+  transform: rotate(-7.5deg);
+  box-shadow: 0 12px 28px rgba(100, 45, 55, 0.12);
+  z-index: 2;
+  animation: dossier-float-mauve 6.8s ease-in-out infinite;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Layer 2: Warm tan folder flap behind */
+.layer-mid-flap {
+  left: 172px;
+  top: 72px;
+  width: 216px;
+  height: 232px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #ede0d2 0%, #dfccbb 100%);
+  border: 1px solid #d8c2ad;
+  transform: rotate(5deg);
+  box-shadow: 0 10px 24px rgba(80, 50, 40, 0.08);
+  z-index: 2;
+  animation: dossier-float-mauve 6.8s ease-in-out infinite 0.3s;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Layer 3: Left Folder with 5 tabs */
+.layer-tabs-folder {
+  left: 28px;
+  top: 52px;
+  width: 182px;
+  height: 246px;
+  border-radius: 20px;
+  background: linear-gradient(150deg, #f9f2ea 0%, #ede1d2 100%);
+  border: 1px solid #dfcebe;
+  transform: rotate(-5.5deg);
+  padding: 13px 11px;
+  box-shadow: 0 14px 34px rgba(70, 45, 40, 0.09);
+  z-index: 3;
+  animation: dossier-float-tabs 5.8s ease-in-out infinite 0.15s;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.folder-tabs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.folder-tab-pill {
+  background: #ffffff;
+  border: 1px solid #ebdcca;
+  border-radius: 8px;
+  padding: 5.5px 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(50, 30, 35, 0.04);
+  font-size: 11px;
+  font-weight: 600;
+  color: #2d2426;
+  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  cursor: default;
+}
+
+.folder-tab-pill:hover {
+  transform: translateX(4px);
+  background: #fdfaf7;
+  border-color: #dfcdbe;
+  box-shadow: 0 4px 10px rgba(50, 30, 35, 0.08);
+}
+
+.tab-pill-icon {
+  color: #661e27;
+  flex-shrink: 0;
+}
+
+/* Layer 4: Front White "Expediente" Card */
+.layer-front-expediente {
+  left: 154px;
+  top: 66px;
+  width: 198px;
+  height: 254px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #ebdcca;
+  transform: rotate(3deg);
+  padding: 18px 17px;
+  box-shadow: 0 22px 50px rgba(70, 35, 45, 0.13), 0 4px 12px rgba(70, 35, 45, 0.05);
+  z-index: 4;
+  animation: dossier-float-front 5.2s ease-in-out infinite;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.expediente-card-title {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #1a1416;
+  margin: 0 0 13px;
+  letter-spacing: -0.01em;
+}
+
+.expediente-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.expediente-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #2c2426;
+}
+
+.expediente-check-dot {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fbece7;
+  color: #661e27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.expediente-skeleton-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5.5px;
+}
+
+.skel-line {
+  height: 4.5px;
+  border-radius: 3px;
+}
+
+.line-long {
+  width: 76%;
+  background: #ede2d4;
+}
+
+.line-short {
+  width: 52%;
+  background: #f4eae0;
+}
+
+/* Layer 5: Official Burgundy Scales Seal Button */
+.dossier-seal-badge {
+  position: absolute;
+  left: 298px;
+  top: 192px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c202d 0%, #50151f 100%);
+  box-shadow: 0 12px 28px rgba(70, 15, 25, 0.35), 0 3px 8px rgba(70, 15, 25, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  z-index: 5;
+  animation: dossier-float-seal 5.2s ease-in-out infinite;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.seal-scale-icon {
+  color: #ffffff;
+}
+
+/* Interactive Hover Movement on Whole Stage */
+@media (hover: hover) {
+  .pillars-dossier-stage:hover .layer-front-expediente {
+    transform: translateY(-9px) rotate(3.8deg) scale(1.02);
+    box-shadow: 0 28px 60px rgba(70, 35, 45, 0.18);
+  }
+  .pillars-dossier-stage:hover .layer-tabs-folder {
+    transform: translateY(-5px) rotate(-6.8deg);
+  }
+  .pillars-dossier-stage:hover .dossier-seal-badge {
+    transform: translateY(-12px) scale(1.06);
+    box-shadow: 0 16px 36px rgba(70, 15, 25, 0.44);
+  }
+}
+
+/* Fluid Keyframe Floating Animations */
+@keyframes dossier-float-front {
+  0%, 100% {
+    transform: translateY(0) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3.6deg);
+  }
+}
+
+@keyframes dossier-float-tabs {
+  0%, 100% {
+    transform: translateY(0) rotate(-5.5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-4.8deg);
+  }
+}
+
+@keyframes dossier-float-mauve {
+  0%, 100% {
+    transform: translateY(0) rotate(-7.5deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-7deg);
+  }
+}
+
+@keyframes dossier-float-seal {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.03);
+  }
+}
+
+@keyframes dossier-orbit-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.15);
+  }
 }
 
 /* Right Column: 4 Feature Items Stacked with Vertical Divider Line */

@@ -277,15 +277,93 @@ export default function ParaAbogadosPage() {
                 Eliminamos la fricción administrativa y el desgaste de la cobranza para que te concentres exclusivamente en tu técnica jurídica.
               </p>
 
-              {/* Dossier / Expediente Structured Legal Stage Illustration */}
-              <div className="pillars-dossier-visual">
-                <img
-                  src="/lawyers/dossier-editorial-visual.png"
-                  alt="Expediente estructurado y gestión legal con fondos en custodia"
-                  className="dossier-editorial-img"
-                  width={474}
-                  height={366}
-                />
+              {/* Dossier / Expediente Structured Legal Stage - Pure Code with Organic Floating Movement */}
+              <div className="pillars-dossier-visual" aria-label="Expediente estructurado y gestión legal con fondos en custodia">
+                <div className="pillars-dossier-stage">
+                  {/* Organic ambient wave background backdrop */}
+                  <div className="dossier-ambient-wave wave-back" />
+                  <div className="dossier-ambient-wave wave-front" />
+
+                  {/* Orbital trajectory arc with pulsing dot */}
+                  <svg className="dossier-orbit-svg" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M 335 38 C 395 95 405 210 325 285" stroke="#dac4b2" strokeWidth="1.2" strokeDasharray="3 3.5" />
+                    <circle cx="335" cy="38" r="4.5" fill="#661e27" className="orbit-dot-point" />
+                    <circle cx="335" cy="38" r="8.5" stroke="#ecdccf" strokeWidth="1" />
+                  </svg>
+
+                  {/* Layer 1: Back dusty-mauve card */}
+                  <div className="dossier-layer layer-back-mauve" aria-hidden="true" />
+
+                  {/* Layer 2: Warm tan folder flap behind */}
+                  <div className="dossier-layer layer-mid-flap" aria-hidden="true" />
+
+                  {/* Layer 3: Left Folder with 5 tabs */}
+                  <div className="dossier-layer layer-tabs-folder">
+                    <div className="folder-tabs-list">
+                      <div className="folder-tab-pill">
+                        <FileText size={12} className="tab-pill-icon" strokeWidth={1.9} />
+                        <span>Demandas</span>
+                      </div>
+                      <div className="folder-tab-pill">
+                        <FileText size={12} className="tab-pill-icon" strokeWidth={1.9} />
+                        <span>Recursos</span>
+                      </div>
+                      <div className="folder-tab-pill">
+                        <FileText size={12} className="tab-pill-icon" strokeWidth={1.9} />
+                        <span>Memoriales</span>
+                      </div>
+                      <div className="folder-tab-pill">
+                        <Landmark size={12} className="tab-pill-icon" strokeWidth={1.9} />
+                        <span>Audiencias</span>
+                      </div>
+                      <div className="folder-tab-pill">
+                        <ShieldCheck size={12} className="tab-pill-icon" strokeWidth={1.9} />
+                        <span>Evidencias</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Layer 4: Front White "Expediente" Card */}
+                  <div className="dossier-layer layer-front-expediente">
+                    <h4 className="expediente-card-title">Expediente</h4>
+                    <div className="expediente-check-list">
+                      <div className="expediente-check-item">
+                        <span className="expediente-check-dot">
+                          <Check size={9.5} strokeWidth={2.8} />
+                        </span>
+                        <span>Antecedentes</span>
+                      </div>
+                      <div className="expediente-check-item">
+                        <span className="expediente-check-dot">
+                          <Check size={9.5} strokeWidth={2.8} />
+                        </span>
+                        <span>Pretensiones</span>
+                      </div>
+                      <div className="expediente-check-item">
+                        <span className="expediente-check-dot">
+                          <Check size={9.5} strokeWidth={2.8} />
+                        </span>
+                        <span>Soportes</span>
+                      </div>
+                      <div className="expediente-check-item">
+                        <span className="expediente-check-dot">
+                          <Check size={9.5} strokeWidth={2.8} />
+                        </span>
+                        <span>Estado procesal</span>
+                      </div>
+                    </div>
+
+                    <div className="expediente-skeleton-bars" aria-hidden="true">
+                      <div className="skel-line line-long" />
+                      <div className="skel-line line-short" />
+                    </div>
+                  </div>
+
+                  {/* Layer 5: Official Burgundy Scales Seal Button */}
+                  <div className="dossier-seal-badge" aria-hidden="true">
+                    <Scale size={23} strokeWidth={1.8} className="seal-scale-icon" />
+                  </div>
+                </div>
               </div>
             </div>
 
