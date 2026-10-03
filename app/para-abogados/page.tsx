@@ -46,15 +46,11 @@ export default function ParaAbogadosPage() {
             <Link href="/abogados">Explorar Abogados</Link>
             <Link href="/como-funciona">Cómo funciona</Link>
             <Link href="/para-abogados" className="active-nav">Para abogados</Link>
+            <a href="/#preguntas">Preguntas</a>
           </nav>
-          <div className="header-actions-group">
-            <Link href="/?auth=login&role=lawyer" className="button small outline">
-              Entrar
-            </Link>
-            <Link href="/?auth=signup&role=lawyer" className="button small">
-              Crear perfil <ArrowRight size={14} />
-            </Link>
-          </div>
+          <Link href="/?auth=login" className="button small outline">
+            Entrar <ArrowRight size={15} />
+          </Link>
         </div>
       </PublicHeaderWrapper>
 

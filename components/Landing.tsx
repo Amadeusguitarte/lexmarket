@@ -42,8 +42,8 @@ export default function Landing({
  return <div className="landing">
   <PublicHeaderWrapper>
    <div className="public-header wrap">
-    <a href="#" aria-label="LexMarket inicio"><Brand/></a>
-    <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="#como-funciona">Cómo funciona</a><a href="#preguntas">Preguntas</a><a href="/para-abogados">Para abogados</a></nav>
+    <a href="/" aria-label="LexMarket inicio"><Brand/></a>
+    <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="/como-funciona">Cómo funciona</a><a href="/para-abogados">Para abogados</a><a href="#preguntas">Preguntas</a></nav>
     <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
    </div>
   </PublicHeaderWrapper>
