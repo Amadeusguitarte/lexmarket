@@ -3339,14 +3339,20 @@ img{max-width:100%}
 
 /* Pillars Editorial Split Section */
 .lawyer-pillars-editorial {
-  padding: 84px 0 96px;
+  padding: 80px 0 92px;
+}
+
+.lawyer-pillars-editorial.wrap {
+  width: min(1040px, calc(100% - 60px));
+  margin-inline: auto;
 }
 
 .pillars-editorial-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1.25fr);
-  gap: 72px;
+  grid-template-columns: 440px 1fr;
+  gap: 0;
   align-items: flex-start;
+  position: relative;
 }
 
 .pillars-editorial-left {
@@ -3354,6 +3360,7 @@ img{max-width:100%}
   top: 100px;
   display: flex;
   flex-direction: column;
+  padding-right: 42px;
 }
 
 .pillars-badge {
@@ -3369,7 +3376,7 @@ img{max-width:100%}
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   width: fit-content;
 }
 
@@ -3383,9 +3390,9 @@ img{max-width:100%}
 
 .pillars-editorial-title {
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: clamp(34px, 3.4vw, 46px);
+  font-size: clamp(32px, 3.2vw, 42px);
   color: #1a1416;
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   line-height: 1.15;
   font-weight: 400;
   letter-spacing: -0.02em;
@@ -3398,41 +3405,45 @@ img{max-width:100%}
 }
 
 .pillars-editorial-subtitle {
-  font-size: 15.5px;
-  line-height: 1.65;
+  font-size: 14.5px;
+  line-height: 1.62;
   color: #615659;
-  margin: 0 0 28px;
-  max-width: 440px;
+  margin: 0 0 20px;
+  max-width: 410px;
 }
 
 /* Dossier Visual Stage */
 .pillars-dossier-visual {
   position: relative;
   width: 100%;
-  max-width: 430px;
-  margin-top: 6px;
+  max-width: 440px;
+  margin-top: 8px;
 }
 
-.dossier-svg {
+.dossier-editorial-img {
   width: 100%;
   height: auto;
-  overflow: visible;
+  display: block;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 10px 24px rgba(90, 56, 64, 0.06));
 }
 
-/* Right Column: 4 Feature Items Stacked */
+/* Right Column: 4 Feature Items Stacked with Vertical Divider Line */
 .pillars-editorial-right {
   display: flex;
   flex-direction: column;
-  padding-top: 10px;
+  border-left: 1px solid #ebdcca;
+  padding-left: 42px;
+  padding-top: 6px;
 }
 
 .pillar-feature-item {
   display: flex;
-  gap: 24px;
+  gap: 20px;
   align-items: flex-start;
-  padding-bottom: 34px;
-  margin-bottom: 34px;
-  border-bottom: 1px solid #efe4d6;
+  padding-bottom: 26px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid #f0e6da;
 }
 
 .pillar-feature-item:last-child {
@@ -3442,8 +3453,8 @@ img{max-width:100%}
 }
 
 .pillar-feature-icon {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 14px;
   background: #fcf4ee;
   border: 1px solid #f4e3d6;
@@ -3458,18 +3469,18 @@ img{max-width:100%}
 
 .pillar-feature-content h3 {
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: 20.5px;
+  font-size: 19px;
   font-weight: 600;
   color: #1a1416;
-  margin: 0 0 8px;
+  margin: 0 0 7px;
   line-height: 1.25;
 }
 
 .pillar-feature-content p {
-  font-size: 14px;
-  line-height: 1.62;
+  font-size: 13.5px;
+  line-height: 1.6;
   color: #615659;
-  margin: 0 0 14px;
+  margin: 0 0 13px;
 }
 
 .pillar-feature-checklist {
@@ -3478,15 +3489,15 @@ img{max-width:100%}
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 
 .pillar-feature-checklist li {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 12.5px;
-  font-weight: 500;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 450;
   color: #2c2426;
 }
 
@@ -3496,15 +3507,26 @@ img{max-width:100%}
 }
 
 @media (max-width: 960px) {
+  .lawyer-pillars-editorial.wrap {
+    width: calc(100% - 40px);
+  }
   .pillars-editorial-grid {
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: 36px;
   }
   .pillars-editorial-left {
     position: static;
+    padding-right: 0;
+  }
+  .pillars-editorial-right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid #ebdcca;
+    padding-top: 32px;
   }
   .pillars-dossier-visual {
-    margin: 20px auto 0;
+    margin: 16px auto 0;
+    max-width: 400px;
   }
 }
 

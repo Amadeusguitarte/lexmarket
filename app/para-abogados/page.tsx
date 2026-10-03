@@ -278,115 +278,14 @@ export default function ParaAbogadosPage() {
               </p>
 
               {/* Dossier / Expediente Structured Legal Stage Illustration */}
-              <div className="pillars-dossier-visual" aria-hidden="true">
-                <svg width="400" height="340" viewBox="0 0 400 340" fill="none" xmlns="http://www.w3.org/2000/svg" className="dossier-svg">
-                  <defs>
-                    <radialGradient id="dossierGlow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#f5ebe1" stopOpacity="0.8" />
-                      <stop offset="60%" stopColor="#fbf6f0" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#fbf6f0" stopOpacity="0" />
-                    </radialGradient>
-                    <filter id="cardShadow" x="-10%" y="-10%" width="130%" height="130%">
-                      <feDropShadow dx="0" dy="12" stdDeviation="14" floodColor="#5a3840" floodOpacity="0.08" />
-                    </filter>
-                    <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#4a151e" floodOpacity="0.25" />
-                    </filter>
-                  </defs>
-
-                  {/* Ambient background glow circle */}
-                  <ellipse cx="180" cy="180" rx="170" ry="140" fill="url(#dossierGlow)" />
-
-                  {/* Trajectory dotted arc with dot indicator */}
-                  <path d="M295 40 C365 90 375 200 305 260" stroke="#dfcebc" strokeWidth="1.2" strokeDasharray="3 3.5" fill="none" />
-                  <circle cx="295" cy="40" r="4.5" fill="#5e1924" />
-                  <circle cx="295" cy="40" r="9" stroke="#e8d8c7" strokeWidth="1" fill="none" />
-
-                  {/* Back Dossier Folder Container (Angled -7 deg) */}
-                  <g transform="rotate(-7 130 180)">
-                    <rect x="35" y="45" width="220" height="260" rx="20" fill="#ede1d2" stroke="#dfcebd" strokeWidth="1.2" />
-
-                    {/* Left Index Tab Stack */}
-                    <g transform="translate(48, 70)">
-                      <rect x="0" y="0" width="105" height="30" rx="8" fill="#fdfbf9" stroke="#e6d9cc" strokeWidth="1" />
-                      <path d="M12 9 h8 v12 h-8 z M15 13 h3 M15 16 h3" stroke="#661e27" strokeWidth="1.2" strokeLinecap="round" />
-                      <text x="27" y="19" fill="#2d2426" fontSize="11" fontWeight="600" fontFamily="system-ui, sans-serif">Demandas</text>
-                    </g>
-
-                    <g transform="translate(48, 110)">
-                      <rect x="0" y="0" width="105" height="30" rx="8" fill="#fdfbf9" stroke="#e6d9cc" strokeWidth="1" />
-                      <path d="M12 9 h8 v12 h-8 z M15 13 h3 M15 16 h3" stroke="#661e27" strokeWidth="1.2" strokeLinecap="round" />
-                      <text x="27" y="19" fill="#2d2426" fontSize="11" fontWeight="600" fontFamily="system-ui, sans-serif">Recursos</text>
-                    </g>
-
-                    <g transform="translate(48, 150)">
-                      <rect x="0" y="0" width="108" height="30" rx="8" fill="#fdfbf9" stroke="#e6d9cc" strokeWidth="1" />
-                      <path d="M12 9 h8 v12 h-8 z M15 13 h3 M15 16 h3" stroke="#661e27" strokeWidth="1.2" strokeLinecap="round" />
-                      <text x="27" y="19" fill="#2d2426" fontSize="11" fontWeight="600" fontFamily="system-ui, sans-serif">Memoriales</text>
-                    </g>
-
-                    <g transform="translate(48, 190)">
-                      <rect x="0" y="0" width="108" height="30" rx="8" fill="#fdfbf9" stroke="#e6d9cc" strokeWidth="1" />
-                      <circle cx="16" cy="15" r="4" stroke="#661e27" strokeWidth="1.2" fill="none" />
-                      <path d="M16 19 v3 M14 22 h4" stroke="#661e27" strokeWidth="1.2" strokeLinecap="round" />
-                      <text x="27" y="19" fill="#2d2426" fontSize="11" fontWeight="600" fontFamily="system-ui, sans-serif">Audiencias</text>
-                    </g>
-
-                    <g transform="translate(48, 230)">
-                      <rect x="0" y="0" width="105" height="30" rx="8" fill="#fdfbf9" stroke="#e6d9cc" strokeWidth="1" />
-                      <path d="M12 11 c0 -2 2 -4 4 -4 c2 0 4 2 4 4 v6 c0 1.5 -1.5 2.5 -2.5 2.5 c-1 0 -2 -1 -2 -2.5 v-5" stroke="#661e27" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <text x="27" y="19" fill="#2d2426" fontSize="11" fontWeight="600" fontFamily="system-ui, sans-serif">Evidencias</text>
-                    </g>
-                  </g>
-
-                  {/* Front Main White Dossier Card: "Expediente" */}
-                  <g transform="rotate(3 230 190)" filter="url(#cardShadow)">
-                    <rect x="140" y="60" width="190" height="248" rx="20" fill="#ffffff" stroke="#ebdcca" strokeWidth="1.2" />
-
-                    <text x="162" y="96" fill="#1c1517" fontSize="15" fontWeight="700" fontFamily="Georgia, serif">Expediente</text>
-
-                    {/* Checklist 1 */}
-                    <g transform="translate(162, 116)">
-                      <circle cx="9" cy="9" r="8" fill="#fdf2ee" stroke="#f6ded5" strokeWidth="1" />
-                      <path d="M6 9 l2 2.2 l4 -4.2" stroke="#661e27" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      <text x="25" y="13" fill="#2d2426" fontSize="11.5" fontWeight="500" fontFamily="system-ui, sans-serif">Antecedentes</text>
-                    </g>
-
-                    {/* Checklist 2 */}
-                    <g transform="translate(162, 144)">
-                      <circle cx="9" cy="9" r="8" fill="#fdf2ee" stroke="#f6ded5" strokeWidth="1" />
-                      <path d="M6 9 l2 2.2 l4 -4.2" stroke="#661e27" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      <text x="25" y="13" fill="#2d2426" fontSize="11.5" fontWeight="500" fontFamily="system-ui, sans-serif">Pretensiones</text>
-                    </g>
-
-                    {/* Checklist 3 */}
-                    <g transform="translate(162, 172)">
-                      <circle cx="9" cy="9" r="8" fill="#fdf2ee" stroke="#f6ded5" strokeWidth="1" />
-                      <path d="M6 9 l2 2.2 l4 -4.2" stroke="#661e27" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      <text x="25" y="13" fill="#2d2426" fontSize="11.5" fontWeight="500" fontFamily="system-ui, sans-serif">Soportes</text>
-                    </g>
-
-                    {/* Checklist 4 */}
-                    <g transform="translate(162, 200)">
-                      <circle cx="9" cy="9" r="8" fill="#fdf2ee" stroke="#f6ded5" strokeWidth="1" />
-                      <path d="M6 9 l2 2.2 l4 -4.2" stroke="#661e27" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                      <text x="25" y="13" fill="#2d2426" fontSize="11.5" fontWeight="500" fontFamily="system-ui, sans-serif">Estado procesal</text>
-                    </g>
-
-                    {/* Document skeleton lines */}
-                    <line x1="162" y1="234" x2="252" y2="234" stroke="#ebdcca" strokeWidth="4.5" strokeLinecap="round" />
-                    <line x1="162" y1="246" x2="225" y2="246" stroke="#f0e6da" strokeWidth="4.5" strokeLinecap="round" />
-                  </g>
-
-                  {/* Official Burgundy Scales of Justice Seal */}
-                  <g transform="translate(305, 238)" filter="url(#badgeShadow)">
-                    <circle cx="0" cy="0" r="26" fill="#5e1924" />
-                    <circle cx="0" cy="0" r="22" stroke="#872938" strokeWidth="1.2" strokeDasharray="2 1.5" fill="none" />
-                    <g transform="translate(-11, -11) scale(0.92)">
-                      <path d="M12 3 v18 M4 7 h16 M4 7 l-3 8 h6 l-3 -8 M16 7 l-3 8 h6 l-3 -8 M8 21 h8" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                    </g>
-                  </g>
-                </svg>
+              <div className="pillars-dossier-visual">
+                <img
+                  src="/lawyers/dossier-editorial-visual.png"
+                  alt="Expediente estructurado y gestión legal con fondos en custodia"
+                  className="dossier-editorial-img"
+                  width={474}
+                  height={366}
+                />
               </div>
             </div>
 
