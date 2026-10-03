@@ -1546,7 +1546,7 @@ img{max-width:100%}
   padding: 40px 0 90px;
 }
 
-.final-cta-card {
+.how-final-cta .final-cta-card {
   background: linear-gradient(135deg, #6b2d3e 0%, #4a1d2a 100%);
   border-radius: 28px;
   padding: 60px 40px;
@@ -1555,12 +1555,12 @@ img{max-width:100%}
   box-shadow: 0 16px 40px rgba(107, 45, 62, 0.2);
 }
 
-.cta-shield-icon {
+.how-final-cta .cta-shield-icon {
   color: #f1d6dd;
   margin-bottom: 16px;
 }
 
-.final-cta-card h2 {
+.how-final-cta .final-cta-card h2 {
   font-family: Georgia, serif;
   font-size: 34px;
   font-weight: 400;
@@ -1568,25 +1568,25 @@ img{max-width:100%}
   color: #ffffff;
 }
 
-.final-cta-card p {
+.how-final-cta .final-cta-card p {
   font-size: 16px;
   color: #f1e8dc;
   max-width: 520px;
   margin: 0 auto 30px;
 }
 
-.final-cta-buttons {
+.how-final-cta .final-cta-buttons {
   display: flex;
   justify-content: center;
   gap: 16px;
 }
 
-.final-cta-buttons .button.outline {
+.how-final-cta .final-cta-buttons .button.outline {
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.final-cta-buttons .button.outline:hover {
+.how-final-cta .final-cta-buttons .button.outline:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -3852,7 +3852,7 @@ img{max-width:100%}
   padding: 50px 0 90px;
 }
 
-.final-cta-card {
+.lawyer-final-cta .final-cta-card {
   background: linear-gradient(145deg, #ffffff 0%, var(--lavender-soft) 100%);
   border: 1px solid var(--line);
   border-radius: 28px;
@@ -3861,19 +3861,19 @@ img{max-width:100%}
   box-shadow: 0 20px 60px rgba(107, 45, 62, 0.06);
 }
 
-.final-cta-icon {
+.lawyer-final-cta .final-cta-icon {
   color: var(--purple);
   margin-bottom: 16px;
 }
 
-.final-cta-card h2 {
+.lawyer-final-cta .final-cta-card h2 {
   font-family: Georgia, serif;
   font-size: clamp(28px, 3.5vw, 42px);
   color: var(--ink);
   margin: 0 0 14px;
 }
 
-.final-cta-card p {
+.lawyer-final-cta .final-cta-card p {
   font-size: 16px;
   color: var(--muted);
   max-width: 640px;
@@ -3881,14 +3881,31 @@ img{max-width:100%}
   line-height: 1.6;
 }
 
-.final-cta-buttons {
+.lawyer-final-cta .final-cta-buttons {
   display: flex;
   justify-content: center;
   gap: 16px;
   margin-bottom: 20px;
 }
 
-.final-cta-subnote {
+.lawyer-final-cta .final-cta-buttons .button.outline {
+  background: #ffffff;
+  color: var(--ink) !important;
+  border: 1.5px solid #d4c2b2;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(44, 37, 38, 0.05);
+  transition: all 0.2s ease;
+}
+
+.lawyer-final-cta .final-cta-buttons .button.outline:hover {
+  background: var(--lavender);
+  border-color: var(--purple);
+  color: var(--purple) !important;
+  box-shadow: 0 4px 14px rgba(107, 45, 62, 0.12);
+  transform: translateY(-1px);
+}
+
+.lawyer-final-cta .final-cta-subnote {
   font-size: 12px;
   color: var(--muted);
 }
