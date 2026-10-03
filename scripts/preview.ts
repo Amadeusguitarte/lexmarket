@@ -3,8 +3,22 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readFile, writeFile } from 'node:fs/promises';
 import Landing from '../components/Landing';
+import AuthModal from '../components/AuthModal';
 const css=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
-const markup=renderToStaticMarkup(React.createElement(Landing,{onStart:()=>{},onLawyer:()=>{},onLogin:()=>{},onInfo:()=>{}}));
+const landingMarkup=renderToStaticMarkup(React.createElement(Landing,{onStart:()=>{},onLawyer:()=>{},onLogin:()=>{},onInfo:()=>{}}));
+const authMarkup=renderToStaticMarkup(React.createElement(AuthModal,{
+  authMode: 'signup',
+  role: 'client',
+  googleReady: true,
+  busy: false,
+  authReady: true,
+  onClose: ()=>{},
+  onModeChange: ()=>{},
+  onInfo: ()=>{},
+  onSubmit: ()=>{},
+  onContinueGoogle: ()=>{},
+}));
+const markup = landingMarkup + authMarkup;
 const script = `
 const examples = {
   'Una tutela': 'Revisar y presentar mi tutela',
@@ -124,19 +138,50 @@ document.querySelectorAll('.example-pill').forEach(button => {
   }
 })();
 
-document.querySelectorAll('button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {
-  button.addEventListener('click', () => {
-    const previewInfo = document.getElementById('preview-info');
-    if (previewInfo && typeof previewInfo.showModal === 'function') {
-      previewInfo.showModal();
-    }
-  });
-});
+// Wire up Auth Modal preview
+(function() {
+  const authDialog = document.querySelector('.auth-editorial-dialog');
+  const closeBtn = document.querySelector('.auth-editorial-close');
+  if (closeBtn && authDialog) {
+    closeBtn.addEventListener('click', () => authDialog.close());
+  }
 
-const previewClose = document.getElementById('preview-close');
-if (previewClose) {
-  previewClose.onclick = () => document.getElementById('preview-info').close();
-}
+  // Open auth modal on clicking 'Entrar' or related buttons
+  document.querySelectorAll('button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const text = button.textContent?.trim().toLowerCase() || '';
+      if (text.includes('entrar') || text.includes('cuenta') || text.includes('empezar') || text.includes('acceder')) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (authDialog && typeof authDialog.showModal === 'function') {
+          authDialog.showModal();
+          return;
+        }
+      }
+      const previewInfo = document.getElementById('preview-info');
+      if (previewInfo && typeof previewInfo.showModal === 'function') {
+        previewInfo.showModal();
+      }
+    });
+  });
+
+  const previewClose = document.getElementById('preview-close');
+  if (previewClose) {
+    previewClose.onclick = () => document.getElementById('preview-info').close();
+  }
+
+  // Auto-open if hash is #registro or #auth
+  if (window.location.hash === '#registro' || window.location.hash === '#auth') {
+    setTimeout(() => {
+      if (authDialog && typeof authDialog.showModal === 'function') {
+        authDialog.showModal();
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    }, 150);
+  }
+})();
 
 // Smart Header Hide on Scroll Down / Reveal on Scroll Up
 (function() {

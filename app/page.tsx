@@ -13,6 +13,7 @@ import {draftStore} from '@/lib/intake';
 import { api, browserDB } from '@/lib/browser';
 import InviteModal from '@/components/InviteModal';
 import type { LawyerData } from '@/components/LawyerCard';
+import AuthModal from '@/components/AuthModal';
 
 function LinkedinIcon({ size = 18 }: { size?: number }) {
  return (
@@ -75,22 +76,23 @@ export default function Home() {
 
 
   {session&&me&&!me.profile&&<Modal title={role==='lawyer'?'Tu perfil profesional':pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
-  {authMode&&(!session||authMode==='update')&&<Modal title={authMode==='signup'?(role==='lawyer'?'Tu próximo caso empieza aquí':'Vamos a dar el siguiente paso'):authMode==='reset'?'Recupera tu acceso':authMode==='update'?'Elige una nueva contraseña':'Qué bueno verte de nuevo'} onClose={()=>setAuthMode('')}>
-   <p className="muted">{pendingCase&&authMode==='signup'?'Tu borrador se conserva en este dispositivo. Crea tu cuenta para guardarlo y llevarlo a abogados.':authMode==='signup'?'Crea tu cuenta y continúa a tu ritmo.':'Tu espacio de LexMarket te espera.'}</p>
-   {!browserDB()?<div className="notice-panel">Estamos preparando la apertura. El registro estará disponible al conectar los servicios de la plataforma.</div>:<>
-    {(googleReady||linkedinReady)&&(authMode==='signup'||authMode==='login')&&<div className="oauth-buttons-group">
-     {googleReady&&<button type="button" className="oauth-button google" onClick={()=>void continueWithGoogle()} disabled={busy}><Chrome size={18}/> Continuar con Google</button>}
-     {linkedinReady&&<button type="button" className="oauth-button linkedin" onClick={()=>void continueWithLinkedIn()} disabled={busy}><LinkedinIcon size={18}/> Continuar con LinkedIn</button>}
-    </div>}
-    {(googleReady||linkedinReady)&&(authMode==='signup'||authMode==='login')&&<div className="auth-divider"><span>o continúa con tu correo</span></div>}
-    <form className="form-stack" onSubmit={e=>{e.preventDefault();void authSubmit(e.currentTarget);}}>
-    {authMode!=='update'&&<Field label="Correo electrónico"><input name="email" type="email" autoComplete="email" required maxLength={254}/></Field>}
-    {authMode!=='reset'&&<Field label="Contraseña" hint={authMode!=='login'?'Al menos 10 caracteres.':undefined}><input name="password" type="password" autoComplete={authMode==='login'?'current-password':'new-password'} required minLength={authMode==='login'?1:10} maxLength={128}/></Field>}
-    {authMode==='signup'&&<label className="checkbox-line"><input type="checkbox" required/>Entiendo que participo en una beta por invitación y he leído las condiciones y la información de privacidad.</label>}
-    <button className="button" disabled={busy||!authReady}>{busy?'Un momento…':authMode==='signup'?'Crear cuenta':authMode==='reset'?'Enviar enlace':authMode==='update'?'Guardar contraseña':'Entrar'}<ArrowRight size={17}/></button>
-   </form></>}
-   <div className="auth-links"><button onClick={()=>setAuthMode(authMode==='signup'?'login':'signup')}>{authMode==='signup'?'Ya tengo cuenta':'Crear una cuenta'}</button>{authMode==='login'&&<button onClick={()=>setAuthMode('reset')}>Olvidé mi contraseña</button>}</div><div className="auth-links"><button onClick={()=>{setAuthMode('');setInfo('terms');}}>Condiciones</button><button onClick={()=>{setAuthMode('');setInfo('privacy');}}>Privacidad</button></div>
-  </Modal>}
+  {authMode&&(!session||authMode==='update')&&(
+    <AuthModal
+      authMode={authMode}
+      role={role}
+      pendingCase={pendingCase}
+      googleReady={googleReady}
+      linkedinReady={linkedinReady}
+      busy={busy}
+      authReady={authReady}
+      onClose={()=>setAuthMode('')}
+      onModeChange={mode=>setAuthMode(mode)}
+      onInfo={inf=>setInfo(inf)}
+      onSubmit={form=>void authSubmit(form)}
+      onContinueGoogle={()=>void continueWithGoogle()}
+      onContinueLinkedIn={()=>void continueWithLinkedIn()}
+    />
+  )}
   {info&&infoText[info]&&<Modal title={infoText[info].title} onClose={()=>setInfo('')}>{infoText[info].paragraphs.map(p=><p className="info-paragraph" key={p}>{p}</p>)}</Modal>}
   {(error||notice)&&typeof document!=='undefined'&&createPortal(<div className={'toast '+(error?'error':'')} role={error?'alert':'status'}><CheckCircle2 size={18}/><span>{error||notice}</span><button aria-label="Cerrar notificación" onClick={()=>{setError('');setNotice('');}}><X size={18}/></button></div>,document.querySelector('dialog[open]')||document.body)}
  </>;
