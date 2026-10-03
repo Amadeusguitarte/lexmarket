@@ -68,9 +68,7 @@ export default function ParaAbogadosPage() {
           </h1>
 
           <p className="lawyer-hero-subtitle">
-            LexMarket conecta tu experiencia con personas y empresas que ya cuentan con un expediente
-            organizado y verificado. Sin llamadas en frío, con custodia de fondos previa al inicio de cada hito
-            y con total autonomía profesional.
+            LexMarket conecta tu experiencia con personas y empresas que ya han estructurado su caso y reunido sus soportes. Evalúa cada oportunidad antes de participar, trabaja con fondos previamente respaldados y conserva el control sobre tus honorarios y condiciones.
           </p>
 
           <div className="lawyer-hero-actions">
@@ -97,28 +95,34 @@ export default function ParaAbogadosPage() {
               <span>Canal cifrado y confidencialidad protegida</span>
             </div>
           </div>
+        </section>
 
-          {/* Metrics Highlight Card */}
-          <div className="lawyer-metrics-grid">
-            <div className="lawyer-metric-card">
-              <span className="metric-number">100%</span>
-              <span className="metric-title">Expedientes estructurados</span>
-              <p className="metric-desc">Hechos, pretensiones y soportes documentales listos para evaluar en minutos.</p>
+        {/* Por qué trabajar con LexMarket - Microsección de 4 pilares conceptuales */}
+        <section className="lawyer-benefits-section wrap">
+          <div className="section-head text-center benefits-head">
+            <span className="overline">POR QUÉ TRABAJAR CON LEXMARKET</span>
+          </div>
+
+          <div className="lawyer-benefits-grid">
+            <div className="lawyer-benefit-card">
+              <span className="benefit-badge">EXPEDIENTES LISTOS</span>
+              <h3 className="benefit-title">Evalúa casos estructurados antes de decidir</h3>
+              <p className="benefit-desc">Hechos, pretensiones y soportes organizados antes de que decidas participar.</p>
             </div>
-            <div className="lawyer-metric-card">
-              <span className="metric-number">0%</span>
-              <span className="metric-title">Riesgo de impago</span>
-              <p className="metric-desc">El cliente deposita el anticipo del hito en custodia antes de que comiences a trabajar.</p>
+            <div className="lawyer-benefit-card">
+              <span className="benefit-badge">FONDOS RESPALDADOS</span>
+              <h3 className="benefit-title">Fondos asegurados antes de cada hito</h3>
+              <p className="benefit-desc">El cliente deposita previamente el valor acordado antes de que comiences cada etapa.</p>
             </div>
-            <div className="lawyer-metric-card">
-              <span className="metric-number">Libertad</span>
-              <span className="metric-title">Tarifas y criterio propio</span>
-              <p className="metric-desc">Tú fijas tus honorarios y tus condiciones. Sin tarifas impuestas ni intermediación técnica.</p>
+            <div className="lawyer-benefit-card">
+              <span className="benefit-badge">LIBERTAD PROFESIONAL</span>
+              <h3 className="benefit-title">Tarifas y criterio propio</h3>
+              <p className="benefit-desc">Tú defines honorarios, condiciones y qué casos aceptar.</p>
             </div>
-            <div className="lawyer-metric-card">
-              <span className="metric-number">48 h</span>
-              <span className="metric-title">Asignación promedio</span>
-              <p className="metric-desc">Tiempo estimado desde que publicas tu disponibilidad hasta recibir invitaciones directas.</p>
+            <div className="lawyer-benefit-card">
+              <span className="benefit-badge">OPORTUNIDADES RELEVANTES</span>
+              <h3 className="benefit-title">Casos alineados con tu práctica</h3>
+              <p className="benefit-desc">Encuentra casos e invitaciones compatibles con tus áreas de práctica jurídica.</p>
             </div>
           </div>
         </section>
