@@ -87,7 +87,7 @@ export default function AuthModal({
       ref={dialogRef}
       className="auth-editorial-dialog"
       onCancel={onClose}
-      aria-label={isSignup ? 'Crea tu cuenta' : isLogin ? 'Inicia sesión' : 'Recupera tu acceso'}
+      aria-label={!isReset ? 'Crea tu cuenta' : 'Recupera tu acceso'}
     >
       <div className="auth-editorial-container">
         {/* Close Button floating top-right */}
@@ -106,14 +106,9 @@ export default function AuthModal({
             <span className="auth-editorial-badge">TU ESPACIO EN LEXMARKET</span>
 
             <h2 className="auth-editorial-title">
-              {isSignup ? (
+              {!isReset ? (
                 <>
                   Crea tu cuenta <br />
-                  <em>y da el siguiente paso</em>
-                </>
-              ) : isLogin ? (
-                <>
-                  Bienvenido de nuevo <br />
                   <em>y da el siguiente paso</em>
                 </>
               ) : (

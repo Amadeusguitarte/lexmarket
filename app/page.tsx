@@ -70,7 +70,7 @@ export default function Home() {
  };
  return <>
   {session&&me?.profile?<Workspace pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
-   <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('login')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
+   <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
   {composer&&!session&&<CaseIntake onClose={()=>setComposer(false)} onReady={keepDraft}/>}
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
 
