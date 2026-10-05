@@ -76,7 +76,7 @@ export default function Home() {
 
  if (session && isLawyerAccount && !me?.profile) {
    const lawyerName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Abogado';
-   const lawyerAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '/lawyers/juan-perez.jpg';
+   const lawyerAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '';
    return (
      <>
        <LawyerOnboardingDashboard

@@ -23,8 +23,9 @@ import {
   Upload,
   ShieldCheck,
   CheckCircle2,
+  ExternalLink,
 } from 'lucide-react';
-import { getSampleLinkedInLawyer, type LinkedInProfileData } from '@/lib/linkedin';
+import { type LinkedInProfileData } from '@/lib/linkedin';
 
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
@@ -55,9 +56,16 @@ export function LexMarketScaleLogo({ size = 28 }: { size?: number }) {
   );
 }
 
+function getInitials(name?: string) {
+  if (!name || name === 'Abogado' || name.trim() === '') return 'AB';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export default function LawyerOnboardingDashboard({
-  initialLawyerName = 'Juan Pérez',
-  initialAvatar = '/lawyers/juan-perez.jpg',
+  initialLawyerName = '',
+  initialAvatar = '',
   onNavigate,
   onSaveProfile,
   onOpenCase,
@@ -66,11 +74,13 @@ export default function LawyerOnboardingDashboard({
   // State for active sidebar menu
   const [activeMenu, setActiveMenu] = useState('inicio');
   
-  // Profile progress state (starts at 20% like in screenshot)
-  const [progress, setProgress] = useState(20);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [lawyerName, setLawyerName] = useState(initialLawyerName);
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
+  // Real lawyer name and avatar (no Juan Perez fallback)
+  const [lawyerName, setLawyerName] = useState(
+    initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : 'Abogado'
+  );
+  const [avatarUrl, setAvatarUrl] = useState(
+    initialAvatar && !initialAvatar.includes('juan-perez') ? initialAvatar : ''
+  );
   const [linkedInSynced, setLinkedInSynced] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -80,67 +90,146 @@ export default function LawyerOnboardingDashboard({
   const [syncingLinkedIn, setSyncingLinkedIn] = useState(false);
   const [customLinkedInUrl, setCustomLinkedInUrl] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
 
-  // Form step data
+  // Form step data: License is strictly EMPTY until manually provided!
   const [profileForm, setProfileForm] = useState({
-    name: initialLawyerName,
+    name: initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : 'Abogado',
     city: 'Bogotá, D.C.',
-    license: '312.489 CSJ',
-    specialties: ['Derecho Laboral', 'Derecho Comercial'],
-    years_of_experience: 8,
-    education: 'Abogado · Universidad del Rosario',
-    bio: 'Abogado con más de 8 años de experiencia en litigio laboral y corporativo en Colombia.',
+    license: '', // EMPTY! Requires manual entry
+    specialties: [] as string[], // EMPTY! Requires manual selection
+    years_of_experience: 0,
+    education: '',
+    bio: '',
     rate_hourly: '180.000 COP / hora',
     modality: 'Virtual y Presencial',
   });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 4500);
+    setTimeout(() => setToastMessage(''), 5500);
   };
 
+  // Stepper completion checks based on actual fields
+  const isStepCompleted = (num: number): boolean => {
+    switch (num) {
+      case 1:
+        return Boolean(profileForm.name.trim() && profileForm.name !== 'Abogado' && profileForm.city.trim());
+      case 2:
+        // Tarjeta profesional CSJ: strictly manual, minimum 4 characters
+        return Boolean(profileForm.license.trim().length >= 4);
+      case 3:
+        // Specialties: requires manual selection
+        return profileForm.specialties.length > 0;
+      case 4:
+        return Boolean(
+          profileForm.years_of_experience > 0 ||
+          profileForm.education.trim().length > 0 ||
+          profileForm.bio.trim().length > 0
+        );
+      case 5:
+        return Boolean(profileForm.rate_hourly.trim().length > 0);
+      case 6:
+        return false;
+      default:
+        return false;
+    }
+  };
+
+  // Progress percentage dynamically calculated
+  const calculateProgress = (): number => {
+    let completed = 0;
+    if (isStepCompleted(1)) completed++;
+    if (isStepCompleted(2)) completed++;
+    if (isStepCompleted(3)) completed++;
+    if (isStepCompleted(4)) completed++;
+    if (isStepCompleted(5)) completed++;
+    return Math.min(100, Math.max(15, 15 + Math.round(completed * 17)));
+  };
+
+  const progress = calculateProgress();
+
+  // Official LinkedIn OAuth
+  const handleLinkedInOAuth = () => {
+    window.location.href = '/api/linkedin/auth';
+  };
+
+  // LinkedIn Import: brings professional profile ONLY (name, avatar, bio, education)
+  // It does NOT fill Tarjeta profesional or specialties!
   const handleLinkedInSync = async (sampleData?: LinkedInProfileData) => {
     setSyncingLinkedIn(true);
     try {
-      // Call LinkedIn sync endpoint or fallback to client simulation
-      const data = sampleData || getSampleLinkedInLawyer();
-      
-      try {
-        const res = await fetch('/api/me/linkedin-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...data, demo: true }),
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.profile) {
-            setLawyerName(json.profile.name || data.name);
-            if (json.profile.avatar_url) setAvatarUrl(json.profile.avatar_url);
+      let importedName = lawyerName;
+      let importedAvatar = avatarUrl;
+      let importedBio = profileForm.bio;
+      let importedEducation = profileForm.education;
+      const urlToFetch = customLinkedInUrl.trim();
+
+      if (urlToFetch) {
+        try {
+          const res = await fetch('/api/linkedin/fetch-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: urlToFetch }),
+          });
+
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data) {
+              if (json.data.name) importedName = json.data.name;
+              if (json.data.avatar_url) importedAvatar = json.data.avatar_url;
+              if (json.data.bio) importedBio = json.data.bio;
+              if (json.data.education) importedEducation = json.data.education;
+            }
+          } else {
+            // Slug parsing fallback from public URL
+            const match = urlToFetch.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
+            if (match && match[1]) {
+              const rawSlug = match[1].replace(/[-_]/g, ' ');
+              importedName = rawSlug.replace(/\b\w/g, l => l.toUpperCase());
+              importedBio = 'Abogado / Profesional en Derecho';
+            }
+          }
+        } catch {
+          const match = urlToFetch.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
+          if (match && match[1]) {
+            const rawSlug = match[1].replace(/[-_]/g, ' ');
+            importedName = rawSlug.replace(/\b\w/g, l => l.toUpperCase());
           }
         }
-      } catch {
-        // Fallback smooth local sync
+      } else if (sampleData) {
+        if (sampleData.name) importedName = sampleData.name;
+        if (sampleData.avatar_url) importedAvatar = sampleData.avatar_url;
+        if (sampleData.bio) importedBio = sampleData.bio;
+        if (sampleData.education) importedEducation = sampleData.education;
+      } else {
+        // Direct to OAuth if no URL was typed
+        window.location.href = '/api/linkedin/auth';
+        return;
       }
 
-      setLawyerName(data.name);
-      setAvatarUrl(data.avatar_url || '/lawyers/juan-perez.jpg');
+      setLawyerName(importedName);
+      if (importedAvatar) setAvatarUrl(importedAvatar);
+
+      // ONLY set name, bio, education.
+      // Tarjeta profesional (license) MUST REMAIN EMPTY for manual verification!
       setProfileForm(prev => ({
         ...prev,
-        name: data.name,
-        city: data.city || prev.city,
-        education: data.education || prev.education,
-        bio: data.bio || prev.bio,
-        years_of_experience: data.years_of_experience || prev.years_of_experience,
-        specialties: data.specialties?.length ? data.specialties : prev.specialties,
+        name: importedName,
+        bio: importedBio || prev.bio,
+        education: importedEducation || prev.education,
+        // license remains untouched!
       }));
 
       setLinkedInSynced(true);
-      setProgress(85);
-      setCurrentStep(4);
       setIsLinkedInModalOpen(false);
-      showToast('¡Datos de LinkedIn importados con éxito! Foto, trayectoria y educación sincronizados.');
+
+      // Immediately guide lawyer to Step 2 (Tarjeta profesional)
+      setCurrentStep(2);
+      setIsWizardOpen(true);
+      showToast('Perfil de LinkedIn importado con éxito. Ahora ingresa manualmente tu Tarjeta Profesional (CSJ) en el Paso 2.');
     } catch (err: any) {
-      showToast('No se pudo sincronizar en este momento. Puedes completar manualmente.');
+      showToast('Hubo un inconveniente al conectar con LinkedIn. Puedes completar tus datos manualmente.');
     } finally {
       setSyncingLinkedIn(false);
     }
@@ -149,8 +238,6 @@ export default function LawyerOnboardingDashboard({
   const handleSaveStep = async () => {
     const nextStep = Math.min(currentStep + 1, 6);
     setCurrentStep(nextStep);
-    const newProgress = Math.min(progress + 15, 100);
-    setProgress(newProgress);
     
     if (onSaveProfile) {
       await onSaveProfile({
@@ -291,12 +378,18 @@ export default function LawyerOnboardingDashboard({
               <span className="lawyer-bell-badge">1</span>
             </button>
 
-            <div className="lawyer-user-profile-menu">
-              <img
-                src={avatarUrl}
-                alt={lawyerName}
-                className="lawyer-avatar-circle"
-              />
+            <div className="lawyer-user-profile-menu" onClick={() => setIsWizardOpen(true)}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={lawyerName}
+                  className="lawyer-avatar-circle"
+                />
+              ) : (
+                <div className="lawyer-avatar-circle lawyer-avatar-fallback">
+                  {getInitials(lawyerName)}
+                </div>
+              )}
               <div className="lawyer-user-names">
                 <span className="lawyer-user-fullname">{lawyerName}</span>
                 <span className="lawyer-user-role-label">Abogado</span>
@@ -336,7 +429,7 @@ export default function LawyerOnboardingDashboard({
               {/* 6-step horizontal Stepper */}
               <div className="wizard-stepper">
                 {stepsList.map((step, idx) => {
-                  const isCompleted = step.num < currentStep || (linkedInSynced && (step.num === 1 || step.num === 3 || step.num === 4));
+                  const isCompleted = isStepCompleted(step.num);
                   const isCurrent = step.num === currentStep;
 
                   return (
@@ -369,7 +462,7 @@ export default function LawyerOnboardingDashboard({
                     <span className="linkedin-eyebrow">ACELERA TU PERFIL</span>
                     <h3 className="linkedin-banner-heading">Conecta tu LinkedIn</h3>
                     <p className="linkedin-banner-sub">
-                      Importa tu experiencia, cargos, formación y trayectoria profesional para completar tu perfil más rápido.
+                      Importa tu foto, titular, biografía y trayectoria para avanzar más rápido. La tarjeta profesional se completa manualmente.
                     </p>
                   </div>
                 </div>
@@ -382,7 +475,7 @@ export default function LawyerOnboardingDashboard({
                     disabled={syncingLinkedIn}
                   >
                     <LinkedInOfficialIcon size={17} />
-                    <span>{syncingLinkedIn ? 'Sincronizando…' : 'Conectar LinkedIn'}</span>
+                    <span>{syncingLinkedIn ? 'Conectando…' : 'Conectar LinkedIn'}</span>
                   </button>
                   <button
                     type="button"
@@ -423,49 +516,49 @@ export default function LawyerOnboardingDashboard({
 
             {/* Right Card: Value Proposition Card */}
             <div className="lawyer-value-prop-card">
-              <div className="value-card-photo-wrapper">
-                <img
-                  src="/auth-desk-scene.png?v=4"
-                  alt="Escritorio legal con códigos de Colombia y portátil"
-                  className="value-card-photo"
-                />
-              </div>
+              <img
+                src="/auth-desk-scene.png?v=4"
+                alt="Escritorio legal profesional con códigos de Colombia y computador"
+                className="value-card-bg-img"
+              />
 
               <div className="value-card-content">
-                <h3 className="value-card-heading">
-                  Un perfil verificado <br />
-                  genera más oportunidades
-                </h3>
+                <div className="value-card-inner">
+                  <h3 className="value-card-heading">
+                    Un perfil verificado <br />
+                    genera más oportunidades
+                  </h3>
 
-                <ul className="value-check-list">
-                  <li className="value-check-item">
-                    <span className="value-check-badge">
-                      <Check size={13} strokeWidth={2.8} />
-                    </span>
-                    <span>Aparecer en casos relevantes</span>
-                  </li>
+                  <ul className="value-check-list">
+                    <li className="value-check-item">
+                      <span className="value-check-badge">
+                        <Check size={13} strokeWidth={2.8} />
+                      </span>
+                      <span>Aparecer en casos relevantes</span>
+                    </li>
 
-                  <li className="value-check-item">
-                    <span className="value-check-badge">
-                      <Check size={13} strokeWidth={2.8} />
-                    </span>
-                    <span>Recibir invitaciones de clientes</span>
-                  </li>
+                    <li className="value-check-item">
+                      <span className="value-check-badge">
+                        <Check size={13} strokeWidth={2.8} />
+                      </span>
+                      <span>Recibir invitaciones de clientes</span>
+                    </li>
 
-                  <li className="value-check-item">
-                    <span className="value-check-badge">
-                      <Check size={13} strokeWidth={2.8} />
-                    </span>
-                    <span>Destacar tu experiencia y áreas de práctica</span>
-                  </li>
+                    <li className="value-check-item">
+                      <span className="value-check-badge">
+                        <Check size={13} strokeWidth={2.8} />
+                      </span>
+                      <span>Destacar tu experiencia y áreas de práctica</span>
+                    </li>
 
-                  <li className="value-check-item">
-                    <span className="value-check-badge">
-                      <Check size={13} strokeWidth={2.8} />
-                    </span>
-                    <span>Generar confianza con tu tarjeta profesional verificada</span>
-                  </li>
-                </ul>
+                    <li className="value-check-item">
+                      <span className="value-check-badge">
+                        <Check size={13} strokeWidth={2.8} />
+                      </span>
+                      <span>Generar confianza con tu tarjeta profesional verificada</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -598,34 +691,34 @@ export default function LawyerOnboardingDashboard({
               <div className="linkedin-header-logo">
                 <LinkedInOfficialIcon size={32} />
               </div>
-              <h3>Importar datos desde LinkedIn</h3>
+              <h3>Conectar perfil de LinkedIn</h3>
               <p>
-                Conecta tu perfil profesional para autocompletar foto de perfil, formación, experiencia y especialidades de forma instantánea.
+                Importa tu fotografía, titular y biografía profesional. Los datos regulatorios como tu <strong>Tarjeta Profesional (CSJ)</strong> se ingresan manualmente en el siguiente paso.
               </p>
             </div>
 
             <div className="linkedin-modal-body">
-              {/* Option A: Fast Demo / 1-Click Sync */}
+              {/* Option A: Official OAuth */}
               <div className="linkedin-sync-card active">
                 <div className="sync-card-info">
-                  <span className="sync-badge">RECOMENDADO</span>
-                  <h4>Sincronización profesional en 1 clic</h4>
-                  <p>Importa automáticamente foto de alta resolución, titulación de la Universidad del Rosario y experiencia legal en Colombia.</p>
+                  <span className="sync-badge">OFICIAL</span>
+                  <h4>Conectar con cuenta de LinkedIn</h4>
+                  <p>Inicia sesión de forma segura para importar tu perfil público y fotografía profesional automáticamente.</p>
                 </div>
                 <button
                   type="button"
                   className="linkedin-sync-btn"
-                  onClick={() => handleLinkedInSync()}
+                  onClick={handleLinkedInOAuth}
                   disabled={syncingLinkedIn}
                 >
                   <LinkedInOfficialIcon size={18} />
-                  <span>{syncingLinkedIn ? 'Sincronizando…' : 'Importar mi LinkedIn ahora'}</span>
+                  <span>{syncingLinkedIn ? 'Conectando…' : 'Iniciar sesión con LinkedIn'}</span>
                 </button>
               </div>
 
               {/* Option B: Profile URL Input */}
               <div className="linkedin-url-input-block">
-                <label>O ingresa el enlace de tu perfil de LinkedIn:</label>
+                <label>O importa directamente con tu enlace público de LinkedIn:</label>
                 <div className="linkedin-url-row">
                   <input
                     type="url"
@@ -638,11 +731,14 @@ export default function LawyerOnboardingDashboard({
                     type="button"
                     className="linkedin-import-url-btn"
                     onClick={() => handleLinkedInSync()}
-                    disabled={syncingLinkedIn}
+                    disabled={syncingLinkedIn || !customLinkedInUrl.trim()}
                   >
-                    Importar
+                    {syncingLinkedIn ? 'Importando…' : 'Importar'}
                   </button>
                 </div>
+                <small className="text-xs text-[#796c6e] mt-1 block">
+                  Se extraerán nombre, foto y descripción pública. La tarjeta profesional no se altera.
+                </small>
               </div>
             </div>
           </div>
@@ -676,7 +772,7 @@ export default function LawyerOnboardingDashboard({
                       type="text"
                       value={profileForm.name}
                       onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                      placeholder="Ej. Juan Pérez"
+                      placeholder="Ej. Andrés Morales"
                     />
                   </div>
                   <div className="wizard-field">
@@ -694,14 +790,15 @@ export default function LawyerOnboardingDashboard({
               {currentStep === 2 && (
                 <div className="wizard-form-step">
                   <div className="wizard-field">
-                    <label>Número de Tarjeta Profesional (CSJ / SIRNA)</label>
+                    <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
                     <input
                       type="text"
                       value={profileForm.license}
                       onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
-                      placeholder="Ej. 312.489 CSJ"
+                      placeholder="Ej. 294.180 CSJ"
+                      required
                     />
-                    <small>Se verificará de forma oficial con el Registro Nacional de Abogados (SIRNA).</small>
+                    <small>Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
                   </div>
                   <div className="wizard-file-dropzone">
                     <Upload size={24} className="text-gray-400" />
@@ -743,8 +840,10 @@ export default function LawyerOnboardingDashboard({
                     <label>Años de experiencia profesional</label>
                     <input
                       type="number"
-                      value={profileForm.years_of_experience}
+                      min={0}
+                      value={profileForm.years_of_experience || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, years_of_experience: Number(e.target.value) })}
+                      placeholder="Ej. 8"
                     />
                   </div>
                   <div className="wizard-field">
@@ -762,6 +861,7 @@ export default function LawyerOnboardingDashboard({
                       rows={3}
                       value={profileForm.bio}
                       onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                      placeholder="Describe tu trayectoria y enfoque jurídico..."
                     />
                   </div>
                 </div>
@@ -775,6 +875,7 @@ export default function LawyerOnboardingDashboard({
                       type="text"
                       value={profileForm.rate_hourly}
                       onChange={(e) => setProfileForm({ ...profileForm, rate_hourly: e.target.value })}
+                      placeholder="Ej. 180.000 COP / hora"
                     />
                   </div>
                   <div className="wizard-field">
@@ -797,7 +898,7 @@ export default function LawyerOnboardingDashboard({
                     <ShieldCheck size={36} className="text-[#68232c]" />
                     <h4>¡Todo listo para revisión!</h4>
                     <p>
-                      Revisaremos tu tarjeta profesional ante el Registro Nacional de Abogados. Mientras tanto, tu perfil estará habilitado para explorar casos afines.
+                      Revisaremos tu tarjeta profesional {profileForm.license ? `(${profileForm.license})` : ''} ante el Registro Nacional de Abogados. Mientras tanto, tu perfil estará habilitado para explorar casos afines.
                     </p>
                   </div>
                 </div>

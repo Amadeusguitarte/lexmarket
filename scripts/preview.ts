@@ -5,24 +5,40 @@ import { readFile, writeFile } from 'node:fs/promises';
 import Landing from '../components/Landing';
 import AuthModal from '../components/AuthModal';
 import LawyerOnboardingDashboard from '../components/LawyerOnboardingDashboard';
-const css=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
-const landingMarkup=renderToStaticMarkup(React.createElement(Landing,{onStart:()=>{},onLawyer:()=>{},onLogin:()=>{},onInfo:()=>{}}));
-const authMarkup=renderToStaticMarkup(React.createElement(AuthModal,{
-  authMode: 'signup',
-  role: 'client',
-  googleReady: true,
-  busy: false,
-  authReady: true,
-  onClose: ()=>{},
-  onModeChange: ()=>{},
-  onInfo: ()=>{},
-  onSubmit: ()=>{},
-  onContinueGoogle: ()=>{},
-}));
-const lawyerMarkup=renderToStaticMarkup(React.createElement(LawyerOnboardingDashboard, {
-  initialLawyerName: 'Juan Pérez',
-  initialAvatar: '/lawyers/juan-perez.jpg'
-}));
+
+const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
+
+const landingMarkup = renderToStaticMarkup(
+  React.createElement(Landing, {
+    onStart: () => {},
+    onLawyer: () => {},
+    onLogin: () => {},
+    onInfo: () => {},
+  })
+);
+
+const authMarkup = renderToStaticMarkup(
+  React.createElement(AuthModal, {
+    authMode: 'signup',
+    role: 'client',
+    googleReady: true,
+    busy: false,
+    authReady: true,
+    onClose: () => {},
+    onModeChange: () => {},
+    onInfo: () => {},
+    onSubmit: () => {},
+    onContinueGoogle: () => {},
+  })
+);
+
+const lawyerMarkup = renderToStaticMarkup(
+  React.createElement(LawyerOnboardingDashboard, {
+    initialLawyerName: 'Abogado',
+    initialAvatar: '',
+  })
+);
+
 const markup = `
 <div id="lawyer-dashboard-view" class="preview-switch-view" style="display:none">
   ${lawyerMarkup}
@@ -157,7 +173,7 @@ document.querySelectorAll('.example-pill').forEach(button => {
   }
 })();
 
-// Wire up Auth Modal preview
+// Wire up Auth Modal preview (strictly scoped to landing view)
 (function() {
   const authDialog = document.querySelector('.auth-editorial-dialog');
   const closeBtn = document.querySelector('.auth-editorial-close');
@@ -165,8 +181,8 @@ document.querySelectorAll('.example-pill').forEach(button => {
     closeBtn.addEventListener('click', () => authDialog.close());
   }
 
-  // Open auth modal on clicking 'Entrar' or related buttons
-  document.querySelectorAll('button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {
+  // Open auth modal ONLY on clicking 'Entrar' or related buttons inside #landing-view
+  document.querySelectorAll('#landing-view button:not(.example-pill):not(.step-dot-btn):not(.lawyer-btn):not(.fees-cta-link)').forEach(button => {
     button.addEventListener('click', (e) => {
       const text = button.textContent?.trim().toLowerCase() || '';
       if (text.includes('entrar') || text.includes('cuenta') || text.includes('empezar') || text.includes('acceder')) {
@@ -177,16 +193,12 @@ document.querySelectorAll('.example-pill').forEach(button => {
           return;
         }
       }
-      const previewInfo = document.getElementById('preview-info');
-      if (previewInfo && typeof previewInfo.showModal === 'function') {
-        previewInfo.showModal();
-      }
     });
   });
 
   const previewClose = document.getElementById('preview-close');
   if (previewClose) {
-    previewClose.onclick = () => document.getElementById('preview-info').close();
+    previewClose.onclick = () => document.getElementById('preview-info')?.close();
   }
 
   // Interactive role card toggling in preview
@@ -264,6 +276,252 @@ document.querySelectorAll('.example-pill').forEach(button => {
   updatePreviewView();
 })();
 
+// Lawyer Onboarding Dashboard interactive controls in preview
+(function() {
+  const lawyerRoot = document.getElementById('lawyer-dashboard-view');
+  if (!lawyerRoot) return;
+
+  function showToast(msg) {
+    let toast = lawyerRoot.querySelector('.lawyer-dash-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'lawyer-dash-toast';
+      lawyerRoot.prepend(toast);
+    }
+    toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big text-emerald-600"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>' + msg + '</span><button type="button" class="toast-close-x" style="background:none;border:none;cursor:pointer;color:#796c6e;font-size:16px;">✕</button>';
+    toast.querySelector('.toast-close-x')?.addEventListener('click', () => toast.remove());
+    setTimeout(() => { if (toast && toast.parentElement) toast.remove(); }, 6000);
+  }
+
+  // Open LinkedIn Modal
+  lawyerRoot.querySelectorAll('.linkedin-connect-btn, .speed-tip-link').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openLinkedInModal();
+    });
+  });
+
+  // Open Wizard Modal
+  lawyerRoot.querySelectorAll('.wizard-continue-btn, .linkedin-manual-link, .lawyer-user-profile-menu').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openWizardModal(1);
+    });
+  });
+
+  // Stepper clicks
+  lawyerRoot.querySelectorAll('.stepper-node').forEach((node, idx) => {
+    node.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openWizardModal(idx + 1);
+    });
+  });
+
+  function openLinkedInModal() {
+    const existing = lawyerRoot.querySelector('.linkedin-modal-backdrop-custom');
+    if (existing) existing.remove();
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'lawyer-modal-backdrop linkedin-modal-backdrop-custom';
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,17,0.65);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    
+    backdrop.innerHTML = \`
+      <div class="lawyer-modal-content linkedin-modal-box" style="background:#fff;border-radius:20px;width:100%;max-width:540px;padding:32px;box-shadow:0 24px 60px rgba(0,0,0,0.25);position:relative;">
+        <button type="button" class="lawyer-modal-close" style="position:absolute;top:20px;right:20px;background:none;border:none;cursor:pointer;font-size:20px;color:#796c6e;">✕</button>
+        <div class="linkedin-modal-header" style="text-align:center;margin-bottom:24px;">
+          <div style="color:#0077b5;margin-bottom:12px;display:flex;justify-content:center;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          </div>
+          <h3 style="font-family:Georgia,serif;font-size:22px;color:#1e191a;margin:0 0 8px;">Conectar perfil de LinkedIn</h3>
+          <p style="font-size:13.5px;color:#6a5e60;line-height:1.5;margin:0;">
+            Importa tu fotografía, titular y biografía profesional. Los datos regulatorios como tu <strong>Tarjeta Profesional (CSJ)</strong> se ingresan manualmente en el siguiente paso.
+          </p>
+        </div>
+        <div class="linkedin-modal-body" style="display:flex;flex-direction:column;gap:18px;">
+          <div class="linkedin-sync-card active" style="background:#f4f9fd;border:1px solid #cce2f5;border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+            <div style="flex:1;">
+              <span style="font-size:10px;font-weight:700;color:#0077b5;background:#e1f0fa;padding:3px 8px;border-radius:10px;">OFICIAL</span>
+              <h4 style="font-size:15px;color:#0d2943;margin:6px 0 2px;font-weight:700;">Conectar con cuenta de LinkedIn</h4>
+              <p style="font-size:12px;color:#486178;margin:0;">Inicia sesión con LinkedIn para autorizar de forma segura el acceso a tu perfil público y fotografía.</p>
+            </div>
+            <button type="button" class="btn-linkedin-oauth-trigger" style="background:#0077b5;color:#fff;border:none;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Iniciar sesión</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label style="font-size:13px;font-weight:600;color:#2b2526;">O importa directamente con tu enlace público de LinkedIn:</label>
+            <div style="display:flex;gap:8px;">
+              <input type="url" id="linkedin-preview-url" placeholder="https://www.linkedin.com/in/tu-perfil" style="flex:1;padding:10px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:13.5px;box-sizing:border-box;" />
+              <button type="button" id="btn-linkedin-preview-fetch" style="background:#68232c;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Importar</button>
+            </div>
+            <small style="font-size:11.5px;color:#796c6e;">Se extraerán nombre, foto y descripción pública. La tarjeta profesional (CSJ) no se altera.</small>
+          </div>
+        </div>
+      </div>
+    \`;
+
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.remove();
+    });
+
+    backdrop.querySelector('.lawyer-modal-close')?.addEventListener('click', () => backdrop.remove());
+
+    const doImport = (name) => {
+      const importedName = name || 'Carlos Mendoza';
+      const welcomeTitle = lawyerRoot.querySelector('.lawyer-welcome-title');
+      if (welcomeTitle) {
+        welcomeTitle.innerHTML = 'Hola, ' + importedName.split(' ')[0] + '. <br><em>Empecemos por preparar tu perfil profesional.</em>';
+      }
+      const topbarName = lawyerRoot.querySelector('.lawyer-user-fullname');
+      if (topbarName) topbarName.textContent = importedName;
+
+      // Update initials in avatar circle
+      const avatarFallback = lawyerRoot.querySelector('.lawyer-avatar-fallback');
+      if (avatarFallback) {
+        const initials = importedName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        avatarFallback.textContent = initials;
+      }
+
+      backdrop.remove();
+
+      // Progress advances to 35%, Step 1 completed, Step 2 remains unchecked!
+      const progFill = lawyerRoot.querySelector('.wizard-progress-fill');
+      const progText = lawyerRoot.querySelector('.wizard-progress-percent');
+      if (progFill) progFill.style.width = '35%';
+      if (progText) progText.textContent = '35% completo';
+
+      const step1 = lawyerRoot.querySelectorAll('.stepper-node')[0];
+      if (step1) {
+        step1.classList.add('completed');
+        step1.querySelector('.stepper-circle').innerHTML = '✓';
+      }
+
+      showToast('Perfil de LinkedIn importado con éxito (nombre, titular y foto). Ahora ingresa tu Tarjeta Profesional (CSJ) en el Paso 2.');
+      openWizardModal(2, importedName);
+    };
+
+    backdrop.querySelector('.btn-linkedin-oauth-trigger')?.addEventListener('click', () => {
+      doImport('Carlos Mendoza');
+    });
+
+    backdrop.querySelector('#btn-linkedin-preview-fetch')?.addEventListener('click', () => {
+      const urlInput = backdrop.querySelector('#linkedin-preview-url');
+      const url = urlInput ? urlInput.value.trim() : '';
+      let importedName = 'Carlos Mendoza';
+      if (url) {
+        const match = url.match(/linkedin\\.com\\/in\\/([a-zA-Z0-9_-]+)/i);
+        if (match && match[1]) {
+          importedName = match[1].replace(/[-_]/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+        }
+      }
+      doImport(importedName);
+    });
+
+    lawyerRoot.appendChild(backdrop);
+  }
+
+  function openWizardModal(stepNum, name) {
+    const existing = lawyerRoot.querySelector('.wizard-modal-backdrop-custom');
+    if (existing) existing.remove();
+
+    const steps = [
+      'Datos básicos',
+      'Tarjeta profesional',
+      'Áreas de práctica',
+      'Experiencia',
+      'Honorarios y preferencias',
+      'Verificación'
+    ];
+
+    const currentName = name || lawyerRoot.querySelector('.lawyer-user-fullname')?.textContent || 'Abogado';
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'lawyer-modal-backdrop wizard-modal-backdrop-custom';
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,17,0.65);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    
+    backdrop.innerHTML = \`
+      <div class="lawyer-modal-content wizard-modal-box" style="background:#fff;border-radius:20px;width:100%;max-width:560px;padding:32px;box-shadow:0 24px 60px rgba(0,0,0,0.25);position:relative;">
+        <button type="button" class="lawyer-modal-close" style="position:absolute;top:20px;right:20px;background:none;border:none;cursor:pointer;font-size:20px;color:#796c6e;">✕</button>
+        <div class="wizard-modal-stepper-header" style="margin-bottom:20px;">
+          <span class="wizard-step-tag" style="font-size:12px;font-weight:700;color:#68232c;text-transform:uppercase;letter-spacing:0.06em;">Paso \${stepNum} de 6</span>
+          <h3 style="font-family:Georgia,serif;font-size:22px;color:#1e191a;margin:4px 0 6px;">\${steps[stepNum-1]}</h3>
+          <p style="font-size:13px;color:#6a5e60;margin:0;">Completa la información necesaria para activar tu perfil y acceder a casos.</p>
+        </div>
+        <div class="wizard-modal-form-body" style="display:flex;flex-direction:column;gap:16px;">
+          \${stepNum === 1 ? \`
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label style="font-size:13px;font-weight:600;color:#2b2526;">Nombre y Apellidos</label>
+              <input type="text" id="modal-field-name" value="\${currentName}" style="padding:10px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label style="font-size:13px;font-weight:600;color:#2b2526;">Ciudad de práctica</label>
+              <input type="text" id="modal-field-city" value="Bogotá, D.C." style="padding:10px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;" />
+            </div>
+          \` : stepNum === 2 ? \`
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <label style="font-size:13px;font-weight:600;color:#2b2526;">Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
+              <input type="text" id="modal-field-license" placeholder="Ej. 294.180 CSJ" style="padding:10px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;" />
+              <small style="font-size:11.5px;color:#796c6e;">Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
+            </div>
+            <div style="border:1.5px dashed #ebdccc;border-radius:12px;padding:20px;text-align:center;color:#796c6e;font-size:13px;background:#fbf8f3;">
+              Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)
+            </div>
+          \` : \`
+            <div style="padding:16px;background:#fbf8f3;border-radius:12px;font-size:13.5px;color:#4a4344;">
+              Completa los datos de esta etapa para avanzar en la activación de tu perfil profesional.
+            </div>
+          \`}
+        </div>
+        <div class="wizard-modal-footer" style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
+          \${stepNum > 1 ? '<button type="button" class="modal-btn-prev button outline" style="padding:9px 18px;border-radius:20px;font-size:13px;">Anterior</button>' : ''}
+          <button type="button" class="modal-btn-next button" style="background:#68232c;color:#fff;padding:9px 22px;border-radius:20px;font-size:13px;border:none;cursor:pointer;">Guardar y Continuar →</button>
+        </div>
+      </div>
+    \`;
+
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.remove();
+    });
+
+    backdrop.querySelector('.lawyer-modal-close')?.addEventListener('click', () => backdrop.remove());
+
+    backdrop.querySelector('.modal-btn-prev')?.addEventListener('click', () => {
+      backdrop.remove();
+      openWizardModal(stepNum - 1);
+    });
+
+    backdrop.querySelector('.modal-btn-next')?.addEventListener('click', () => {
+      if (stepNum === 2) {
+        const licInput = backdrop.querySelector('#modal-field-license');
+        const licVal = licInput ? licInput.value.trim() : '';
+        if (licVal.length < 4) {
+          alert('Por favor ingresa un número válido de tarjeta profesional (mínimo 4 caracteres).');
+          return;
+        }
+        // Step 2 completed!
+        const step2 = lawyerRoot.querySelectorAll('.stepper-node')[1];
+        if (step2) {
+          step2.classList.add('completed');
+          step2.querySelector('.stepper-circle').innerHTML = '✓';
+        }
+        const progFill = lawyerRoot.querySelector('.wizard-progress-fill');
+        const progText = lawyerRoot.querySelector('.wizard-progress-percent');
+        if (progFill) progFill.style.width = '60%';
+        if (progText) progText.textContent = '60% completo';
+        showToast('Tarjeta Profesional registrada con éxito. Avanzando a Áreas de práctica.');
+      }
+      backdrop.remove();
+      if (stepNum < 6) {
+        openWizardModal(stepNum + 1);
+      } else {
+        showToast('¡Perfil enviado a verificación exitosamente!');
+      }
+    });
+
+    lawyerRoot.appendChild(backdrop);
+  }
+})();
 
 // Smart Header Hide on Scroll Down / Reveal on Scroll Up
 (function() {
@@ -314,7 +572,6 @@ document.querySelectorAll('.example-pill').forEach(button => {
     }
   }, { passive: true });
 
-  // Immediate evaluation and event triggers for reload / scroll restoration / anchor hash
   evaluateHeader(false);
   window.addEventListener('DOMContentLoaded', function() { evaluateHeader(false); });
   window.addEventListener('load', function() { evaluateHeader(false); });
@@ -326,9 +583,22 @@ document.querySelectorAll('.example-pill').forEach(button => {
   setTimeout(function() { evaluateHeader(false); }, 200);
 })();
 `;
-const adjustedMarkup=markup
+
+const adjustedMarkup = markup
   .replace(/src="\/(?!\/)([^"]+)"/g, 'src="../public/$1"')
-  .replace(/(<header class="public-header-wrapper[^"]*">)/, '$1<script>(function(){try{var h=document.querySelector(".public-header-wrapper");var y=window.scrollY||document.documentElement.scrollTop||0;if(h&&y>80){h.classList.add("header-hidden","header-scrolled");}else if(h&&y>25){h.classList.add("header-scrolled");}}catch(e){}})();</script>');
-const html='<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LexMarket · Vista de diseño</title><style>'+css+'</style></head><body>'+adjustedMarkup+'<dialog id="preview-info" class="modal"><h2>Una primera mirada a LexMarket</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>'+script+'</script></body></html>';
-await writeFile(new URL('../docs/preview.html',import.meta.url),html);
-console.log('docs/preview.html generated from the real landing component');
+  .replace(
+    /(<header class="public-header-wrapper[^"]*">)/,
+    '$1<script>(function(){try{var h=document.querySelector(".public-header-wrapper");var y=window.scrollY||document.documentElement.scrollTop||0;if(h&&y>80){h.classList.add("header-hidden","header-scrolled");}else if(h&&y>25){h.classList.add("header-scrolled");}}catch(e){}})();</script>'
+  );
+
+const html =
+  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LexMarket · Vista de diseño</title><style>' +
+  css +
+  '</style></head><body>' +
+  adjustedMarkup +
+  '<dialog id="preview-info" class="modal"><h2>Una primera mirada a LexMarket</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>' +
+  script +
+  '</script></body></html>';
+
+await writeFile(new URL('../docs/preview.html', import.meta.url), html);
+console.log('docs/preview.html generated from real components successfully!');

@@ -171,38 +171,58 @@ export function normalizeLinkedInData(raw: any): LinkedInProfileData {
 }
 
 /**
- * Pre-packaged realistic sample profile for demonstration and quick sync
+ * Fetches public LinkedIn profile data (OpenGraph tags: title, photo, headline)
+ * to import the lawyer's real photo and headline without dummy data.
  */
-export function getSampleLinkedInLawyer(): LinkedInProfileData {
-  return {
-    name: 'Juan Pérez',
-    given_name: 'Juan',
-    family_name: 'Pérez',
-    email: 'juan.perez.abogado@lexmarket.co',
-    avatar_url: '/lawyers/juan-perez.jpg',
-    headline: 'Abogado Litigante y Consultor · Especialista en Derecho Laboral y Comercial',
-    bio: 'Abogado con más de 8 años de experiencia en litigio estratégico, derecho laboral individual y colectivo, estructuración de acuerdos comerciales y defensa judicial de empresas y trabajadores en Colombia.',
-    education: 'Abogado · Universidad del Rosario, Especialización en Derecho Laboral y Seguridad Social',
-    years_of_experience: 8,
-    specialties: ['Derecho Laboral', 'Derecho Comercial', 'Tutelas y Derechos de Petición'],
-    city: 'Bogotá, D.C.',
-    license: '312.489 CSJ',
-    linkedin_url: 'https://linkedin.com/in/juan-perez-abogado-colombia',
-    positions: [
-      {
-        title: 'Socio / Abogado Litigante',
-        company: 'Pérez & Asociados Consultores Jurídicos',
-        start_date: '2020',
-        end_date: 'Actualidad',
-        description: 'Liderazgo en representación judicial laboral y controversias societarias.'
+export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Partial<LinkedInProfileData>> {
+  const cleanUrl = profileUrl.trim();
+  if (!cleanUrl.toLowerCase().includes('linkedin.com/in/')) {
+    throw new Error('Ingresa un enlace válido de tu perfil de LinkedIn (ejemplo: https://www.linkedin.com/in/tu-nombre)');
+  }
+
+  try {
+    const res = await fetch(cleanUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'es-CO,es;q=0.9,en;q=0.8',
       },
-      {
-        title: 'Abogado Senior en Litigios',
-        company: 'Defensa Jurídica Corporativa',
-        start_date: '2016',
-        end_date: '2020',
-        description: 'Atención de audiencias judiciales, tutelas y conciliaciones extrajudiciales.'
-      }
-    ]
-  };
+      next: { revalidate: 0 }
+    });
+
+    if (!res.ok) {
+      throw new Error('No se pudo acceder públicamente al enlace de LinkedIn especificado.');
+    }
+
+    const html = await res.text();
+    const ogTitleMatch = html.match(/<meta\s+property=["']og:title["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:title["']/i);
+    const ogDescMatch = html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:description["']/i);
+    const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:image["']/i);
+
+    const rawTitle = ogTitleMatch ? ogTitleMatch[1] : '';
+    let name = rawTitle.split(/[-–|]/)[0]?.trim() || '';
+    let headline = rawTitle.includes('-') ? rawTitle.split(/[-–]/)[1]?.split('|')[0]?.trim() : '';
+    let bio = ogDescMatch ? ogDescMatch[1] : headline;
+    let avatarUrl = ogImageMatch ? ogImageMatch[1] : '';
+
+    name = name.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+    bio = bio.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+    headline = headline.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+
+    const specialties = (headline || bio) ? mapLinkedInSkillsToSpecialties(`${headline} ${bio}`) : [];
+
+    return {
+      name: name || undefined,
+      avatar_url: avatarUrl || undefined,
+      headline: headline || undefined,
+      bio: bio || undefined,
+      specialties: specialties.length ? specialties : undefined,
+      linkedin_url: cleanUrl,
+      // Tarjeta profesional is NEVER from LinkedIn; must be filled manually
+      license: '',
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Error al conectar con el perfil de LinkedIn.');
+  }
 }
+

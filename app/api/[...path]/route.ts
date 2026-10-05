@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { auth, db, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
+import { fetchLinkedInPublicProfile, getLinkedInAuthUrl } from '@/lib/linkedin';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const uuid=z.string().uuid();
@@ -88,6 +89,20 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     }
     return json({profile,reviews});
 
+   }
+
+   if(path[0]==='linkedin') {
+    if(path[1]==='fetch-url'&&method==='POST') {
+      const b=await body(req);
+      const profileData=await fetchLinkedInPublicProfile(b.url||'');
+      return json({ok:true,profile:profileData});
+    }
+    if(path[1]==='auth'&&method==='GET') {
+      const clientId=process.env.LINKEDIN_CLIENT_ID||process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+      if(!clientId) return json({configured:false,message:'LinkedIn OAuth no está configurado aún en las variables de entorno.'});
+      const authUrl=getLinkedInAuthUrl(crypto.randomUUID());
+      return json({configured:true,url:authUrl});
+    }
    }
 
    const ctx=await auth(req),{client,user,profile}=ctx;

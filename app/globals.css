@@ -5819,34 +5819,44 @@ input.auth-input-control.with-trailing {
 .lawyer-search-box {
   flex: 1;
   max-width: 600px;
-  position: relative;
-  display: flex;
-  align-items: center;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .lawyer-search-icon {
-  position: absolute;
-  left: 16px;
-  color: #8f8284;
-  pointer-events: none;
+  position: absolute !important;
+  left: 18px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #8f8284 !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .lawyer-search-input {
-  width: 100%;
-  padding: 11px 18px 11px 44px;
-  background: #f3ede5;
-  border: 1px solid #ebdccc;
-  border-radius: 28px;
-  font-size: 13.5px;
-  color: #2b2526;
-  outline: none;
-  transition: all 0.2s ease;
+  width: 100% !important;
+  height: 44px !important;
+  padding-left: 54px !important;
+  padding-right: 20px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: #f3ede5 !important;
+  border: 1px solid #ebdccc !important;
+  border-radius: 28px !important;
+  font-size: 13.5px !important;
+  color: #2b2526 !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
 }
 
 .lawyer-search-input:focus {
-  background: #ffffff;
-  border-color: #68232c;
-  box-shadow: 0 0 0 3px rgba(104, 35, 44, 0.08);
+  background: #ffffff !important;
+  border-color: #68232c !important;
+  box-shadow: 0 0 0 3px rgba(104, 35, 44, 0.08) !important;
 }
 
 .lawyer-topbar-right {
@@ -5910,6 +5920,18 @@ input.auth-input-control.with-trailing {
   border-radius: 50%;
   object-fit: cover;
   border: 1.5px solid #ebdccc;
+}
+
+.lawyer-avatar-fallback {
+  background: #68232c !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  user-select: none;
 }
 
 .lawyer-user-names {
@@ -6272,39 +6294,57 @@ input.auth-input-control.with-trailing {
   color: #52161f;
 }
 
-/* Right Card: Value Proposition Card */
+/* Right Card: Value Proposition Card (Full-bleed desk scene with angled white card overlay) */
 .lawyer-value-prop-card {
-  background: #ffffff;
+  position: relative;
+  background-color: #231b1c;
   border: 1px solid #ebdccc;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 18px rgba(43, 37, 38, 0.03);
+  box-shadow: 0 4px 18px rgba(43, 37, 38, 0.04);
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+  min-height: 500px;
+  height: 100%;
 }
 
-.value-card-photo-wrapper {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  position: relative;
-  background: #f1ebd8;
-}
-
-.value-card-photo {
+.value-card-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
-  display: block;
+  object-position: center bottom;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .value-card-content {
-  padding: 24px 22px 28px;
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top-right-radius: 28px;
+  width: 88%;
+  max-width: 320px;
+  padding: 24px 18px 26px 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  background: #ffffff;
+  gap: 15px;
+  box-shadow: 4px -4px 22px rgba(25, 18, 20, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  border-right: 1px solid rgba(235, 220, 204, 0.8);
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+.value-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .value-card-heading {
