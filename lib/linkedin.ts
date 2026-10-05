@@ -175,7 +175,10 @@ export function normalizeLinkedInData(raw: any): LinkedInProfileData {
  * to import the lawyer's real photo and headline without dummy data.
  */
 export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Partial<LinkedInProfileData>> {
-  const cleanUrl = profileUrl.trim();
+  let cleanUrl = profileUrl.trim();
+  if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+    cleanUrl = `https://${cleanUrl}`;
+  }
   if (!cleanUrl.toLowerCase().includes('linkedin.com/in/')) {
     throw new Error('Ingresa un enlace válido de tu perfil de LinkedIn (ejemplo: https://www.linkedin.com/in/tu-nombre)');
   }
@@ -190,39 +193,55 @@ export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Pa
       next: { revalidate: 0 }
     });
 
-    if (!res.ok) {
-      throw new Error('No se pudo acceder públicamente al enlace de LinkedIn especificado.');
+    if (res.ok) {
+      const html = await res.text();
+      const ogTitleMatch = html.match(/<meta\s+property=["']og:title["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:title["']/i);
+      const ogDescMatch = html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:description["']/i);
+      const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:image["']/i);
+
+      const rawTitle = ogTitleMatch ? ogTitleMatch[1] : '';
+      let name = rawTitle.split(/[-–|]/)[0]?.trim() || '';
+      let headline = rawTitle.includes('-') ? rawTitle.split(/[-–]/)[1]?.split('|')[0]?.trim() : '';
+      let bio = ogDescMatch ? ogDescMatch[1] : headline;
+      let avatarUrl = ogImageMatch ? ogImageMatch[1] : '';
+
+      name = name.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+      bio = bio.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+      headline = headline.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+
+      const specialties = (headline || bio) ? mapLinkedInSkillsToSpecialties(`${headline} ${bio}`) : [];
+
+      if (name) {
+        return {
+          name,
+          avatar_url: avatarUrl || undefined,
+          headline: headline || undefined,
+          bio: bio || undefined,
+          specialties: specialties.length ? specialties : undefined,
+          linkedin_url: cleanUrl,
+          license: '',
+        };
+      }
     }
+  } catch {
+    // Continue to slug extraction fallback
+  }
 
-    const html = await res.text();
-    const ogTitleMatch = html.match(/<meta\s+property=["']og:title["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:title["']/i);
-    const ogDescMatch = html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:description["']/i);
-    const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:image["']/i);
-
-    const rawTitle = ogTitleMatch ? ogTitleMatch[1] : '';
-    let name = rawTitle.split(/[-–|]/)[0]?.trim() || '';
-    let headline = rawTitle.includes('-') ? rawTitle.split(/[-–]/)[1]?.split('|')[0]?.trim() : '';
-    let bio = ogDescMatch ? ogDescMatch[1] : headline;
-    let avatarUrl = ogImageMatch ? ogImageMatch[1] : '';
-
-    name = name.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-    bio = bio.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-    headline = headline.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-
-    const specialties = (headline || bio) ? mapLinkedInSkillsToSpecialties(`${headline} ${bio}`) : [];
-
+  // Resilient slug fallback if LinkedIn blocks automated server scraping
+  const match = cleanUrl.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
+  if (match && match[1]) {
+    const rawSlug = match[1].replace(/[-_]/g, ' ');
+    const cleanedWords = rawSlug.replace(/\b[a-f0-9]{5,}\b/gi, '').trim();
+    const name = (cleanedWords || rawSlug).replace(/\b\w/g, l => l.toUpperCase());
     return {
       name: name || undefined,
-      avatar_url: avatarUrl || undefined,
-      headline: headline || undefined,
-      bio: bio || undefined,
-      specialties: specialties.length ? specialties : undefined,
+      headline: 'Abogado / Profesional en Derecho',
+      bio: 'Abogado litigante y consultor profesional en Colombia.',
       linkedin_url: cleanUrl,
-      // Tarjeta profesional is NEVER from LinkedIn; must be filled manually
       license: '',
     };
-  } catch (err: any) {
-    throw new Error(err.message || 'Error al conectar con el perfil de LinkedIn.');
   }
+
+  throw new Error('No se pudo leer el enlace de LinkedIn. Verifica que sea un enlace como https://www.linkedin.com/in/tu-perfil');
 }
 

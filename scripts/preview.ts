@@ -341,21 +341,22 @@ document.querySelectorAll('.example-pill').forEach(button => {
           </p>
         </div>
         <div class="linkedin-modal-body" style="display:flex;flex-direction:column;gap:18px;">
-          <div class="linkedin-sync-card active" style="background:#f4f9fd;border:1px solid #cce2f5;border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
-            <div style="flex:1;">
-              <span style="font-size:10px;font-weight:700;color:#0077b5;background:#e1f0fa;padding:3px 8px;border-radius:10px;">OFICIAL</span>
-              <h4 style="font-size:15px;color:#0d2943;margin:6px 0 2px;font-weight:700;">Conectar con cuenta de LinkedIn</h4>
-              <p style="font-size:12px;color:#486178;margin:0;">Inicia sesión con LinkedIn para autorizar de forma segura el acceso a tu perfil público y fotografía.</p>
-            </div>
-            <button type="button" class="btn-linkedin-oauth-trigger" style="background:#0077b5;color:#fff;border:none;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Iniciar sesión</button>
-          </div>
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <label style="font-size:13px;font-weight:600;color:#2b2526;">O importa directamente con tu enlace público de LinkedIn:</label>
-            <div style="display:flex;gap:8px;">
-              <input type="url" id="linkedin-preview-url" placeholder="https://www.linkedin.com/in/tu-perfil" style="flex:1;padding:10px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:13.5px;box-sizing:border-box;" />
-              <button type="button" id="btn-linkedin-preview-fetch" style="background:#68232c;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Importar</button>
+            <label style="font-size:13.5px;font-weight:600;color:#1e191a;">Pega el enlace de tu perfil de LinkedIn:</label>
+            <div style="display:flex;gap:10px;">
+              <input type="url" id="linkedin-preview-url" placeholder="https://www.linkedin.com/in/tu-perfil-profesional" style="flex:1;padding:11px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:13.5px;box-sizing:border-box;" />
+              <button type="button" id="btn-linkedin-preview-fetch" style="background:#0077b5;color:#fff;border:none;padding:11px 22px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;">Vincular perfil</button>
             </div>
-            <small style="font-size:11.5px;color:#796c6e;">Se extraerán nombre, foto y descripción pública. La tarjeta profesional (CSJ) no se altera.</small>
+            <small style="font-size:12px;color:#796c6e;line-height:1.45;">Extraeremos tu nombre, fotografía y titular público. Tu tarjeta profesional (CSJ) se ingresa manualmente por requisito legal.</small>
+          </div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;font-size:13px;color:#475569;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+            </div>
+            <div style="flex:1;">
+              <strong style="display:block;color:#1e293b;margin-bottom:2px;">Inicio de sesión oficial en 1 clic</strong>
+              <span style="font-size:12px;color:#64748b;">Actualmente disponible vinculando el enlace de tu perfil arriba.</span>
+            </div>
           </div>
         </div>
       </div>

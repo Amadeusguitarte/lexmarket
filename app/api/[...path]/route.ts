@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { auth, db, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
-import { fetchLinkedInPublicProfile, getLinkedInAuthUrl } from '@/lib/linkedin';
+import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const uuid=z.string().uuid();
@@ -111,6 +111,27 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           return NextResponse.redirect(authUrl);
         }
         return json({configured:true,url:authUrl});
+      }
+      if(path[1]==='callback'&&method==='GET') {
+        const urlObj = new URL(req.url);
+        const code = urlObj.searchParams.get('code');
+        const error = urlObj.searchParams.get('error');
+        if(error || !code) {
+          return NextResponse.redirect(new URL('/?linkedin_notice=cancelled', req.url));
+        }
+        try {
+          const tokenData = await exchangeLinkedInCode(code);
+          const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
+          const name = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim() || 'Abogado';
+          const avatar = userInfo.picture || '';
+          const redirectUrl = new URL('/', req.url);
+          redirectUrl.searchParams.set('linkedin_connected', 'true');
+          redirectUrl.searchParams.set('linkedin_name', name);
+          if (avatar) redirectUrl.searchParams.set('linkedin_avatar', avatar);
+          return NextResponse.redirect(redirectUrl);
+        } catch {
+          return NextResponse.redirect(new URL('/?linkedin_notice=error', req.url));
+        }
       }
     }
 

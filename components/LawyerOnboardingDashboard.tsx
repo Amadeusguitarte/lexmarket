@@ -106,7 +106,18 @@ export default function LawyerOnboardingDashboard({
     modality: '', // STRICTLY EMPTY! Requires manual selection in Step 5
   });
 
-  const [oauthNotice, setOauthNotice] = useState<string | null>(null);
+  const [oauthAvailable, setOauthAvailable] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    fetch('/api/linkedin/auth')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.configured && data.url) {
+          setOauthAvailable(true);
+        }
+      })
+      .catch(() => setOauthAvailable(false));
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -153,10 +164,9 @@ export default function LawyerOnboardingDashboard({
 
   const progress = calculateProgress();
 
-  // Official LinkedIn OAuth: checks configuration first without dumping raw JSON on screen
+  // Official LinkedIn OAuth: redirects if configured
   const handleLinkedInOAuth = async () => {
     setSyncingLinkedIn(true);
-    setOauthNotice(null);
     try {
       const res = await fetch('/api/linkedin/auth');
       const data = await res.json();
@@ -164,13 +174,9 @@ export default function LawyerOnboardingDashboard({
         window.location.href = data.url;
         return;
       }
-      setOauthNotice(
-        'El inicio de sesión OAuth de LinkedIn aún no tiene configuradas las credenciales (LINKEDIN_CLIENT_ID y LINKEDIN_CLIENT_SECRET) en las variables de entorno de Railway. Puedes sincronizar tu perfil de inmediato pegando tu enlace de LinkedIn abajo o continuar de forma manual.'
-      );
+      showToast('Por favor vincula tu perfil pegando el enlace de tu perfil de LinkedIn.');
     } catch {
-      setOauthNotice(
-        'No se pudo verificar la conexión con LinkedIn en este momento. Puedes ingresar tu enlace de perfil abajo o continuar de forma manual.'
-      );
+      showToast('Por favor vincula tu perfil pegando el enlace de tu perfil de LinkedIn.');
     } finally {
       setSyncingLinkedIn(false);
     }
@@ -723,42 +729,19 @@ export default function LawyerOnboardingDashboard({
             </div>
 
             <div className="linkedin-modal-body">
-              {oauthNotice && (
-                <div style={{
-                  background: '#fdf2f2',
-                  border: '1px solid #f5c2c7',
-                  borderRadius: '12px',
-                  padding: '13px 15px',
-                  marginBottom: '16px',
-                  fontSize: '13px',
-                  color: '#721c24',
-                  lineHeight: '1.45',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                }}>
-                  <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px', color: '#c53030' }} />
-                  <div>
-                    <strong style={{ display: 'block', marginBottom: '2px', color: '#68232c' }}>
-                      Aviso de autenticación OAuth:
-                    </strong>
-                    {oauthNotice}
-                  </div>
-                </div>
-              )}
-
-              {/* Option A: Direct Profile URL Import (No OAuth setup required) */}
-              <div className="linkedin-url-input-block" style={{ marginBottom: '20px' }}>
-                <label style={{ fontWeight: 600, color: '#1e191a', display: 'block', marginBottom: '6px' }}>
-                  Pega tu enlace de perfil de LinkedIn:
+              {/* Option A: Direct Profile URL Import */}
+              <div className="linkedin-url-input-block" style={{ marginBottom: '22px' }}>
+                <label style={{ fontWeight: 600, color: '#1e191a', display: 'block', marginBottom: '8px', fontSize: '14px' }}>
+                  Pega el enlace de tu perfil de LinkedIn:
                 </label>
-                <div className="linkedin-url-row">
+                <div className="linkedin-url-row" style={{ display: 'flex', gap: '10px' }}>
                   <input
                     type="url"
                     placeholder="https://www.linkedin.com/in/tu-perfil-profesional"
                     value={customLinkedInUrl}
                     onChange={(e) => setCustomLinkedInUrl(e.target.value)}
                     className="linkedin-input-text"
+                    style={{ flex: 1 }}
                     autoFocus
                   />
                   <button
@@ -767,31 +750,67 @@ export default function LawyerOnboardingDashboard({
                     onClick={() => handleLinkedInSync()}
                     disabled={syncingLinkedIn || !customLinkedInUrl.trim()}
                   >
-                    {syncingLinkedIn ? 'Conectando…' : 'Importar datos'}
+                    {syncingLinkedIn ? 'Vinculando…' : 'Vincular perfil'}
                   </button>
                 </div>
-                <small className="text-xs text-[#796c6e] mt-1 block">
-                  Extrae tu nombre, fotografía y biografía. La tarjeta profesional (CSJ) se completa manualmente por requisito legal.
+                <small className="text-xs text-[#796c6e] mt-2 block" style={{ lineHeight: '1.45' }}>
+                  Extraeremos tu nombre, fotografía y titular público. Tu tarjeta profesional (CSJ) se ingresa manualmente por requisito legal.
                 </small>
               </div>
 
-              {/* Option B: Official OAuth */}
-              <div className="linkedin-sync-card">
-                <div className="sync-card-info">
-                  <span className="sync-badge">OAUTH 2.0</span>
-                  <h4>Conectar con cuenta oficial de LinkedIn</h4>
-                  <p>Inicia sesión directamente si tu entorno cuenta con credenciales activas de LinkedIn Developer.</p>
+              {/* Option B: Direct OAuth */}
+              {oauthAvailable ? (
+                <div className="linkedin-sync-card">
+                  <div className="sync-card-info">
+                    <span className="sync-badge">OAUTH 2.0</span>
+                    <h4>Conectar con cuenta oficial de LinkedIn</h4>
+                    <p>Inicia sesión directamente para autorizar la sincronización de tu perfil.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="linkedin-sync-btn"
+                    onClick={handleLinkedInOAuth}
+                    disabled={syncingLinkedIn}
+                  >
+                    <LinkedInOfficialIcon size={18} />
+                    <span>{syncingLinkedIn ? 'Conectando…' : 'Iniciar sesión con LinkedIn'}</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="linkedin-sync-btn"
-                  onClick={handleLinkedInOAuth}
-                  disabled={syncingLinkedIn}
-                >
-                  <LinkedInOfficialIcon size={18} />
-                  <span>{syncingLinkedIn ? 'Verificando…' : 'Iniciar sesión con LinkedIn'}</span>
-                </button>
-              </div>
+              ) : (
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  fontSize: '13px',
+                  color: '#475569'
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    background: '#e0f2fe',
+                    color: '#0284c7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <LinkedInOfficialIcon size={18} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ display: 'block', color: '#1e293b', marginBottom: '2px' }}>
+                      Inicio de sesión oficial en 1 clic
+                    </strong>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      Actualmente disponible vinculando el enlace de tu perfil arriba.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
