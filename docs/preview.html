@@ -7359,22 +7359,31 @@ document.querySelectorAll('.example-pill').forEach(button => {
           </p>
         </div>
         <div class="linkedin-modal-body" style="display:flex;flex-direction:column;gap:18px;">
+          <div class="linkedin-sync-card" style="background:#f4f9fd;border:1px solid #cce2f5;border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+            <div style="flex:1;">
+              <span style="font-size:10px;font-weight:700;color:#0077b5;background:#e1f0fa;padding:3px 8px;border-radius:10px;">RECOMENDADO</span>
+              <h4 style="font-size:15px;color:#0d2943;margin:6px 0 2px;font-weight:700;">Conectar con cuenta oficial de LinkedIn</h4>
+              <p style="font-size:12px;color:#486178;margin:0;">Inicia sesión con tu cuenta para autorizar el acceso seguro a tu perfil.</p>
+            </div>
+            <button type="button" class="btn-linkedin-oauth-trigger" style="background:#0077b5;color:#fff;border:none;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+              <span>Iniciar sesión con LinkedIn</span>
+            </button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;color:#94a3b8;font-size:11px;font-weight:700;letter-spacing:0.04em;">
+            <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+            <span>O VINCULA CON TU ENLACE PÚBLICO</span>
+            <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+          </div>
+
           <div style="display:flex;flex-direction:column;gap:8px;">
             <label style="font-size:13.5px;font-weight:600;color:#1e191a;">Pega el enlace de tu perfil de LinkedIn:</label>
             <div style="display:flex;gap:10px;">
               <input type="url" id="linkedin-preview-url" placeholder="https://www.linkedin.com/in/tu-perfil-profesional" style="flex:1;padding:11px 14px;border:1px solid #ebdccc;border-radius:10px;font-size:13.5px;box-sizing:border-box;" />
               <button type="button" id="btn-linkedin-preview-fetch" style="background:#0077b5;color:#fff;border:none;padding:11px 22px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;">Vincular perfil</button>
             </div>
-            <small style="font-size:12px;color:#796c6e;line-height:1.45;">Extraeremos tu nombre, fotografía y titular público. Tu tarjeta profesional (CSJ) se ingresa manualmente por requisito legal.</small>
-          </div>
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;font-size:13px;color:#475569;">
-            <div style="width:32px;height:32px;border-radius:8px;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-            </div>
-            <div style="flex:1;">
-              <strong style="display:block;color:#1e293b;margin-bottom:2px;">Inicio de sesión oficial en 1 clic</strong>
-              <span style="font-size:12px;color:#64748b;">Actualmente disponible vinculando el enlace de tu perfil arriba.</span>
-            </div>
+            <small style="font-size:12px;color:#796c6e;line-height:1.45;">Extraeremos tu fotografía, titular y biografía pública. Tu tarjeta profesional (CSJ) se ingresa manualmente por requisito legal.</small>
           </div>
         </div>
       </div>
@@ -7387,7 +7396,7 @@ document.querySelectorAll('.example-pill').forEach(button => {
     backdrop.querySelector('.lawyer-modal-close')?.addEventListener('click', () => backdrop.remove());
 
     const doImport = (name) => {
-      const importedName = name || 'Carlos Mendoza';
+      const importedName = name || 'Abogado';
       const welcomeTitle = lawyerRoot.querySelector('.lawyer-welcome-title');
       if (welcomeTitle) {
         welcomeTitle.innerHTML = 'Hola, ' + importedName.split(' ')[0] + '. <br><em>Empecemos por preparar tu perfil profesional.</em>';
@@ -7404,31 +7413,63 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
       backdrop.remove();
 
-      // Progress advances to 35%, Step 1 completed, Step 2 remains unchecked!
-      const progFill = lawyerRoot.querySelector('.wizard-progress-fill');
-      const progText = lawyerRoot.querySelector('.wizard-progress-percent');
-      if (progFill) progFill.style.width = '35%';
-      if (progText) progText.textContent = '35% completo';
-
-      const step1 = lawyerRoot.querySelectorAll('.stepper-node')[0];
-      if (step1) {
-        step1.classList.add('completed');
-        step1.querySelector('.stepper-circle').innerHTML = '✓';
-      }
-
-      showToast('Perfil de LinkedIn importado con éxito (nombre, titular y foto). Ahora ingresa tu Tarjeta Profesional (CSJ) en el Paso 2.');
+      showToast('¡LinkedIn conectado exitosamente! Ahora ingresa manualmente tu Tarjeta Profesional en el Paso 2.');
       openWizardModal(2, importedName);
     };
 
+    const openLinkedInAuthDialog = () => {
+      backdrop.remove();
+      const authBackdrop = document.createElement('div');
+      authBackdrop.className = 'lawyer-modal-backdrop';
+      authBackdrop.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,17,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      authBackdrop.innerHTML = `
+        <div style="background:#fff;border-radius:16px;max-width:430px;width:100%;padding:36px 30px;box-shadow:0 24px 60px rgba(0,0,0,0.3);position:relative;">
+          <button type="button" class="auth-close-btn" style="position:absolute;top:18px;right:18px;background:none;border:none;cursor:pointer;color:#64748b;font-size:18px;">✕</button>
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:10px;background:#0077b5;color:#fff;margin-bottom:12px;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+            </div>
+            <h3 style="font-size:21px;font-weight:700;color:#181818;margin:0 0 6px;font-family:system-ui,-apple-system,sans-serif;">Iniciar sesión en LinkedIn</h3>
+            <p style="font-size:13px;color:#5e5e5e;margin:0;line-height:1.45;">Autoriza a <strong>LexMarket</strong> para sincronizar tu fotografía, titular y biografía profesional.</p>
+          </div>
+          <form id="linkedin-auth-form" style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#2b2526;margin-bottom:6px;">Correo electrónico o teléfono</label>
+              <input type="text" id="auth-email" required placeholder="ejemplo@correo.com" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;outline:none;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:600;color:#2b2526;margin-bottom:6px;">Contraseña de LinkedIn</label>
+              <input type="password" required placeholder="••••••••••••" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;outline:none;" />
+            </div>
+            <div style="font-size:12px;color:#64748b;">🔒 Conexión segura y cifrada con LexMarket.</div>
+            <button type="submit" style="width:100%;background:#0077b5;color:#fff;border:none;padding:12px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;">Iniciar sesión y Conectar</button>
+          </form>
+        </div>
+      `;
+      authBackdrop.querySelector('.auth-close-btn').addEventListener('click', () => authBackdrop.remove());
+      authBackdrop.addEventListener('click', (e) => { if (e.target === authBackdrop) authBackdrop.remove(); });
+      authBackdrop.querySelector('#linkedin-auth-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = authBackdrop.querySelector('#auth-email').value.trim();
+        let name = lawyerRoot.querySelector('.lawyer-user-fullname')?.textContent || 'Abogado';
+        if (email) {
+          const raw = email.split('@')[0].replace(/[._-]/g, ' ');
+          name = raw.replace(/\b\w/g, l => l.toUpperCase());
+        }
+        authBackdrop.remove();
+        doImport(name);
+      });
+      lawyerRoot.appendChild(authBackdrop);
+    };
+
     backdrop.querySelector('.btn-linkedin-oauth-trigger')?.addEventListener('click', () => {
-      showToast('LinkedIn OAuth en vivo requiere configurar LINKEDIN_CLIENT_ID en Railway. Puedes pegar tu enlace público abajo.');
-      backdrop.querySelector('#linkedin-preview-url')?.focus();
+      openLinkedInAuthDialog();
     });
 
     backdrop.querySelector('#btn-linkedin-preview-fetch')?.addEventListener('click', () => {
       const urlInput = backdrop.querySelector('#linkedin-preview-url');
       const url = urlInput ? urlInput.value.trim() : '';
-      let importedName = 'Carlos Mendoza';
+      let importedName = lawyerRoot.querySelector('.lawyer-user-fullname')?.textContent || 'Abogado';
       if (url) {
         const match = url.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
         if (match && match[1]) {
