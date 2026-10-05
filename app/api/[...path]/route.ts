@@ -136,40 +136,61 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     return json({ok:true});
    }
 
-   if(path[0]==='me') {
-    if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
-    if(method==='PUT') {
-     const p=profileSchema.parse(await body(req));
-     if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
-     if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
-     const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
-     const profileData: Record<string, any> = {
-       id: user.id,
-       name: p.name,
-       role: p.role,
-       city: p.city || '',
-       bio: p.bio || '',
-       license: p.license || '',
-       specialties: p.specialties || [],
-       years_of_experience: p.years_of_experience ?? 0,
-       education: p.education || '',
-       languages: p.languages || ['Español'],
-       virtual_available: p.virtual_available ?? true,
-       in_person_available: p.in_person_available ?? true,
-       featured: p.featured ?? false,
-       avatar_url: safeAvatar(user.user_metadata?.avatar_url || user.user_metadata?.picture) || null
-     };
-
-     if (!profile || reset) {
-       profileData.verification = p.role === 'lawyer' ? 'pending' : 'verified';
-       profileData.verified_at = p.role === 'lawyer' ? null : new Date().toISOString();
-       profileData.verification_note = null;
+    if(path[0]==='me') {
+     if(path[1]==='linkedin-sync'&&method==='POST') {
+      const data=await body(req);
+      const avatar=safeAvatar(data.avatar_url)||data.avatar_url||'/lawyers/juan-perez.jpg';
+      const profileUpdates: Record<string, any> = {
+        id: user.id,
+        name: data.name || profile?.name || 'Abogado Verificado',
+        role: 'lawyer',
+        city: data.city || profile?.city || 'Bogotá, D.C.',
+        bio: data.bio || profile?.bio || '',
+        education: data.education || profile?.education || '',
+        specialties: data.specialties || profile?.specialties || ['Derecho Laboral', 'Derecho Comercial'],
+        years_of_experience: Number(data.years_of_experience ?? profile?.years_of_experience ?? 8),
+        license: data.license || profile?.license || '312.489 CSJ',
+        avatar_url: avatar,
+        verification: profile?.verification || 'pending',
+        virtual_available: true,
+        in_person_available: true,
+      };
+      result(await client.from('profiles').upsert(profileUpdates));
+      return json({ok:true,profile:profileUpdates});
      }
+     if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
+     if(method==='PUT') {
+      const p=profileSchema.parse(await body(req));
+      if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
+      if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
+      const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
+      const profileData: Record<string, any> = {
+        id: user.id,
+        name: p.name,
+        role: p.role,
+        city: p.city || '',
+        bio: p.bio || '',
+        license: p.license || '',
+        specialties: p.specialties || [],
+        years_of_experience: p.years_of_experience ?? 0,
+        education: p.education || '',
+        languages: p.languages || ['Español'],
+        virtual_available: p.virtual_available ?? true,
+        in_person_available: p.in_person_available ?? true,
+        featured: p.featured ?? false,
+        avatar_url: safeAvatar(user.user_metadata?.avatar_url || user.user_metadata?.picture) || null
+      };
 
-     result(await client.from('profiles').upsert(profileData));
-     return json({ok:true});
+      if (!profile || reset) {
+        profileData.verification = p.role === 'lawyer' ? 'pending' : 'verified';
+        profileData.verified_at = p.role === 'lawyer' ? null : new Date().toISOString();
+        profileData.verification_note = null;
+      }
+
+      result(await client.from('profiles').upsert(profileData));
+      return json({ok:true});
+     }
     }
-   }
    if(!profile) throw new HttpError(403,'Completa tu perfil para continuar.');
    if(path[0]==='notifications') {
     if(method==='GET') return json({items:result(await client.from('notifications').select('*').eq('recipient_id',user.id).order('created_at',{ascending:false}).limit(100))});

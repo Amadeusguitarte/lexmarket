@@ -14,6 +14,7 @@ import AdminPanel from './AdminPanel';
 import Notifications from './Notifications';
 import Messenger, {type ChatTarget} from './Messenger';
 import { MessageCircle, Home } from 'lucide-react';
+import LawyerOnboardingDashboard from './LawyerOnboardingDashboard';
 export type Run=(fn:()=>Promise<void>)=>Promise<void>;
 export type WorkProps={me:Row;session:Session;run:Run;busy:boolean;onNotice:(s:string)=>void;onInfo:(s:string)=>void;onRefreshMe:()=>Promise<void>;onLogout:()=>void;pendingImport?:React.ReactNode;onChat?:(caseId:string,lawyerId:string)=>void};
 export default function Workspace(props:WorkProps) {
@@ -25,6 +26,30 @@ export default function Workspace(props:WorkProps) {
  useEffect(()=>{let active=true;setLoadError('');if(view==='profile'||view==='messages'){setLoading(false);return;}if(view==='marketplace'&&p.verification!=='verified'){setItems([]);setLoading(false);return;}setLoading(true);api(view==='admin'?'admin':view==='marketplace'?'marketplace':'cases').then(data=>{if(!active)return;if(view==='admin')setAdmin(data);else setItems(data.items);}).catch(e=>{if(active)setLoadError(e.message);}).finally(()=>{if(active)setLoading(false);});return ()=>{active=false;};},[view,revision,p.verification]);
  function navigate(v:string){if(v==='messages')setChatOpen(false);setView(v);setCaseId('');setQuery('');setCategory('');}
  const filtered=items.filter(c=>(!category||c.category===category)&&[c.title,c.city,c.summary].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+
+ if (isLawyer && view === 'welcome') {
+   return (
+     <LawyerOnboardingDashboard
+       initialLawyerName={p.name}
+       initialAvatar={avatar || '/lawyers/juan-perez.jpg'}
+       onNavigate={(route) => {
+         if (route === 'casos') navigate('marketplace');
+         else if (route === 'propuestas' || route === 'mis-casos') navigate('cases');
+         else if (route === 'perfil') navigate('profile');
+         else if (route === 'configuracion') navigate('profile');
+         else if (route === 'help') props.onInfo('help');
+         else navigate('welcome');
+       }}
+       onSaveProfile={async (data) => {
+         await api('me', 'PUT', data);
+         await props.onRefreshMe();
+         onNotice('Tu perfil profesional ha sido actualizado.');
+       }}
+       onLogout={props.onLogout}
+     />
+   );
+ }
+
  return <div className="app-shell"><aside className="sidebar"><a href="/" className="sidebar-brand" aria-label="Inicio"><Brand/></a><div className="workspace-label">{isLawyer?'ESPACIO PROFESIONAL':'TU ESPACIO'}</div><nav aria-label="Tu espacio">{[{id:'welcome',label:'Inicio',icon:Home},{id:'messages',label:'Mensajes',icon:MessageCircle},{id:'cases',label:isLawyer?'Mis oportunidades':'Mis casos',icon:FolderOpen},...(isLawyer?[{id:'marketplace',label:'Explora casos',icon:Compass}]:[]),{id:'profile',label:'Mi perfil',icon:Settings},...(me.admin?[{id:'admin',label:'Administración',icon:ShieldCheck}]:[])].map(n=><button key={n.id} className={view===n.id?'selected':''} onClick={()=>navigate(n.id)}><n.icon size={19}/>{n.label}{view===n.id&&<span className="nav-dot"/>}</button>)}</nav><div className="sidebar-bottom"><button onClick={()=>props.onInfo('help')}><CircleHelp size={18}/>¿Te ayudamos?</button><div className="account"><Avatar name={p.name} url={avatar}/><div><b>{p.name}</b><small>{isLawyer?'Cuenta profesional':'Cuenta personal'}</small></div><button aria-label="Cerrar sesión" onClick={props.onLogout}><LogOut size={17}/></button></div></div></aside>
  <div className="workspace"><header className="workspace-top"><span><span className="tiny-dot"/> Un paso a la vez</span><div><Notifications userId={props.session.user.id} onSelect={n=>{if(n.lawyer_id&&n.case_id)openChat(n.case_id,n.lawyer_id);else if(n.case_id)setCaseId(n.case_id);else navigate('profile');}}/><span className="tag">Beta · Colombia</span><button className="icon-button" aria-label="Ayuda" onClick={()=>props.onInfo('help')}><CircleHelp size={19}/></button></div></header><main className="workspace-main">
  {props.pendingImport}

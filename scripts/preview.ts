@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { readFile, writeFile } from 'node:fs/promises';
 import Landing from '../components/Landing';
 import AuthModal from '../components/AuthModal';
+import LawyerOnboardingDashboard from '../components/LawyerOnboardingDashboard';
 const css=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
 const landingMarkup=renderToStaticMarkup(React.createElement(Landing,{onStart:()=>{},onLawyer:()=>{},onLogin:()=>{},onInfo:()=>{}}));
 const authMarkup=renderToStaticMarkup(React.createElement(AuthModal,{
@@ -18,7 +19,25 @@ const authMarkup=renderToStaticMarkup(React.createElement(AuthModal,{
   onSubmit: ()=>{},
   onContinueGoogle: ()=>{},
 }));
-const markup = landingMarkup + authMarkup;
+const lawyerMarkup=renderToStaticMarkup(React.createElement(LawyerOnboardingDashboard, {
+  initialLawyerName: 'Juan Pérez',
+  initialAvatar: '/lawyers/juan-perez.jpg'
+}));
+const markup = `
+<div id="lawyer-dashboard-view" class="preview-switch-view" style="display:none">
+  ${lawyerMarkup}
+</div>
+<div id="landing-view" class="preview-switch-view">
+  ${landingMarkup}
+  ${authMarkup}
+</div>
+<div class="preview-nav-floater" style="position:fixed;bottom:18px;left:18px;z-index:99999;display:flex;gap:8px;background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);padding:8px 12px;border-radius:28px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border:1px solid #ebdccc;">
+  <a href="#landing" id="btn-show-landing" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Landing Principal</a>
+  <a href="#registro" id="btn-show-registro" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Modal Registro</a>
+  <a href="#abogado" id="btn-show-abogado" style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:18px;text-decoration:none;color:#ffffff;background:#68232c;display:inline-flex;align-items:center;gap:6px;">⚖️ Dashboard Abogado</a>
+</div>
+`;
+
 const script = `
 const examples = {
   'Una tutela': 'Revisar y presentar mi tutela',
@@ -200,18 +219,51 @@ document.querySelectorAll('.example-pill').forEach(button => {
     });
   });
 
-  // Auto-open if hash is #registro or #auth
-  if (window.location.hash === '#registro' || window.location.hash === '#auth') {
-    setTimeout(() => {
-      if (authDialog && typeof authDialog.showModal === 'function') {
-        authDialog.showModal();
-        if (document.activeElement instanceof HTMLElement) {
-          document.activeElement.blur();
-        }
+  // View switcher between Landing and Lawyer Dashboard
+  function updatePreviewView() {
+    const hash = window.location.hash;
+    const lawyerView = document.getElementById('lawyer-dashboard-view');
+    const landingView = document.getElementById('landing-view');
+    const authDialog = document.getElementById('auth-editorial-modal');
+    const btnLanding = document.getElementById('btn-show-landing');
+    const btnRegistro = document.getElementById('btn-show-registro');
+    const btnAbogado = document.getElementById('btn-show-abogado');
+
+    if (hash === '#abogado' || hash === '#abogado-dashboard') {
+      if (lawyerView) lawyerView.style.display = 'block';
+      if (landingView) landingView.style.display = 'none';
+      if (authDialog && authDialog.open) authDialog.close();
+
+      if (btnAbogado) { btnAbogado.style.background = '#68232c'; btnAbogado.style.color = '#ffffff'; }
+      if (btnLanding) { btnLanding.style.background = '#f3ede5'; btnLanding.style.color = '#4a4344'; }
+      if (btnRegistro) { btnRegistro.style.background = '#f3ede5'; btnRegistro.style.color = '#4a4344'; }
+    } else {
+      if (lawyerView) lawyerView.style.display = 'none';
+      if (landingView) landingView.style.display = 'block';
+
+      if (hash === '#registro' || hash === '#auth') {
+        if (btnRegistro) { btnRegistro.style.background = '#68232c'; btnRegistro.style.color = '#ffffff'; }
+        if (btnLanding) { btnLanding.style.background = '#f3ede5'; btnLanding.style.color = '#4a4344'; }
+        if (btnAbogado) { btnAbogado.style.background = '#f3ede5'; btnAbogado.style.color = '#4a4344'; }
+        setTimeout(() => {
+          if (authDialog && typeof authDialog.showModal === 'function') {
+            authDialog.showModal();
+            if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+          }
+        }, 120);
+      } else {
+        if (btnLanding) { btnLanding.style.background = '#68232c'; btnLanding.style.color = '#ffffff'; }
+        if (btnRegistro) { btnRegistro.style.background = '#f3ede5'; btnRegistro.style.color = '#4a4344'; }
+        if (btnAbogado) { btnAbogado.style.background = '#f3ede5'; btnAbogado.style.color = '#4a4344'; }
+        if (authDialog && authDialog.open) authDialog.close();
       }
-    }, 150);
+    }
   }
+
+  window.addEventListener('hashchange', updatePreviewView);
+  updatePreviewView();
 })();
+
 
 // Smart Header Hide on Scroll Down / Reveal on Scroll Up
 (function() {
