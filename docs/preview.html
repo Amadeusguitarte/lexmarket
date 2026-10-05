@@ -7417,53 +7417,8 @@ document.querySelectorAll('.example-pill').forEach(button => {
       openWizardModal(2, importedName);
     };
 
-    const openLinkedInAuthDialog = () => {
-      backdrop.remove();
-      const authBackdrop = document.createElement('div');
-      authBackdrop.className = 'lawyer-modal-backdrop';
-      authBackdrop.style.cssText = 'position:fixed;inset:0;background:rgba(20,16,17,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-      authBackdrop.innerHTML = `
-        <div style="background:#fff;border-radius:16px;max-width:430px;width:100%;padding:36px 30px;box-shadow:0 24px 60px rgba(0,0,0,0.3);position:relative;">
-          <button type="button" class="auth-close-btn" style="position:absolute;top:18px;right:18px;background:none;border:none;cursor:pointer;color:#64748b;font-size:18px;">✕</button>
-          <div style="text-align:center;margin-bottom:24px;">
-            <div style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:10px;background:#0077b5;color:#fff;margin-bottom:12px;">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-            </div>
-            <h3 style="font-size:21px;font-weight:700;color:#181818;margin:0 0 6px;font-family:system-ui,-apple-system,sans-serif;">Iniciar sesión en LinkedIn</h3>
-            <p style="font-size:13px;color:#5e5e5e;margin:0;line-height:1.45;">Autoriza a <strong>LexMarket</strong> para sincronizar tu fotografía, titular y biografía profesional.</p>
-          </div>
-          <form id="linkedin-auth-form" style="display:flex;flex-direction:column;gap:16px;">
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;color:#2b2526;margin-bottom:6px;">Correo electrónico o teléfono</label>
-              <input type="text" id="auth-email" required placeholder="ejemplo@correo.com" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;outline:none;" />
-            </div>
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;color:#2b2526;margin-bottom:6px;">Contraseña de LinkedIn</label>
-              <input type="password" required placeholder="••••••••••••" style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;outline:none;" />
-            </div>
-            <div style="font-size:12px;color:#64748b;">🔒 Conexión segura y cifrada con LexMarket.</div>
-            <button type="submit" style="width:100%;background:#0077b5;color:#fff;border:none;padding:12px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;">Iniciar sesión y Conectar</button>
-          </form>
-        </div>
-      `;
-      authBackdrop.querySelector('.auth-close-btn').addEventListener('click', () => authBackdrop.remove());
-      authBackdrop.addEventListener('click', (e) => { if (e.target === authBackdrop) authBackdrop.remove(); });
-      authBackdrop.querySelector('#linkedin-auth-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = authBackdrop.querySelector('#auth-email').value.trim();
-        let name = lawyerRoot.querySelector('.lawyer-user-fullname')?.textContent || 'Abogado';
-        if (email) {
-          const raw = email.split('@')[0].replace(/[._-]/g, ' ');
-          name = raw.replace(/\b\w/g, l => l.toUpperCase());
-        }
-        authBackdrop.remove();
-        doImport(name);
-      });
-      lawyerRoot.appendChild(authBackdrop);
-    };
-
     backdrop.querySelector('.btn-linkedin-oauth-trigger')?.addEventListener('click', () => {
-      openLinkedInAuthDialog();
+      window.location.href = '/api/linkedin/auth';
     });
 
     backdrop.querySelector('#btn-linkedin-preview-fetch')?.addEventListener('click', () => {

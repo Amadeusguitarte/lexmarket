@@ -71,9 +71,18 @@ export function mapLinkedInSkillsToSpecialties(text: string): string[] {
 /**
  * Generates official LinkedIn OAuth 2.0 authorization URL
  */
+function getLinkedInRedirectUri(redirectUri?: string): string {
+  if (redirectUri) return redirectUri;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : (process.env.RAILWAY_STATIC_URL ? `https://${process.env.RAILWAY_STATIC_URL}` : 'http://localhost:3000'));
+  return `${baseUrl}/api/linkedin/callback`;
+}
+
+/**
+ * Generates official LinkedIn OAuth 2.0 authorization URL
+ */
 export function getLinkedInAuthUrl(state: string, redirectUri?: string): string {
   const clientId = process.env.LINKEDIN_CLIENT_ID || process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '';
-  const redirect = redirectUri || (process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/linkedin/callback` : 'http://localhost:3000/api/linkedin/callback');
+  const redirect = getLinkedInRedirectUri(redirectUri);
   
   const params = new URLSearchParams({
     response_type: 'code',
@@ -92,7 +101,7 @@ export function getLinkedInAuthUrl(state: string, redirectUri?: string): string 
 export async function exchangeLinkedInCode(code: string, redirectUri?: string): Promise<{ access_token: string; expires_in: number }> {
   const clientId = process.env.LINKEDIN_CLIENT_ID || '';
   const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || '';
-  const redirect = redirectUri || (process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/linkedin/callback` : 'http://localhost:3000/api/linkedin/callback');
+  const redirect = getLinkedInRedirectUri(redirectUri);
 
   const response = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
     method: 'POST',
