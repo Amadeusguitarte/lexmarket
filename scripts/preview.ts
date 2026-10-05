@@ -170,6 +170,27 @@ document.querySelectorAll('.example-pill').forEach(button => {
     previewClose.onclick = () => document.getElementById('preview-info').close();
   }
 
+  // Interactive role card toggling in preview
+  const roleCards = document.querySelectorAll('.auth-role-card');
+  roleCards.forEach(card => {
+    card.addEventListener('click', () => {
+      roleCards.forEach(c => {
+        c.classList.remove('selected');
+        c.setAttribute('aria-checked', 'false');
+        const badge = c.querySelector('.auth-role-check-badge');
+        if (badge) badge.remove();
+      });
+      card.classList.add('selected');
+      card.setAttribute('aria-checked', 'true');
+      if (!card.querySelector('.auth-role-check-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'auth-role-check-badge';
+        badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+        card.prepend(badge);
+      }
+    });
+  });
+
   // Auto-open if hash is #registro or #auth
   if (window.location.hash === '#registro' || window.location.hash === '#auth') {
     setTimeout(() => {

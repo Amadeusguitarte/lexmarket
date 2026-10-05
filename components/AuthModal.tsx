@@ -3,8 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   ArrowRight,
+  Briefcase,
+  Check,
   Eye,
   EyeOff,
+  FileText,
   FolderOpen,
   Lock,
   Mail,
@@ -27,6 +30,7 @@ interface AuthModalProps {
   onSubmit: (form: HTMLFormElement) => void;
   onContinueGoogle: () => void;
   onContinueLinkedIn?: () => void;
+  onRoleChange?: (role: string) => void;
 }
 
 function GoogleLogo() {
@@ -66,10 +70,23 @@ export default function AuthModal({
   onSubmit,
   onContinueGoogle,
   onContinueLinkedIn,
+  onRoleChange,
 }: AuthModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const isLawyer = role === 'lawyer';
+  const [currentRole, setCurrentRole] = useState(role || 'client');
+
+  useEffect(() => {
+    if (role) setCurrentRole(role);
+  }, [role]);
+
+  const handleRoleChange = (newRole: string) => {
+    setCurrentRole(newRole);
+    onRoleChange?.(newRole);
+    try {
+      localStorage.setItem('lexmarket.intendedRole', newRole);
+    } catch {}
+  };
 
   useEffect(() => {
     dialogRef.current?.showModal();
@@ -120,9 +137,9 @@ export default function AuthModal({
             </h2>
 
             <p className="auth-editorial-subtitle">
-              {isLawyer
+              {currentRole === 'lawyer'
                 ? 'Conéctate con clientes verificados, accede a expedientes estructurados y asegura tus honorarios por etapas.'
-                : 'Guarda tu borrador, organiza tu información y conéctate con abogados verificados cuando estés listo.'}
+                : 'Guarda tu caso, organiza tu información y conéctate con abogados verificados cuando estés listo.'}
             </p>
 
             {/* 3 Value Pillars */}
@@ -161,10 +178,9 @@ export default function AuthModal({
 
           {/* Bottom Desk Setup Photo Art */}
           <div className="auth-editorial-art-wrap" aria-hidden="true">
-            <div className="auth-art-ambient-blob" />
             <img
-              src="/auth-desk-scene.jpg"
-              alt=""
+              src="/auth-desk-scene.png"
+              alt="LexMarket despacho jurídico"
               className="auth-editorial-art-img"
               loading="lazy"
             />
@@ -174,6 +190,54 @@ export default function AuthModal({
         {/* Right Column: Interaction Form */}
         <div className="auth-editorial-right">
           <div className="auth-form-wrapper">
+            {/* Role Selector Cards - ¿Cómo quieres usar LexMarket? */}
+            {isSignup && (
+              <div className="auth-role-section">
+                <h3 className="auth-role-heading">¿Cómo quieres usar LexMarket?</h3>
+                <div className="auth-role-cards-grid" role="radiogroup" aria-label="¿Cómo quieres usar LexMarket?">
+                  {/* Option 1: Necesito ayuda legal */}
+                  <button
+                    type="button"
+                    className={`auth-role-card ${currentRole === 'client' ? 'selected' : ''}`}
+                    onClick={() => handleRoleChange('client')}
+                    role="radio"
+                    aria-checked={currentRole === 'client'}
+                  >
+                    {currentRole === 'client' && (
+                      <span className="auth-role-check-badge">
+                        <Check size={11} strokeWidth={3} />
+                      </span>
+                    )}
+                    <div className="auth-role-icon-wrap">
+                      <FileText size={23} strokeWidth={1.8} />
+                    </div>
+                    <strong className="auth-role-title">Necesito ayuda legal</strong>
+                    <span className="auth-role-subtitle">Publicar y gestionar mi caso</span>
+                  </button>
+
+                  {/* Option 2: Soy abogado */}
+                  <button
+                    type="button"
+                    className={`auth-role-card ${currentRole === 'lawyer' ? 'selected' : ''}`}
+                    onClick={() => handleRoleChange('lawyer')}
+                    role="radio"
+                    aria-checked={currentRole === 'lawyer'}
+                  >
+                    {currentRole === 'lawyer' && (
+                      <span className="auth-role-check-badge">
+                        <Check size={11} strokeWidth={3} />
+                      </span>
+                    )}
+                    <div className="auth-role-icon-wrap">
+                      <Briefcase size={23} strokeWidth={1.8} />
+                    </div>
+                    <strong className="auth-role-title">Soy abogado</strong>
+                    <span className="auth-role-subtitle">Encontrar casos y ofrecer mis servicios</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Google One-Click CTA */}
             {(isSignup || isLogin) && (
               <button
@@ -202,134 +266,136 @@ export default function AuthModal({
                 onSubmit(e.currentTarget);
               }}
             >
-                  {/* Email Field */}
-                  {authMode !== 'update' && (
-                    <div className="auth-field-group">
-                      <label htmlFor="auth-email-input" className="auth-field-label">
-                        Correo electrónico
-                      </label>
-                      <div className="auth-input-wrapper">
-                        <Mail size={16} className="auth-input-leading-icon" />
-                        <input
-                          id="auth-email-input"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          placeholder="tu@correo.com"
-                          required
-                          maxLength={254}
-                          className="auth-input-control"
-                        />
-                      </div>
-                    </div>
-                  )}
+              <input type="hidden" name="role" value={currentRole} />
 
-                  {/* Password Field */}
-                  {authMode !== 'reset' && (
-                    <div className="auth-field-group">
-                      <div className="auth-field-label-row">
-                        <label htmlFor="auth-password-input" className="auth-field-label">
-                          Contraseña
-                        </label>
-                        {isLogin && (
-                          <button
-                            type="button"
-                            className="auth-forgot-link"
-                            onClick={() => onModeChange('reset')}
-                          >
-                            ¿Olvidaste tu contraseña?
-                          </button>
-                        )}
-                      </div>
-                      <div className="auth-input-wrapper">
-                        <Lock size={16} className="auth-input-leading-icon" />
-                        <input
-                          id="auth-password-input"
-                          name="password"
-                          type={showPassword ? 'text' : 'password'}
-                          autoComplete={isLogin ? 'current-password' : 'new-password'}
-                          placeholder={isLogin ? 'Tu contraseña' : 'Mínimo 10 caracteres'}
-                          required
-                          minLength={isLogin ? 1 : 10}
-                          maxLength={128}
-                          className="auth-input-control with-trailing"
-                        />
-                        <button
-                          type="button"
-                          className="auth-input-trailing-toggle"
-                          onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </div>
-                  )}
+              {/* Email Field */}
+              {authMode !== 'update' && (
+                <div className="auth-field-group">
+                  <label htmlFor="auth-email-input" className="auth-field-label">
+                    Correo electrónico
+                  </label>
+                  <div className="auth-input-wrapper">
+                    <Mail size={16} className="auth-input-leading-icon" />
+                    <input
+                      id="auth-email-input"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="tu@correo.com"
+                      required
+                      maxLength={254}
+                      className="auth-input-control"
+                    />
+                  </div>
+                </div>
+              )}
 
-                  {/* Privacy / Security Highlight Callout Box */}
-                  {isSignup && (
-                    <div className="auth-security-callout">
-                      <div className="auth-security-icon-box">
-                        <Lock size={16} strokeWidth={2} />
-                      </div>
-                      <p>
-                        Tu información se conserva en privado y segura. No será visible para otros usuarios hasta que decidas compartirla.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Terms & Consent Checkbox */}
-                  {isSignup && (
-                    <label className="auth-terms-checkbox-line">
-                      <input type="checkbox" required className="auth-checkbox-input" />
-                      <span>
-                        Al crear tu cuenta aceptas nuestras{' '}
-                        <button
-                          type="button"
-                          className="auth-legal-link"
-                          onClick={() => {
-                            onClose();
-                            onInfo('terms');
-                          }}
-                        >
-                          Condiciones
-                        </button>{' '}
-                        y{' '}
-                        <button
-                          type="button"
-                          className="auth-legal-link"
-                          onClick={() => {
-                            onClose();
-                            onInfo('privacy');
-                          }}
-                        >
-                          Política de Privacidad
-                        </button>
-                        . Actualmente LexMarket opera en beta por invitación.
-                      </span>
+              {/* Password Field */}
+              {authMode !== 'reset' && (
+                <div className="auth-field-group">
+                  <div className="auth-field-label-row">
+                    <label htmlFor="auth-password-input" className="auth-field-label">
+                      Contraseña
                     </label>
-                  )}
+                    {isLogin && (
+                      <button
+                        type="button"
+                        className="auth-forgot-link"
+                        onClick={() => onModeChange('reset')}
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </button>
+                    )}
+                  </div>
+                  <div className="auth-input-wrapper">
+                    <Lock size={16} className="auth-input-leading-icon" />
+                    <input
+                      id="auth-password-input"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete={isLogin ? 'current-password' : 'new-password'}
+                      placeholder={isLogin ? 'Tu contraseña' : 'Mínimo 10 caracteres'}
+                      required
+                      minLength={isLogin ? 1 : 10}
+                      maxLength={128}
+                      className="auth-input-control with-trailing"
+                    />
+                    <button
+                      type="button"
+                      className="auth-input-trailing-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                  {/* Primary Burgundy Submit Button */}
-                  <button
-                    type="submit"
-                    className="auth-submit-btn"
-                    disabled={busy || !authReady}
-                  >
-                    <span>
-                      {busy
-                        ? 'Un momento…'
-                        : isSignup
-                        ? 'Crear cuenta'
-                        : isReset
-                        ? 'Enviar enlace de recuperación'
-                        : authMode === 'update'
-                        ? 'Guardar contraseña'
-                        : 'Iniciar sesión'}
-                    </span>
-                    <ArrowRight size={17} strokeWidth={2.2} />
-                  </button>
-                </form>
+              {/* Privacy / Security Highlight Callout Box */}
+              {isSignup && (
+                <div className="auth-security-callout">
+                  <div className="auth-security-icon-box">
+                    <Lock size={15} strokeWidth={2} />
+                  </div>
+                  <p>
+                    Tu información se conserva en privado y segura. No será visible para otros usuarios hasta que decidas compartirla.
+                  </p>
+                </div>
+              )}
+
+              {/* Terms & Consent Checkbox */}
+              {isSignup && (
+                <label className="auth-terms-checkbox-line">
+                  <input type="checkbox" required className="auth-checkbox-input" />
+                  <span>
+                    Al crear tu cuenta aceptas nuestras{' '}
+                    <button
+                      type="button"
+                      className="auth-legal-link"
+                      onClick={() => {
+                        onClose();
+                        onInfo('terms');
+                      }}
+                    >
+                      Condiciones
+                    </button>{' '}
+                    y{' '}
+                    <button
+                      type="button"
+                      className="auth-legal-link"
+                      onClick={() => {
+                        onClose();
+                        onInfo('privacy');
+                      }}
+                    >
+                      Política de Privacidad
+                    </button>
+                    .
+                  </span>
+                </label>
+              )}
+
+              {/* Primary Burgundy Submit Button */}
+              <button
+                type="submit"
+                className="auth-submit-btn"
+                disabled={busy || !authReady}
+              >
+                <span>
+                  {busy
+                    ? 'Un momento…'
+                    : isSignup
+                    ? 'Crear cuenta'
+                    : isReset
+                    ? 'Enviar enlace de recuperación'
+                    : authMode === 'update'
+                    ? 'Guardar contraseña'
+                    : 'Iniciar sesión'}
+                </span>
+                <ArrowRight size={17} strokeWidth={2.2} />
+              </button>
+            </form>
 
             {/* Switch Mode Footer */}
             <div className="auth-switch-footer">

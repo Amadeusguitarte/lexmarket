@@ -91,6 +91,7 @@ export default function Home() {
       onSubmit={form=>void authSubmit(form)}
       onContinueGoogle={()=>void continueWithGoogle()}
       onContinueLinkedIn={()=>void continueWithLinkedIn()}
+      onRoleChange={r=>setRole(r)}
     />
   )}
   {info&&infoText[info]&&<Modal title={infoText[info].title} onClose={()=>setInfo('')}>{infoText[info].paragraphs.map(p=><p className="info-paragraph" key={p}>{p}</p>)}</Modal>}
