@@ -13,12 +13,12 @@ export default function ProtectedFeesSection() {
         <div className="protected-fees-visual-wrapper">
           <div className="protected-fees-canvas">
             <img
-              src="/Honorarios/honorarios-base.png"
+              src="/Honorarios/honorarios-base.png?v=2"
               alt="Pedestales de piedra y cápsula translúcida de honorarios protegidos"
               className="fees-img-base"
             />
             <img
-              src="/Honorarios/honorarios-coin.png"
+              src="/Honorarios/honorarios-coin.png?v=2"
               alt="Moneda dorada flotante"
               className="fees-img-coin floating-coin"
             />
