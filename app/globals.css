@@ -6020,7 +6020,7 @@ input.auth-input-control.with-trailing {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 28px;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Left Card: Tu perfil profesional */
@@ -6314,25 +6314,24 @@ input.auth-input-control.with-trailing {
   color: #52161f;
 }
 
-/* Right Card: Value Proposition Card (Full-bleed desk scene with angled white card overlay) */
+/* Right Card: Value Proposition Card (Full-bleed desk scene with subtle top scrim) */
 .lawyer-value-prop-card {
   position: relative;
-  background-color: #231b1c;
+  background-color: #fbf8f4;
   border: 1px solid #ebdccc;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 18px rgba(43, 37, 38, 0.04);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 500px;
   height: 100%;
 }
 
 .value-card-bg-img {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -6341,35 +6340,42 @@ input.auth-input-control.with-trailing {
   pointer-events: none;
 }
 
-.value-card-content {
-  position: relative;
+.value-card-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(251, 248, 244, 0.98) 0%,
+    rgba(251, 248, 244, 0.92) 36%,
+    rgba(251, 248, 244, 0.65) 52%,
+    rgba(251, 248, 244, 0.15) 66%,
+    transparent 78%
+  );
   z-index: 2;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top-right-radius: 28px;
-  width: 88%;
-  max-width: 320px;
-  padding: 24px 18px 26px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  box-shadow: 4px -4px 22px rgba(25, 18, 20, 0.1);
-  border-top: 1px solid rgba(255, 255, 255, 0.9);
-  border-right: 1px solid rgba(235, 220, 204, 0.8);
-  margin-bottom: 0;
-  margin-left: 0;
+  pointer-events: none;
 }
 
-.value-card-inner {
+.value-card-content {
+  position: relative;
+  z-index: 3;
+  padding: 30px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 13px;
+}
+
+.value-card-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7d242f;
+  margin: 0;
 }
 
 .value-card-heading {
-  font-family: Georgia, serif;
-  font-size: 17.5px;
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 18px;
   font-weight: 700;
   color: #1e191a;
   line-height: 1.35;
@@ -6379,10 +6385,10 @@ input.auth-input-control.with-trailing {
 .value-check-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 6px 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 12px;
 }
 
 .value-check-item {
@@ -6390,8 +6396,9 @@ input.auth-input-control.with-trailing {
   align-items: flex-start;
   gap: 11px;
   font-size: 12.5px;
-  line-height: 1.45;
-  color: #4a4344;
+  line-height: 1.4;
+  color: #2b2526;
+  font-weight: 500;
 }
 
 .value-check-badge {
@@ -6405,6 +6412,7 @@ input.auth-input-control.with-trailing {
   justify-content: center;
   flex-shrink: 0;
   margin-top: 1px;
+  border: 1px solid rgba(104, 35, 44, 0.12);
 }
 
 /* Bottom Section: Casos recientes */

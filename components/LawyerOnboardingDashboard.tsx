@@ -539,44 +539,44 @@ export default function LawyerOnboardingDashboard({
                 alt="Escritorio legal profesional con códigos de Colombia y computador"
                 className="value-card-bg-img"
               />
+              <div className="value-card-scrim" aria-hidden="true" />
 
               <div className="value-card-content">
-                <div className="value-card-inner">
-                  <h3 className="value-card-heading">
-                    Un perfil verificado <br />
-                    genera más oportunidades
-                  </h3>
+                <span className="value-card-eyebrow">VENTAJAS DE VERIFICARTE</span>
+                <h3 className="value-card-heading">
+                  Un perfil verificado <br />
+                  genera más oportunidades
+                </h3>
 
-                  <ul className="value-check-list">
-                    <li className="value-check-item">
-                      <span className="value-check-badge">
-                        <Check size={13} strokeWidth={2.8} />
-                      </span>
-                      <span>Aparecer en casos relevantes</span>
-                    </li>
+                <ul className="value-check-list">
+                  <li className="value-check-item">
+                    <span className="value-check-badge">
+                      <Check size={13} strokeWidth={2.8} />
+                    </span>
+                    <span>Aparecer en casos relevantes</span>
+                  </li>
 
-                    <li className="value-check-item">
-                      <span className="value-check-badge">
-                        <Check size={13} strokeWidth={2.8} />
-                      </span>
-                      <span>Recibir invitaciones de clientes</span>
-                    </li>
+                  <li className="value-check-item">
+                    <span className="value-check-badge">
+                      <Check size={13} strokeWidth={2.8} />
+                    </span>
+                    <span>Recibir invitaciones de clientes</span>
+                  </li>
 
-                    <li className="value-check-item">
-                      <span className="value-check-badge">
-                        <Check size={13} strokeWidth={2.8} />
-                      </span>
-                      <span>Destacar tu experiencia y áreas de práctica</span>
-                    </li>
+                  <li className="value-check-item">
+                    <span className="value-check-badge">
+                      <Check size={13} strokeWidth={2.8} />
+                    </span>
+                    <span>Destacar tu experiencia y áreas de práctica</span>
+                  </li>
 
-                    <li className="value-check-item">
-                      <span className="value-check-badge">
-                        <Check size={13} strokeWidth={2.8} />
-                      </span>
-                      <span>Generar confianza con tu tarjeta profesional verificada</span>
-                    </li>
-                  </ul>
-                </div>
+                  <li className="value-check-item">
+                    <span className="value-check-badge">
+                      <Check size={13} strokeWidth={2.8} />
+                    </span>
+                    <span>Generar confianza con tu tarjeta profesional verificada</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
