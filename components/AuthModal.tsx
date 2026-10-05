@@ -117,8 +117,15 @@ export default function AuthModal({
           <X size={20} strokeWidth={2} />
         </button>
 
-        {/* Left Column: Editorial Value Proposition & Visual Stage */}
+        {/* Left Column: Full Photographic Background Stage */}
         <div className="auth-editorial-left">
+          <img
+            src="/crear-cuenta.png"
+            alt=""
+            className="auth-editorial-bg-img"
+            aria-hidden="true"
+          />
+          <div className="auth-editorial-bg-scrim" aria-hidden="true" />
           <div className="auth-editorial-left-content">
             <span className="auth-editorial-badge">TU ESPACIO EN LEXMARKET</span>
 
@@ -174,16 +181,6 @@ export default function AuthModal({
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Bottom Desk Setup Photo Art */}
-          <div className="auth-editorial-art-wrap" aria-hidden="true">
-            <img
-              src="/auth-desk-scene.png"
-              alt="LexMarket despacho jurídico"
-              className="auth-editorial-art-img"
-              loading="lazy"
-            />
           </div>
         </div>
 
