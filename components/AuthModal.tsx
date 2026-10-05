@@ -8,7 +8,7 @@ import {
   Eye,
   EyeOff,
   FileText,
-  FolderOpen,
+  Folder,
   Lock,
   Mail,
   ShieldCheck,
@@ -153,7 +153,7 @@ export default function AuthModal({
             <div className="auth-editorial-bullets">
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <FolderOpen size={16} strokeWidth={1.9} />
+                  <Folder size={17} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Guarda tu progreso</strong>
@@ -163,7 +163,7 @@ export default function AuthModal({
 
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <ShieldCheck size={16} strokeWidth={1.9} />
+                  <ShieldCheck size={17} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Tu información, siempre privada</strong>
@@ -173,7 +173,7 @@ export default function AuthModal({
 
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <Users size={16} strokeWidth={1.9} />
+                  <Users size={17} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Conéctate con abogados verificados</strong>

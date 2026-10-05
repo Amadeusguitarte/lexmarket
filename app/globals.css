@@ -5203,7 +5203,7 @@ a.lawyer-account-btn:hover {
 .auth-editorial-left {
   position: relative;
   overflow: hidden;
-  background-color: #f7f3ec;
+  background-color: #fbf8f4;
   border-right: 1px solid #ebdccc;
   display: flex;
   flex-direction: column;
@@ -5215,7 +5215,7 @@ a.lawyer-account-btn:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 68%;
+  object-position: center 88%;
   z-index: 1;
   pointer-events: none;
 }
@@ -5225,10 +5225,13 @@ a.lawyer-account-btn:hover {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.42) 30%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(0, 0, 0, 0) 70%
+    #fbf8f4 0%,
+    #fbf8f4 36%,
+    rgba(251, 248, 244, 0.98) 48%,
+    rgba(251, 248, 244, 0.85) 58%,
+    rgba(251, 248, 244, 0.38) 70%,
+    rgba(251, 248, 244, 0.08) 80%,
+    transparent 88%
   );
   z-index: 2;
   pointer-events: none;
@@ -5237,81 +5240,84 @@ a.lawyer-account-btn:hover {
 .auth-editorial-left-content {
   position: relative;
   z-index: 3;
-  padding: 30px 32px 14px;
+  padding: 32px 34px 14px 36px;
   display: flex;
   flex-direction: column;
 }
 
 .auth-editorial-badge {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #661e27;
+  color: #7d242f;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .auth-editorial-title {
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: clamp(24px, 2.2vw, 29px);
-  line-height: 1.15;
+  font-size: clamp(26px, 2.3vw, 30px);
+  line-height: 1.16;
   color: #1a1416;
   margin: 0 0 8px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.015em;
 }
 
 .auth-editorial-title em {
   font-style: italic;
   font-family: Georgia, 'Playfair Display', serif;
-  color: #661e27;
+  color: #68232c;
+  font-weight: 500;
 }
 
 .auth-editorial-subtitle {
-  font-size: 12.5px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.46;
   color: #554447;
   margin: 0 0 16px;
+  max-width: 370px;
 }
 
 .auth-editorial-bullets {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .auth-bullet-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
 .auth-bullet-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ebdccc;
-  color: #661e27;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fbf1ee;
+  border: 1px solid #f2dedb;
+  color: #68232c;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(40, 20, 28, 0.05);
+  box-shadow: 0 1px 3px rgba(104, 35, 44, 0.04);
 }
 
 .auth-bullet-text strong {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #1a1416;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
+  letter-spacing: -0.01em;
 }
 
 .auth-bullet-text span {
-  font-size: 11px;
-  color: #5d5054;
+  font-size: 12px;
+  color: #635659;
   line-height: 1.35;
   display: block;
 }
