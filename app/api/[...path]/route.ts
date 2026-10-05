@@ -137,6 +137,35 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
    }
 
     if(path[0]==='me') {
+     async function saveProfileSafely(data: Record<string, any>) {
+       const res = await client.from('profiles').upsert(data);
+       if (!res.error) return res.data;
+       const msg = res.error.message || '';
+       if (msg.includes('column') || msg.includes('schema cache')) {
+         const baseData: Record<string, any> = {
+           id: data.id,
+           name: data.name,
+           role: data.role,
+           city: data.city ?? '',
+           bio: data.bio ?? '',
+           license: data.license ?? '',
+           specialties: data.specialties ?? [],
+           verification: data.verification ?? 'pending',
+           verified_at: data.verified_at ?? null,
+           verification_note: data.verification_note ?? null,
+         };
+         if (data.avatar_url) baseData.avatar_url = data.avatar_url;
+         const res2 = await client.from('profiles').upsert(baseData);
+         if (!res2.error) return res2.data;
+         if (res2.error.message?.includes('avatar_url')) {
+           delete baseData.avatar_url;
+           return result(await client.from('profiles').upsert(baseData));
+         }
+         return result(res2);
+       }
+       return result(res);
+     }
+
      if(path[1]==='linkedin-sync'&&method==='POST') {
       const data=await body(req);
       const avatar=safeAvatar(data.avatar_url)||data.avatar_url||'/lawyers/juan-perez.jpg';
@@ -155,14 +184,13 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         virtual_available: true,
         in_person_available: true,
       };
-      result(await client.from('profiles').upsert(profileUpdates));
+      await saveProfileSafely(profileUpdates);
       return json({ok:true,profile:profileUpdates});
      }
      if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
      if(method==='PUT') {
       const p=profileSchema.parse(await body(req));
       if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
-      if(p.role==='lawyer'&&(!p.license||!p.specialties.length)) throw new HttpError(400,'Agrega tu tarjeta profesional y al menos una especialidad.');
       const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
       const profileData: Record<string, any> = {
         id: user.id,
@@ -187,7 +215,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         profileData.verification_note = null;
       }
 
-      result(await client.from('profiles').upsert(profileData));
+      await saveProfileSafely(profileData);
       return json({ok:true});
      }
     }

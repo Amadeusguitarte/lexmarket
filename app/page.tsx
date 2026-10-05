@@ -14,6 +14,7 @@ import { api, browserDB } from '@/lib/browser';
 import InviteModal from '@/components/InviteModal';
 import type { LawyerData } from '@/components/LawyerCard';
 import AuthModal from '@/components/AuthModal';
+import LawyerOnboardingDashboard from '@/components/LawyerOnboardingDashboard';
 
 function LinkedinIcon({ size = 18 }: { size?: number }) {
  return (
@@ -68,6 +69,45 @@ export default function Home() {
   terms:{title:'Sobre esta beta',paragraphs:['LexMarket facilita el encuentro entre clientes y profesionales. Publicar o recibir propuestas no crea una representación automática. El encargo y los poderes que correspondan se acuerdan con el abogado.','Los honorarios se pactan directamente con el profesional. Esta versión no procesa pagos, no radica documentos ante autoridades y no calcula plazos judiciales.','La verificación profesional requiere una revisión del equipo. Las actualizaciones del proceso las registran las personas participantes; no son un reporte oficial de un juzgado.','Las condiciones definitivas de contratación y operación deben ser publicadas por el operador antes del lanzamiento abierto.']},
   help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue preparándose, espera a que termine antes de pedir una organización asistida.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'El canal de soporte se habilitará antes de abrir la beta.']},
  };
+ const isLawyerAccount = role === 'lawyer' || 
+   session?.user?.user_metadata?.intended_role === 'lawyer' || 
+   (typeof window !== 'undefined' && localStorage.getItem('lexmarket.intendedRole') === 'lawyer') || 
+   me?.profile?.role === 'lawyer';
+
+ if (session && isLawyerAccount && !me?.profile) {
+   const lawyerName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Abogado';
+   const lawyerAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '/lawyers/juan-perez.jpg';
+   return (
+     <>
+       <LawyerOnboardingDashboard
+         initialLawyerName={lawyerName}
+         initialAvatar={lawyerAvatar}
+         onNavigate={() => {}}
+         onSaveProfile={async (data) => {
+           await saveProfile({ ...data, role: 'lawyer' });
+           setNotice('Perfil profesional guardado.');
+         }}
+         onLogout={() => run(async () => {
+           const { error } = await browserDB()!.auth.signOut();
+           if (error) throw error;
+           setMe(null);
+           setSession(null);
+         })}
+       />
+       {(error || notice) && typeof document !== 'undefined' && createPortal(
+         <div className={'toast ' + (error ? 'error' : '')} role={error ? 'alert' : 'status'}>
+           <CheckCircle2 size={18} />
+           <span>{error || notice}</span>
+           <button aria-label="Cerrar notificación" onClick={() => { setError(''); setNotice(''); }}>
+             <X size={18} />
+           </button>
+         </div>,
+         document.body
+       )}
+     </>
+   );
+ }
+
  return <>
   {session&&me?.profile?<Workspace pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
    <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
@@ -75,7 +115,7 @@ export default function Home() {
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
 
 
-  {session&&me&&!me.profile&&<Modal title={role==='lawyer'?'Tu perfil profesional':pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
+  {session&&me&&!me.profile&&!isLawyerAccount&&<Modal title={pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
   {authMode&&(!session||authMode==='update')&&(
     <AuthModal
       authMode={authMode}
