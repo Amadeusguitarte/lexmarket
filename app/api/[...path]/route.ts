@@ -97,6 +97,11 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         const profileData=await fetchLinkedInPublicProfile(b.url||'');
         return json({ok:true,profile:profileData,data:profileData});
       }
+      const proto = req.headers.get('x-forwarded-proto') || (new URL(req.url).protocol.replace(':', ''));
+      const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || new URL(req.url).host;
+      const requestOrigin = `${proto}://${host}`;
+      const requestRedirectUri = `${requestOrigin}/api/linkedin/callback`;
+
       if(path[1]==='auth'&&method==='GET') {
         const clientId=process.env.LINKEDIN_CLIENT_ID||process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
         const acceptsHtml=req.headers.get('accept')?.includes('text/html');
@@ -106,7 +111,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           }
           return json({configured:false,message:'LinkedIn OAuth no está configurado aún en las variables de entorno.'});
         }
-        const authUrl=getLinkedInAuthUrl(crypto.randomUUID());
+        const authUrl=getLinkedInAuthUrl(crypto.randomUUID(), requestRedirectUri);
         if(acceptsHtml) {
           return NextResponse.redirect(authUrl);
         }
@@ -120,7 +125,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           return NextResponse.redirect(new URL('/?linkedin_notice=cancelled', req.url));
         }
         try {
-          const tokenData = await exchangeLinkedInCode(code);
+          const tokenData = await exchangeLinkedInCode(code, requestRedirectUri);
           const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
           const name = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim() || 'Abogado';
           const avatar = userInfo.picture || '';
