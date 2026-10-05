@@ -172,6 +172,7 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
   // Interactive role card toggling in preview
   const roleCards = document.querySelectorAll('.auth-role-card');
+  const authSubtitle = document.querySelector('.auth-editorial-subtitle');
   roleCards.forEach(card => {
     card.addEventListener('click', () => {
       roleCards.forEach(c => {
@@ -187,6 +188,14 @@ document.querySelectorAll('.example-pill').forEach(button => {
         badge.className = 'auth-role-check-badge';
         badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
         card.prepend(badge);
+      }
+      if (authSubtitle) {
+        const titleText = card.querySelector('.auth-role-title')?.textContent?.trim() || '';
+        if (titleText.includes('abogado')) {
+          authSubtitle.textContent = 'Conéctate con clientes verificados, accede a expedientes estructurados y asegura tus honorarios por etapas.';
+        } else {
+          authSubtitle.textContent = 'Guarda tu caso, organiza tu información y conéctate con abogados verificados cuando estés listo.';
+        }
       }
     });
   });

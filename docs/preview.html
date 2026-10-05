@@ -5162,7 +5162,8 @@ a.lawyer-account-btn:hover {
 .auth-editorial-container {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.16fr);
-  min-height: 590px;
+  height: 640px;
+  min-height: 640px;
   position: relative;
 }
 
@@ -5207,6 +5208,7 @@ a.lawyer-account-btn:hover {
   border-right: 1px solid #ebdccc;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .auth-editorial-bg-img {
@@ -5225,12 +5227,11 @@ a.lawyer-account-btn:hover {
   inset: 0;
   background: linear-gradient(
     180deg,
-    #fbf8f4 0%,
-    #fbf8f4 30%,
-    rgba(251, 248, 244, 0.95) 44%,
-    rgba(251, 248, 244, 0.70) 58%,
-    rgba(251, 248, 244, 0.20) 72%,
-    transparent 86%
+    rgba(251, 248, 244, 0.62) 0%,
+    rgba(251, 248, 244, 0.44) 30%,
+    rgba(251, 248, 244, 0.18) 55%,
+    rgba(251, 248, 244, 0.04) 70%,
+    transparent 82%
   );
   z-index: 2;
   pointer-events: none;
@@ -5277,6 +5278,7 @@ a.lawyer-account-btn:hover {
   color: #554d4a;
   margin: 0 0 24px;
   max-width: 390px;
+  min-height: 44px;
 }
 
 .auth-editorial-bullets {
@@ -5330,6 +5332,8 @@ a.lawyer-account-btn:hover {
   justify-content: center;
   padding: 34px 38px 28px;
   position: relative;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .auth-form-wrapper {
@@ -5361,18 +5365,20 @@ a.lawyer-account-btn:hover {
 .auth-role-card {
   position: relative;
   border-radius: 14px;
-  padding: 16px 10px 14px;
+  padding: 14px 10px 14px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ebdccc;
+  border: 1.5px solid #ebdccc;
   background: #ffffff;
   color: #1a1416;
   outline: none;
+  min-height: 104px;
+  box-sizing: border-box;
 }
 
 .auth-role-card:hover {
@@ -5381,7 +5387,7 @@ a.lawyer-account-btn:hover {
 }
 
 .auth-role-card.selected {
-  border: 1.5px solid #661e27;
+  border-color: #661e27;
   background: #fbf5f4;
   box-shadow: 0 2px 10px rgba(102, 30, 39, 0.08);
 }
@@ -5423,10 +5429,14 @@ a.lawyer-account-btn:hover {
 }
 
 .auth-role-subtitle {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #766a6d;
   line-height: 1.35;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 28px;
 }
 
 .auth-google-btn {
@@ -5870,6 +5880,7 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
   // Interactive role card toggling in preview
   const roleCards = document.querySelectorAll('.auth-role-card');
+  const authSubtitle = document.querySelector('.auth-editorial-subtitle');
   roleCards.forEach(card => {
     card.addEventListener('click', () => {
       roleCards.forEach(c => {
@@ -5885,6 +5896,14 @@ document.querySelectorAll('.example-pill').forEach(button => {
         badge.className = 'auth-role-check-badge';
         badge.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
         card.prepend(badge);
+      }
+      if (authSubtitle) {
+        const titleText = card.querySelector('.auth-role-title')?.textContent?.trim() || '';
+        if (titleText.includes('abogado')) {
+          authSubtitle.textContent = 'Conéctate con clientes verificados, accede a expedientes estructurados y asegura tus honorarios por etapas.';
+        } else {
+          authSubtitle.textContent = 'Guarda tu caso, organiza tu información y conéctate con abogados verificados cuando estés listo.';
+        }
       }
     });
   });
