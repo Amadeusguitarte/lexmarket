@@ -5145,9 +5145,9 @@ a.lawyer-account-btn:hover {
   background: #ffffff;
   color: var(--ink);
   padding: 0;
-  width: min(970px, calc(100vw - 32px));
-  max-width: 970px;
-  max-height: 92dvh;
+  width: min(980px, calc(100vw - 32px));
+  max-width: 980px;
+  max-height: 95dvh;
   overflow: hidden;
   overscroll-behavior: contain;
   outline: none;
@@ -5162,8 +5162,8 @@ a.lawyer-account-btn:hover {
 .auth-editorial-container {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.16fr);
-  height: 680px;
-  min-height: 680px;
+  height: 725px;
+  min-height: 725px;
   position: relative;
 }
 
@@ -5240,7 +5240,7 @@ a.lawyer-account-btn:hover {
 .auth-editorial-left-content {
   position: relative;
   z-index: 3;
-  padding: 42px 40px 24px 42px;
+  padding: 46px 42px 28px 44px;
   display: flex;
   flex-direction: column;
 }
@@ -5330,7 +5330,7 @@ a.lawyer-account-btn:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 38px 40px 32px;
+  padding: 44px 42px;
   position: relative;
   height: 100%;
   box-sizing: border-box;
@@ -5667,7 +5667,7 @@ input.auth-input-control.with-trailing {
 
 /* Footer Switch */
 .auth-switch-footer {
-  margin-top: 18px;
+  margin-top: 22px;
   text-align: center;
 }
 

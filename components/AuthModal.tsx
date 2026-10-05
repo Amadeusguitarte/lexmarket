@@ -120,7 +120,7 @@ export default function AuthModal({
         {/* Left Column: Full Photographic Background Stage */}
         <div className="auth-editorial-left">
           <img
-            src="/auth-desk-scene.png?v=3"
+            src="/auth-desk-scene.png?v=4"
             alt=""
             className="auth-editorial-bg-img"
             aria-hidden="true"
