@@ -91,19 +91,28 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
 
    }
 
-   if(path[0]==='linkedin') {
-    if(path[1]==='fetch-url'&&method==='POST') {
-      const b=await body(req);
-      const profileData=await fetchLinkedInPublicProfile(b.url||'');
-      return json({ok:true,profile:profileData});
+    if(path[0]==='linkedin') {
+      if(path[1]==='fetch-url'&&method==='POST') {
+        const b=await body(req);
+        const profileData=await fetchLinkedInPublicProfile(b.url||'');
+        return json({ok:true,profile:profileData,data:profileData});
+      }
+      if(path[1]==='auth'&&method==='GET') {
+        const clientId=process.env.LINKEDIN_CLIENT_ID||process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+        const acceptsHtml=req.headers.get('accept')?.includes('text/html');
+        if(!clientId) {
+          if(acceptsHtml) {
+            return NextResponse.redirect(new URL('/abogados?linkedin_status=unconfigured', req.url));
+          }
+          return json({configured:false,message:'LinkedIn OAuth no está configurado aún en las variables de entorno.'});
+        }
+        const authUrl=getLinkedInAuthUrl(crypto.randomUUID());
+        if(acceptsHtml) {
+          return NextResponse.redirect(authUrl);
+        }
+        return json({configured:true,url:authUrl});
+      }
     }
-    if(path[1]==='auth'&&method==='GET') {
-      const clientId=process.env.LINKEDIN_CLIENT_ID||process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-      if(!clientId) return json({configured:false,message:'LinkedIn OAuth no está configurado aún en las variables de entorno.'});
-      const authUrl=getLinkedInAuthUrl(crypto.randomUUID());
-      return json({configured:true,url:authUrl});
-    }
-   }
 
    const ctx=await auth(req),{client,user,profile}=ctx;
    await rate(ctx,'api',180);
@@ -183,17 +192,17 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
 
      if(path[1]==='linkedin-sync'&&method==='POST') {
       const data=await body(req);
-      const avatar=safeAvatar(data.avatar_url)||data.avatar_url||'/lawyers/juan-perez.jpg';
+      const avatar=safeAvatar(data.avatar_url)||data.avatar_url||profile?.avatar_url||'';
       const profileUpdates: Record<string, any> = {
         id: user.id,
-        name: data.name || profile?.name || 'Abogado Verificado',
+        name: data.name || profile?.name || 'Abogado',
         role: 'lawyer',
         city: data.city || profile?.city || 'Bogotá, D.C.',
         bio: data.bio || profile?.bio || '',
         education: data.education || profile?.education || '',
-        specialties: data.specialties || profile?.specialties || ['Derecho Laboral', 'Derecho Comercial'],
-        years_of_experience: Number(data.years_of_experience ?? profile?.years_of_experience ?? 8),
-        license: data.license || profile?.license || '312.489 CSJ',
+        specialties: data.specialties || profile?.specialties || [],
+        years_of_experience: Number(data.years_of_experience ?? profile?.years_of_experience ?? 0),
+        license: data.license || profile?.license || '',
         avatar_url: avatar,
         verification: profile?.verification || 'pending',
         virtual_available: true,

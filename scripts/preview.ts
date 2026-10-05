@@ -402,7 +402,8 @@ document.querySelectorAll('.example-pill').forEach(button => {
     };
 
     backdrop.querySelector('.btn-linkedin-oauth-trigger')?.addEventListener('click', () => {
-      doImport('Carlos Mendoza');
+      showToast('LinkedIn OAuth en vivo requiere configurar LINKEDIN_CLIENT_ID en Railway. Puedes pegar tu enlace público abajo.');
+      backdrop.querySelector('#linkedin-preview-url')?.focus();
     });
 
     backdrop.querySelector('#btn-linkedin-preview-fetch')?.addEventListener('click', () => {

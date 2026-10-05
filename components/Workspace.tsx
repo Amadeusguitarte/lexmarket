@@ -31,7 +31,7 @@ export default function Workspace(props:WorkProps) {
    return (
      <LawyerOnboardingDashboard
        initialLawyerName={p.name}
-       initialAvatar={avatar || '/lawyers/juan-perez.jpg'}
+       initialAvatar={avatar || ''}
        onNavigate={(route) => {
          if (route === 'casos') navigate('marketplace');
          else if (route === 'propuestas' || route === 'mis-casos') navigate('cases');
