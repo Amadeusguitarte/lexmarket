@@ -120,7 +120,7 @@ export default function AuthModal({
         {/* Left Column: Full Photographic Background Stage */}
         <div className="auth-editorial-left">
           <img
-            src="/crear-cuenta.png"
+            src="/auth-desk-scene.png?v=3"
             alt=""
             className="auth-editorial-bg-img"
             aria-hidden="true"
@@ -153,7 +153,7 @@ export default function AuthModal({
             <div className="auth-editorial-bullets">
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <Folder size={17} strokeWidth={1.8} />
+                  <Folder size={26} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Guarda tu progreso</strong>
@@ -163,7 +163,7 @@ export default function AuthModal({
 
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <ShieldCheck size={17} strokeWidth={1.8} />
+                  <ShieldCheck size={26} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Tu información, siempre privada</strong>
@@ -173,7 +173,7 @@ export default function AuthModal({
 
               <div className="auth-bullet-row">
                 <div className="auth-bullet-icon">
-                  <Users size={17} strokeWidth={1.8} />
+                  <Users size={26} strokeWidth={1.8} />
                 </div>
                 <div className="auth-bullet-text">
                   <strong>Conéctate con abogados verificados</strong>
