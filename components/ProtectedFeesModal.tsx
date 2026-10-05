@@ -7,7 +7,7 @@ export default function ProtectedFeesModal({ onClose }: { onClose: () => void })
       <div className="modal-head">
         <div>
           <span className="overline">TRANSPARENCIA Y SEGURIDAD</span>
-          <h2>Honorarios protegidos en LexMarket</h2>
+          <h2>Honorarios protegidos en MatchJurídico</h2>
         </div>
         <button className="icon-button" aria-label="Cerrar modal" onClick={onClose}>
           <X size={18} />

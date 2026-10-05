@@ -66,7 +66,7 @@ export default function AbogadoProfilePage({ params }: { params: Promise<{ id: s
     <div className="landing">
       <PublicHeaderWrapper>
         <div className="public-header wrap">
-          <a href="/" aria-label="LexMarket inicio"><Brand /></a>
+          <a href="/" aria-label="MatchJurídico inicio"><Brand /></a>
           <nav aria-label="Principal">
             <a href="/abogados" className="active-nav">Explorar Abogados</a>
             <a href="/como-funciona">Cómo funciona</a>

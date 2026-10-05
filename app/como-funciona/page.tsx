@@ -28,7 +28,7 @@ export default function ComoFuncionaPage() {
       {/* Header */}
       <PublicHeaderWrapper>
         <div className="public-header wrap">
-          <Link href="/" aria-label="LexMarket inicio">
+          <Link href="/" aria-label="MatchJurídico inicio">
             <Brand />
           </Link>
           <nav aria-label="Principal">
@@ -57,7 +57,7 @@ export default function ComoFuncionaPage() {
           </h1>
 
           <p className="how-hero-subtitle">
-            En LexMarket, el dinero del cliente no se entrega por adelantado ni queda sin garantía.
+            En MatchJurídico, el dinero del cliente no se entrega por adelantado ni queda sin garantía.
             Permanece protegido en la plataforma y se libera progresivamente al abogado conforme
             se cumplen los hitos y entregables acordados.
           </p>
@@ -151,7 +151,7 @@ export default function ComoFuncionaPage() {
                 </div>
                 <h3>Depósito en Custodia Protegida</h3>
                 <p>
-                  El cliente realiza el pago a través de los medios seguros de LexMarket.
+                  El cliente realiza el pago a través de los medios seguros de MatchJurídico.
                   El dinero <strong>no se transfiere de inmediato al profesional</strong>; permanece resguardado
                   en la plataforma como garantía para ambas partes.
                 </p>
@@ -188,7 +188,7 @@ export default function ComoFuncionaPage() {
                 </div>
                 <h3>Liberación Progresiva de Fondos</h3>
                 <p>
-                  Una vez cumplido y validado cada hito pactado, LexMarket libera proporcionalmente la parte
+                  Una vez cumplido y validado cada hito pactado, MatchJurídico libera proporcionalmente la parte
                   de honorarios correspondiente a esa etapa. El profesional cobra lo justo y el cliente avanza seguro.
                 </p>
                 <div className="diagram-tag gold">Desembolso por cumplimiento</div>
@@ -212,7 +212,7 @@ export default function ComoFuncionaPage() {
 
                 <div className="map-node platform-node">
                   <ShieldCheck size={32} />
-                  <strong>LexMarket Escrow</strong>
+                  <strong>MatchJurídico Escrow</strong>
                   <small>Resguarda & valida hitos</small>
                 </div>
 
@@ -232,7 +232,7 @@ export default function ComoFuncionaPage() {
         <section className="how-comparison-section wrap">
           <div className="how-section-header">
             <span className="eyebrow">DIFERENCIA CLAVE</span>
-            <h2>Contratación Tradicional vs. Modelo LexMarket</h2>
+            <h2>Contratación Tradicional vs. Modelo MatchJurídico</h2>
             <p>Compara por qué el modelo de honorarios protegidos elimina el riesgo en servicios legales.</p>
           </div>
 
@@ -242,7 +242,7 @@ export default function ComoFuncionaPage() {
                 <tr>
                   <th>Aspecto del proceso</th>
                   <th className="bad-column">Contratación Tradicional</th>
-                  <th className="good-column">Modelo LexMarket Protegido</th>
+                  <th className="good-column">Modelo MatchJurídico Protegido</th>
                 </tr>
               </thead>
               <tbody>
@@ -356,7 +356,7 @@ export default function ComoFuncionaPage() {
               </summary>
               <p>
                 Si el cliente considera que la etapa no se ha cumplido según lo pactado, la liberación del pago se pausa.
-                El equipo de soporte de LexMarket revisa los entregables registrados en el expediente digital para mediar
+                El equipo de soporte de MatchJurídico revisa los entregables registrados en el expediente digital para mediar
                 de forma neutral y justa.
               </p>
             </details>
@@ -378,7 +378,7 @@ export default function ComoFuncionaPage() {
                 <ChevronDown size={18} />
               </summary>
               <p>
-                No. El modelo de honorarios protegidos está incluido en la plataforma LexMarket para garantizar la seguridad
+                No. El modelo de honorarios protegidos está incluido en la plataforma MatchJurídico para garantizar la seguridad
                 de la transacción sin comisiones sorpresa.
               </p>
             </details>
@@ -417,7 +417,7 @@ export default function ComoFuncionaPage() {
       {/* Footer */}
       <footer className="wrap">
         <Brand />
-        <span>© {new Date().getFullYear()} LexMarket — Honorarios Protegidos & Servicios Legales.</span>
+        <span>© {new Date().getFullYear()} MatchJurídico — Honorarios Protegidos & Servicios Legales.</span>
         <div>
           <Link href="/">Inicio</Link>
           <Link href="/abogados">Abogados</Link>

@@ -99,7 +99,7 @@ export default function HowItWorksSection({ onStart }: HowItWorksSectionProps) {
       ref={sectionRef}
       id="como-funciona"
       className="how-section"
-      aria-label="Cómo funciona LexMarket"
+      aria-label="Cómo funciona MatchJurídico"
     >
       <div className="wrap">
         {/* Section Heading */}

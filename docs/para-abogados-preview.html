@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LexMarket · Para Abogados</title>
+  <title>MatchJurídico · Para Abogados</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&display=swap" rel="stylesheet">
@@ -789,7 +789,8 @@ img{max-width:100%}
 
 /* Protected Fees Homepage Section */
 .protected-fees-section {
-  padding: 100px 0 80px;
+  padding-top: 65px;
+  padding-bottom: 0;
   position: relative;
   background: var(--paper);
 }
@@ -798,15 +799,20 @@ img{max-width:100%}
   display: grid;
   grid-template-columns: 1.12fr 1fr;
   gap: 40px;
-  align-items: center;
+  align-items: end;
+  margin-bottom: 0;
 }
 
 .protected-fees-visual-wrapper {
   position: relative;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
+  align-self: end;
+  line-height: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .protected-fees-canvas {
@@ -815,6 +821,8 @@ img{max-width:100%}
   max-width: 980px;
   margin-left: -32%;
   display: block;
+  line-height: 0;
+  margin-bottom: 0;
 }
 
 .fees-img-base {
@@ -823,6 +831,8 @@ img{max-width:100%}
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 20px 40px rgba(60, 45, 35, 0.07));
+  vertical-align: bottom;
+  margin-bottom: -1px;
 }
 
 .fees-img-coin {
@@ -833,6 +843,8 @@ img{max-width:100%}
   height: 100%;
   pointer-events: none;
   object-fit: contain;
+  vertical-align: bottom;
+  margin-bottom: -1px;
 }
 
 .floating-coin {
@@ -848,11 +860,12 @@ img{max-width:100%}
   }
 }
 
-
 .protected-fees-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-self: center;
+  padding-bottom: 0;
 }
 
 .fees-eyebrow {
@@ -1023,19 +1036,25 @@ img{max-width:100%}
 
 @media (max-width: 850px) {
   .protected-fees-section {
-    padding: 60px 0 50px;
+    padding-top: 50px;
+    padding-bottom: 0;
   }
   .protected-fees-grid {
     grid-template-columns: 1fr;
     gap: 36px;
+    align-items: end;
   }
   .protected-fees-visual-wrapper {
     justify-content: center;
+    align-items: flex-end;
+    align-self: end;
+    order: 2;
   }
   .protected-fees-canvas {
     width: 100%;
     max-width: 480px;
     margin-left: 0;
+    margin-bottom: 0;
   }
   .fees-headline {
     font-size: 34px;
@@ -1072,7 +1091,8 @@ img{max-width:100%}
     flex-direction: column;
   }
   .protected-fees-section {
-    padding: 45px 0 40px;
+    padding-top: 40px;
+    padding-bottom: 0;
   }
   .fees-headline {
     font-size: 28px;
@@ -2656,7 +2676,7 @@ img{max-width:100%}
 }
 
 /* ==========================================================================
-   Microsección: Por qué trabajar con LexMarket (4 pilares conceptuales táctiles)
+   Microsección: Por qué trabajar con MatchJurídico (4 pilares conceptuales táctiles)
    ========================================================================== */
 .lawyer-benefits-section {
   padding: 64px 0 80px;
@@ -4463,7 +4483,8 @@ img{max-width:100%}
   border: 1px solid #e7dfd5;
 }
 
-.comparison-column.lexmarket {
+.comparison-column.lexmarket,
+.comparison-column.matchjuridico {
   background: #ffffff;
   border: 2px solid var(--purple);
   box-shadow: 0 14px 44px rgba(107, 45, 62, 0.08);
@@ -5154,9 +5175,9 @@ a.lawyer-account-btn:hover {
   background: #ffffff;
   color: var(--ink);
   padding: 0;
-  width: min(940px, calc(100vw - 32px));
-  max-width: 940px;
-  max-height: 92dvh;
+  width: min(980px, calc(100vw - 32px));
+  max-width: 980px;
+  max-height: 95dvh;
   overflow: hidden;
   overscroll-behavior: contain;
   outline: none;
@@ -5170,8 +5191,9 @@ a.lawyer-account-btn:hover {
 
 .auth-editorial-container {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
-  min-height: 590px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.16fr);
+  height: 725px;
+  min-height: 725px;
   position: relative;
 }
 
@@ -5180,12 +5202,12 @@ a.lawyer-account-btn:hover {
   top: 18px;
   right: 18px;
   z-index: 25;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #fdfaf7;
-  border: 1px solid #eee4d8;
-  color: #6d6164;
+  background: transparent;
+  border: none;
+  color: #786b6e;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5194,136 +5216,143 @@ a.lawyer-account-btn:hover {
 }
 
 .auth-editorial-close:hover {
-  background: #f6ebe6;
-  color: #661e27;
-  border-color: #ebd2c8;
-  transform: rotate(90deg);
+  background: #f5edea;
+  color: #1a1416;
 }
 
-/* Left Column: Value Proposition & Desk Artwork */
+.auth-editorial-close:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.auth-editorial-close:focus-visible {
+  outline: 2px solid rgba(102, 30, 39, 0.3);
+  outline-offset: 2px;
+}
+
+/* Left Column: Full Photographic Background Stage */
 .auth-editorial-left {
-  background: #fbf8f4;
+  position: relative;
+  overflow: hidden;
+  background-color: #fbf8f4;
   border-right: 1px solid #ebdccc;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
+  height: 100%;
+}
+
+.auth-editorial-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.auth-editorial-bg-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(251, 248, 244, 0.62) 0%,
+    rgba(251, 248, 244, 0.44) 30%,
+    rgba(251, 248, 244, 0.18) 55%,
+    rgba(251, 248, 244, 0.04) 70%,
+    transparent 82%
+  );
+  z-index: 2;
+  pointer-events: none;
 }
 
 .auth-editorial-left-content {
-  padding: 40px 36px 16px;
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  padding: 46px 42px 28px 44px;
+  display: flex;
+  flex-direction: column;
 }
 
 .auth-editorial-badge {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #661e27;
+  color: #7d242f;
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .auth-editorial-title {
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: clamp(26px, 2.5vw, 33px);
-  line-height: 1.18;
+  font-size: clamp(32px, 2.8vw, 36px);
+  line-height: 1.14;
   color: #1a1416;
   margin: 0 0 12px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.015em;
 }
 
 .auth-editorial-title em {
   font-style: italic;
   font-family: Georgia, 'Playfair Display', serif;
-  color: #661e27;
+  color: #6a222a;
+  font-weight: 400;
 }
 
 .auth-editorial-subtitle {
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: #6d6164;
-  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #554d4a;
+  margin: 0 0 28px;
+  max-width: 390px;
+  min-height: 44px;
 }
 
 .auth-editorial-bullets {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
 .auth-bullet-row {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
+  gap: 16px;
+  align-items: center;
 }
 
 .auth-bullet-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: #ffffff;
-  border: 1px solid #ebdccc;
-  color: #661e27;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: #fbf1ee;
+  border: 1px solid #f2dedb;
+  color: #6a222a;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(60, 30, 40, 0.04);
+  box-shadow: 0 1px 3px rgba(104, 35, 44, 0.04);
 }
 
 .auth-bullet-text strong {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: #1a1416;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
 }
 
 .auth-bullet-text span {
-  font-size: 11.5px;
-  color: #766a6d;
-  line-height: 1.4;
+  font-size: 13.5px;
+  color: #5f5452;
+  line-height: 1.35;
   display: block;
 }
 
-/* Bottom Desk Artwork */
-.auth-editorial-art-wrap {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  overflow: hidden;
-  margin-top: auto;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.auth-art-ambient-blob {
-  position: absolute;
-  bottom: -20px;
-  left: -20px;
-  right: -20px;
-  height: 240px;
-  border-radius: 50% 50% 0 0;
-  background: #f4eae1;
-  z-index: 1;
-  opacity: 0.7;
-}
-
-.auth-editorial-art-img {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center bottom;
-  display: block;
-}
 
 /* Right Column: Interaction Form */
 .auth-editorial-right {
@@ -5331,14 +5360,113 @@ a.lawyer-account-btn:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 42px 44px;
+  padding: 44px 42px;
   position: relative;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .auth-form-wrapper {
   width: 100%;
-  max-width: 380px;
+  max-width: 420px;
   margin: 0 auto;
+}
+
+/* Role Selector Cards */
+.auth-role-section {
+  margin-bottom: 20px;
+}
+
+.auth-role-heading {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1a1416;
+  text-align: center;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+
+.auth-role-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.auth-role-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 14px 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ebdccc;
+  background: #ffffff;
+  color: #1a1416;
+  outline: none;
+  min-height: 104px;
+  box-sizing: border-box;
+}
+
+.auth-role-card:hover {
+  border-color: #dfcdbd;
+  background: #fdfbf9;
+}
+
+.auth-role-card.selected {
+  border-color: #661e27;
+  background: #fbf5f4;
+  box-shadow: 0 2px 10px rgba(102, 30, 39, 0.08);
+}
+
+.auth-role-check-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #661e27;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-role-icon-wrap {
+  color: #1a1416;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.auth-role-card.selected .auth-role-icon-wrap {
+  color: #661e27;
+}
+
+.auth-role-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1a1416;
+  margin-bottom: 3px;
+  display: block;
+  line-height: 1.25;
+}
+
+.auth-role-subtitle {
+  font-size: 11px;
+  color: #766a6d;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 28px;
 }
 
 .auth-google-btn {
@@ -5435,27 +5563,27 @@ a.lawyer-account-btn:hover {
   pointer-events: none;
 }
 
-.auth-input-control {
+input.auth-input-control {
   width: 100%;
-  height: 44px;
+  height: 46px;
   border-radius: 12px;
   border: 1.5px solid #ebdccc;
   background: #ffffff;
-  padding: 0 14px 0 40px;
-  font-size: 13px;
+  padding: 0 14px 0 42px !important;
+  font-size: 13.5px;
   color: #1a1416;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
   box-sizing: border-box;
 }
 
-.auth-input-control:focus {
+input.auth-input-control:focus {
   border-color: #661e27;
   box-shadow: 0 0 0 3px rgba(102, 30, 39, 0.1);
 }
 
-.auth-input-control.with-trailing {
-  padding-right: 42px;
+input.auth-input-control.with-trailing {
+  padding-right: 44px !important;
 }
 
 .auth-input-trailing-toggle {
@@ -5479,14 +5607,14 @@ a.lawyer-account-btn:hover {
 
 /* Privacy & Security Callout */
 .auth-security-callout {
-  background: #fdf6f2;
-  border: 1px solid #f2ded6;
+  background: #fbf1ef;
+  border: 1px solid #f3dcd9;
   border-radius: 12px;
-  padding: 11px 13px;
+  padding: 12px 14px;
   display: flex;
-  gap: 10px;
+  gap: 11px;
   align-items: flex-start;
-  margin: 2px 0 4px;
+  margin: 3px 0 5px;
 }
 
 .auth-security-icon-box {
@@ -5499,7 +5627,7 @@ a.lawyer-account-btn:hover {
   margin: 0;
   font-size: 11.5px;
   line-height: 1.45;
-  color: #645659;
+  color: #554447;
 }
 
 /* Terms Checkbox */
@@ -5569,7 +5697,7 @@ a.lawyer-account-btn:hover {
 
 /* Footer Switch */
 .auth-switch-footer {
-  margin-top: 18px;
+  margin-top: 22px;
   text-align: center;
 }
 
@@ -5588,10 +5716,11 @@ a.lawyer-account-btn:hover {
   cursor: pointer;
   margin-left: 4px;
   font-size: inherit;
+  text-decoration: underline;
 }
 
 .auth-switch-link:hover {
-  text-decoration: underline;
+  color: #52161f;
 }
 
 /* Responsive Modal Behavior */
@@ -5618,6 +5747,1326 @@ a.lawyer-account-btn:hover {
   }
 }
 
+/* ==========================================================================
+   Lawyer Onboarding Dashboard (Full Verification & LinkedIn Integration View)
+   ========================================================================== */
+
+.lawyer-dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #fbf8f3;
+  color: #2b2526;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  position: relative;
+}
+
+/* Sidebar */
+.lawyer-dash-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #fbf8f3;
+  border-right: 1px solid #ebdccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 18px 24px;
+}
+
+.lawyer-sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.lawyer-sidebar-logo {
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.lawyer-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lawyer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a4344;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.lawyer-nav-item:hover {
+  background: #f1ebd8;
+  color: #1e191a;
+}
+
+.lawyer-nav-item.active {
+  background: #f9e9e6;
+  color: #68232c;
+  font-weight: 600;
+}
+
+.lawyer-nav-item.help-link {
+  color: #605556;
+}
+
+.lawyer-nav-item.help-link:hover {
+  color: #1e191a;
+  background: #f1ebd8;
+}
+
+/* Main Content Area */
+.lawyer-dash-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fbf8f3;
+}
+
+/* Topbar */
+.lawyer-dash-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 48px;
+  gap: 32px;
+}
+
+.lawyer-search-box {
+  flex: 1;
+  max-width: 600px;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.lawyer-search-icon {
+  position: absolute !important;
+  left: 18px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #8f8284 !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.lawyer-search-input {
+  width: 100% !important;
+  height: 44px !important;
+  padding-left: 54px !important;
+  padding-right: 20px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: #f3ede5 !important;
+  border: 1px solid #ebdccc !important;
+  border-radius: 28px !important;
+  font-size: 13.5px !important;
+  color: #2b2526 !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.lawyer-search-input:focus {
+  background: #ffffff !important;
+  border-color: #68232c !important;
+  box-shadow: 0 0 0 3px rgba(104, 35, 44, 0.08) !important;
+}
+
+.lawyer-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.lawyer-bell-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: #4a4344;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.18s;
+}
+
+.lawyer-bell-btn:hover {
+  background: #ebdccc;
+}
+
+.lawyer-bell-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #b9252c;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #fbf8f3;
+}
+
+.lawyer-user-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 24px;
+  transition: background 0.18s;
+}
+
+.lawyer-user-profile-menu:hover {
+  background: #f3ede5;
+}
+
+.lawyer-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ebdccc;
+}
+
+.lawyer-avatar-fallback {
+  background: #68232c !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  user-select: none;
+}
+
+.lawyer-user-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.lawyer-user-fullname {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #2b2526;
+}
+
+.lawyer-user-role-label {
+  font-size: 11.5px;
+  color: #796c6e;
+}
+
+.lawyer-chevron-icon {
+  color: #796c6e;
+}
+
+/* Main Content Body */
+.lawyer-dash-content {
+  padding: 12px 48px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  max-width: 1400px;
+  width: 100%;
+}
+
+/* Welcome Hero */
+.lawyer-welcome-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lawyer-welcome-title {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 600;
+  color: #1e191a;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.lawyer-welcome-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: #68232c;
+}
+
+.lawyer-welcome-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #6a5e60;
+  margin: 0;
+  max-width: 720px;
+}
+
+/* 2-Column Onboarding Grid */
+.lawyer-onboarding-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: stretch;
+}
+
+/* Left Card: Tu perfil profesional */
+.lawyer-profile-wizard-card {
+  background: #ffffff;
+  border: 1px solid #ebdccc;
+  border-radius: 20px;
+  padding: 32px 34px 28px;
+  box-shadow: 0 4px 18px rgba(43, 37, 38, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.wizard-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.wizard-card-title {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e191a;
+  margin: 0;
+}
+
+.wizard-progress-percent {
+  font-size: 14px;
+  font-weight: 700;
+  color: #68232c;
+}
+
+.wizard-progress-track {
+  width: 100%;
+  height: 8px;
+  background: #eee8de;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: -10px;
+}
+
+.wizard-progress-fill {
+  height: 100%;
+  background: #68232c;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+/* Horizontal 6-Step Stepper */
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 8px 4px;
+}
+
+.stepper-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.stepper-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #d5c8b8;
+  color: #6a5e60;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.stepper-node.current .stepper-circle {
+  background: #68232c;
+  border-color: #68232c;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(104, 35, 44, 0.12);
+}
+
+.stepper-node.completed .stepper-circle {
+  background: #68232c;
+  border-color: #68232c;
+  color: #ffffff;
+}
+
+.stepper-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6a5e60;
+  max-width: 78px;
+  line-height: 1.25;
+}
+
+.stepper-node.current .stepper-label {
+  color: #1e191a;
+  font-weight: 600;
+}
+
+.stepper-connector {
+  flex: 1;
+  height: 1.5px;
+  background: #ebdccc;
+  margin: 0 4px 22px;
+  z-index: 1;
+}
+
+.stepper-connector.completed {
+  background: #68232c;
+}
+
+/* LinkedIn Integration Banner inside Card */
+.wizard-linkedin-banner {
+  background: #edf5fc;
+  border: 1px solid #cbe0f4;
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.linkedin-banner-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.linkedin-logo-badge {
+  color: #0077b5;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 2px 8px rgba(0, 119, 181, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.linkedin-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.linkedin-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #557b9c;
+}
+
+.linkedin-banner-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0d2943;
+  margin: 0;
+}
+
+.linkedin-banner-sub {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #486178;
+  margin: 2px 0 0;
+}
+
+.linkedin-banner-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.linkedin-connect-btn {
+  background: #0077b5;
+  color: #ffffff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.25);
+  transition: all 0.18s ease;
+}
+
+.linkedin-connect-btn:hover:not(:disabled) {
+  background: #005f93;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 119, 181, 0.35);
+}
+
+.linkedin-manual-link {
+  background: none;
+  border: none;
+  color: #557b9c;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.linkedin-manual-link:hover {
+  color: #0d2943;
+}
+
+/* Footer of Left Card */
+.wizard-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 6px;
+}
+
+.wizard-continue-btn {
+  background: #68232c;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(104, 35, 44, 0.22);
+  transition: all 0.18s ease;
+}
+
+.wizard-continue-btn:hover {
+  background: #52161f;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(104, 35, 44, 0.32);
+}
+
+.wizard-time-note {
+  font-size: 12.5px;
+  color: #796c6e;
+}
+
+/* Bottom tip link */
+.wizard-speed-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #6a5e60;
+  margin-top: -12px;
+}
+
+.speed-tip-bolt {
+  color: #68232c;
+  font-size: 13px;
+}
+
+.speed-tip-link {
+  background: none;
+  border: none;
+  color: #68232c;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.speed-tip-link:hover {
+  color: #52161f;
+}
+
+/* Right Card: Value Proposition Card (Full-bleed desk scene with subtle top scrim) */
+.lawyer-value-prop-card {
+  position: relative;
+  background-color: #fbf8f4;
+  border: 1px solid #ebdccc;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(43, 37, 38, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 500px;
+  height: 100%;
+}
+
+.value-card-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.value-card-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(251, 248, 244, 0.98) 0%,
+    rgba(251, 248, 244, 0.92) 36%,
+    rgba(251, 248, 244, 0.65) 52%,
+    rgba(251, 248, 244, 0.15) 66%,
+    transparent 78%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+.value-card-content {
+  position: relative;
+  z-index: 3;
+  padding: 30px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.value-card-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7d242f;
+  margin: 0;
+}
+
+.value-card-heading {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e191a;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.value-check-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.value-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #2b2526;
+  font-weight: 500;
+}
+
+.value-check-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f8ebea;
+  color: #68232c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border: 1px solid rgba(104, 35, 44, 0.12);
+}
+
+/* Bottom Section: Casos recientes */
+.lawyer-recent-cases-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recent-cases-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recent-cases-title {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e191a;
+  margin: 0;
+}
+
+.recent-cases-see-all {
+  background: none;
+  border: none;
+  color: #68232c;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.recent-cases-see-all:hover {
+  text-decoration: underline;
+}
+
+.recent-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.recent-case-card {
+  background: #f5eee5;
+  border: 1px solid #ebdccc;
+  border-radius: 16px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.case-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.case-category-pill {
+  font-size: 11.5px;
+  font-weight: 500;
+  background: #f7ebe8;
+  color: #68232c;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.case-bookmark-btn {
+  background: none;
+  border: none;
+  color: #796c6e;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-bookmark-btn:hover {
+  color: #1e191a;
+}
+
+.case-card-title {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e191a;
+  margin: 2px 0 0;
+}
+
+.case-card-location {
+  font-size: 12px;
+  color: #796c6e;
+}
+
+.case-card-blurred-body {
+  filter: blur(4.5px);
+  opacity: 0.38;
+  user-select: none;
+  pointer-events: none;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #3b3334;
+  margin-top: 6px;
+}
+
+.case-card-blurred-body p {
+  margin: 0 0 6px;
+}
+
+/* Floating Lock Overlay on Top of Blurred Text */
+.case-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: none;
+}
+
+.case-lock-box {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #ebdccc;
+  border-radius: 14px;
+  padding: 18px 16px;
+  box-shadow: 0 6px 20px rgba(43, 37, 38, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.case-lock-icon {
+  color: #1e191a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.case-lock-text {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #4a4344;
+  margin: 0;
+  max-width: 220px;
+}
+
+/* Modal Dialogs */
+.lawyer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 16, 17, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lawyer-modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #ebdccc;
+  box-shadow: 0 20px 48px rgba(30, 25, 26, 0.16);
+  position: relative;
+  max-width: 580px;
+  width: 100%;
+  overflow: hidden;
+  animation: modal-pop 0.22s ease-out;
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.lawyer-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: #796c6e;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lawyer-modal-close:hover {
+  background: #f1ebd8;
+  color: #1e191a;
+}
+
+/* LinkedIn Import Modal Details */
+.linkedin-modal-header {
+  padding: 32px 32px 18px;
+  text-align: center;
+  background: linear-gradient(180deg, #f4f8fc 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2edf6;
+}
+
+.linkedin-header-logo {
+  color: #0077b5;
+  margin-bottom: 12px;
+}
+
+.linkedin-modal-header h3 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0e273f;
+  margin: 0 0 8px;
+}
+
+.linkedin-modal-header p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #4a6176;
+  margin: 0;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.linkedin-modal-body {
+  padding: 26px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.linkedin-sync-card {
+  border: 1.5px solid #0077b5;
+  background: #f5f9fd;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sync-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sync-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0077b5;
+}
+
+.sync-card-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0e273f;
+  margin: 0;
+}
+
+.sync-card-info p {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #4a6176;
+  margin: 0;
+}
+
+.linkedin-sync-btn {
+  background: #0077b5;
+  color: #ffffff;
+  border: none;
+  padding: 11px 20px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.28);
+  transition: all 0.18s ease;
+}
+
+.linkedin-sync-btn:hover:not(:disabled) {
+  background: #005f93;
+}
+
+.linkedin-url-input-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkedin-url-input-block label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4a4344;
+}
+
+.linkedin-url-row {
+  display: flex;
+  gap: 10px;
+}
+
+.linkedin-input-text {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ebdccc;
+  border-radius: 10px;
+  font-size: 13px;
+  outline: none;
+}
+
+.linkedin-input-text:focus {
+  border-color: #0077b5;
+}
+
+.linkedin-import-url-btn {
+  background: #0077b5;
+  border: 1px solid #0077b5;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkedin-import-url-btn:hover:not(:disabled) {
+  background: #005e93;
+  border-color: #005e93;
+  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.28);
+}
+
+.linkedin-import-url-btn:disabled {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+  color: #f8fafc;
+  cursor: not-allowed;
+}
+
+/* Profile Wizard Modal */
+.wizard-modal-stepper-header {
+  padding: 28px 30px 18px;
+  background: #fdfbf7;
+  border-bottom: 1px solid #ebdccc;
+}
+
+.wizard-step-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #68232c;
+  text-transform: uppercase;
+}
+
+.wizard-modal-stepper-header h3 {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e191a;
+  margin: 4px 0 4px;
+}
+
+.wizard-modal-stepper-header p {
+  font-size: 13px;
+  color: #6a5e60;
+  margin: 0;
+}
+
+.wizard-modal-form-body {
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.wizard-form-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wizard-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wizard-field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2b2526;
+}
+
+.wizard-field input,
+.wizard-field select,
+.wizard-field textarea {
+  padding: 10px 14px;
+  border: 1px solid #ebdccc;
+  border-radius: 10px;
+  font-size: 13.5px;
+  background: #ffffff;
+  color: #2b2526;
+  outline: none;
+  font-family: inherit;
+}
+
+.wizard-field input:focus,
+.wizard-field select:focus,
+.wizard-field textarea:focus {
+  border-color: #68232c;
+  box-shadow: 0 0 0 3px rgba(104, 35, 44, 0.08);
+}
+
+.wizard-field small {
+  font-size: 11px;
+  color: #796c6e;
+}
+
+.wizard-file-dropzone {
+  border: 1.5px dashed #ebdccc;
+  border-radius: 12px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #fbf8f3;
+  cursor: pointer;
+  text-align: center;
+  font-size: 12.5px;
+  color: #6a5e60;
+}
+
+.wizard-file-dropzone:hover {
+  background: #f6efe6;
+  border-color: #68232c;
+}
+
+.wizard-specialties-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.specialty-chip {
+  background: #f5eee5;
+  border: 1px solid #ebdccc;
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #4a4344;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.16s ease;
+}
+
+.specialty-chip:hover {
+  background: #ebe0d3;
+}
+
+.specialty-chip.selected {
+  background: #68232c;
+  color: #ffffff;
+  border-color: #68232c;
+}
+
+.verification-summary {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.verification-ready-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.verification-ready-badge h4 {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  margin: 0;
+  color: #1e191a;
+}
+
+.verification-ready-badge p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #6a5e60;
+  max-width: 420px;
+  margin: 0;
+}
+
+.wizard-modal-footer {
+  padding: 18px 30px 24px;
+  border-top: 1px solid #ebdccc;
+  background: #fdfbf7;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.wizard-back-btn {
+  background: #ffffff;
+  border: 1px solid #ebdccc;
+  color: #4a4344;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wizard-back-btn:hover {
+  background: #f5eee5;
+}
+
+.wizard-submit-step-btn {
+  background: #68232c;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(104, 35, 44, 0.22);
+}
+
+.wizard-submit-step-btn:hover {
+  background: #52161f;
+}
+
+/* Toast alert */
+.lawyer-dash-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #ffffff;
+  border: 1px solid #ebdccc;
+  box-shadow: 0 10px 30px rgba(30, 25, 26, 0.14);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2000;
+  font-size: 13.5px;
+  color: #1e191a;
+  animation: slide-up 0.2s ease-out;
+}
+
+.lawyer-dash-toast button {
+  background: none;
+  border: none;
+  color: #796c6e;
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 8px;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1120px) {
+  .lawyer-onboarding-grid {
+    grid-template-columns: 1fr;
+  }
+  .lawyer-value-prop-card {
+    max-width: 600px;
+  }
+  .recent-cases-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .lawyer-dashboard-shell {
+    flex-direction: column;
+  }
+  .lawyer-dash-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ebdccc;
+    padding: 16px 20px;
+  }
+  .lawyer-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .lawyer-nav-item {
+    white-space: nowrap;
+  }
+  .lawyer-dash-topbar {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .lawyer-dash-content {
+    padding: 16px 20px 40px;
+  }
+  .wizard-linkedin-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
 
 
 
@@ -5631,7 +7080,7 @@ a.lawyer-account-btn:hover {
 </style>
 </head>
 <body>
-  <link rel="preload" as="image" href="/lawyers/camilo-restrepo.jpg"/><div class="lawyer-landing-page"><div class="public-header-spacer" aria-hidden="true"></div><header class="public-header-wrapper   "><div class="public-header wrap"><a aria-label="LexMarket inicio" href="/"><span class="brand">lex<span>market</span><span class="brand-dot">.</span></span></a><nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="/como-funciona">Cómo funciona</a><a class="active-nav" href="/para-abogados">Para abogados</a><a href="/#preguntas">Preguntas</a></nav><a class="button small outline" href="/?auth=login">Entrar <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div></header><main><section class="lawyer-hero wrap"><div class="lawyer-hero-badge"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg><span>RED DE ABOGADOS VERIFICADOS EN COLOMBIA</span></div><h1>Casos reales, clientes calificados <br/><em>y tus honorarios respaldados.</em></h1><p class="lawyer-hero-subtitle">LexMarket conecta tu experiencia con personas y empresas que ya han estructurado su caso y reunido sus soportes. Evalúa cada oportunidad antes de participar, trabaja con fondos previamente respaldados y conserva el control sobre tus honorarios y condiciones.</p><div class="lawyer-hero-actions"><a class="button" href="/?auth=signup&amp;role=lawyer">Crear perfil profesional <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><a href="#como-funciona-abogado" class="quiet-link">Conoce el flujo de trabajo <span>↓</span></a></div><div class="lawyer-hero-trust-strip"><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check trust-icon"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Tarjeta Profesional requerida (CSJ - SIRNA)</span></div><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins trust-icon"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg><span>Custodia de fondos antes de iniciar cada hito</span></div><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole trust-icon"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg><span>Canal cifrado y confidencialidad protegida</span></div></div></section><section class="lawyer-benefits-section wrap"><div class="section-head text-center benefits-head"><span class="overline">POR QUÉ TRABAJAR CON LEXMARKET</span></div><div class="lawyer-benefits-grid"><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-1"><div class="dossier-graphic-wrapper"><div class="dossier-back-folder"><span class="folder-tab-snippet">Ex...</span></div><div class="dossier-front-file"><div class="dossier-file-header">Expediente</div><ul class="dossier-check-list"><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Hechos</li><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Pretensiones</li><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Soportes</li></ul></div></div></div><span class="benefit-badge">EXPEDIENTES LISTOS</span><h3 class="benefit-title">Evalúa antes de decidir</h3><p class="benefit-desc">Hechos, pretensiones y soportes organizados antes de que participes.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">01</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-2"><div class="escrow-graphic-wrapper"><div class="escrow-node"><div class="escrow-circle active-done"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="escrow-node-label">Depósito<br/>del cliente</span></div><div class="escrow-connector"></div><div class="escrow-node"><div class="escrow-circle soft-card"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><span class="escrow-node-label">Trabajo<br/>por etapas</span></div><div class="escrow-connector"></div><div class="escrow-node"><div class="escrow-circle soft-card"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg></div><span class="escrow-node-label">Liberación<br/>de fondos</span></div></div></div><span class="benefit-badge">FONDOS RESPALDADOS</span><h3 class="benefit-title">Empieza con fondos respaldados</h3><p class="benefit-desc">El cliente deposita previamente el valor acordado antes de que comiences cada etapa.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">02</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-3"><div class="controls-widget-card"><div class="ctrl-row"><span class="ctrl-title">Honorarios</span><div class="ctrl-track"><div class="ctrl-fill" style="width:68%"></div><div class="ctrl-thumb" style="left:68%"></div></div><span class="ctrl-icon-tag">$</span></div><div class="ctrl-row"><span class="ctrl-title">Condiciones</span><div class="ctrl-track"><div class="ctrl-fill" style="width:52%"></div><div class="ctrl-thumb" style="left:52%"></div></div><span class="ctrl-icon-tag">≡</span></div><div class="ctrl-row"><span class="ctrl-title">Casos a aceptar</span><div class="ctrl-switch-active"><div class="ctrl-switch-knob"></div></div></div></div></div><span class="benefit-badge">LIBERTAD PROFESIONAL</span><h3 class="benefit-title">Tú defines tus condiciones</h3><p class="benefit-desc">Establece tus honorarios, condiciones y qué casos aceptar.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">03</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-4"><div class="tags-floating-wrapper"><div class="tags-row row-1"><div class="tag-chip chip-solid"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg><span>Laboral</span></div><div class="tag-chip chip-glass"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Civil</span></div></div><div class="tags-row row-2"><div class="tag-chip chip-glass-wide"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span>Comercial</span></div></div><div class="tags-row row-3"><div class="tag-chip chip-micro"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg><span>Bogotá</span></div><div class="tag-chip chip-micro"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wifi"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg><span>Remoto</span></div></div></div></div><span class="benefit-badge">OPORTUNIDADES RELEVANTES</span><h3 class="benefit-title">Encuentra casos relevantes</h3><p class="benefit-desc">Recibe invitaciones y descubre casos compatibles con tus áreas de práctica jurídica.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">04</div></div></div></div></section><section class="lawyer-pillars-editorial wrap"><div class="pillars-editorial-grid"><div class="pillars-editorial-left"><div class="pillars-badge"><span class="badge-dots" aria-hidden="true">:::</span><span>DISEÑADO PARA TU DESPACHO</span></div><h2 class="pillars-editorial-title">Una forma más digna <br/>y eficiente de <br/><em>ejercer el derecho.</em></h2><p class="pillars-editorial-subtitle">Eliminamos la fricción administrativa y el desgaste de la cobranza para que te concentres exclusivamente en tu técnica jurídica.</p><div class="pillars-dossier-visual" aria-label="Expediente estructurado y gestión legal con fondos en custodia"><div class="pillars-dossier-stage"><div class="dossier-ambient-wave wave-back"></div><div class="dossier-ambient-wave wave-front"></div><svg class="dossier-orbit-svg" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 335 38 C 395 95 405 210 325 285" stroke="#dac4b2" stroke-width="1.2" stroke-dasharray="3 3.5"></path><circle cx="335" cy="38" r="4.5" fill="#661e27" class="orbit-dot-point"></circle><circle cx="335" cy="38" r="8.5" stroke="#ecdccf" stroke-width="1"></circle></svg><div class="dossier-layer layer-back-mauve" aria-hidden="true"></div><div class="dossier-layer layer-mid-flap" aria-hidden="true"></div><div class="dossier-layer layer-tabs-folder"><div class="folder-tabs-list"><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Demandas</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Recursos</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Memoriales</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark tab-pill-icon"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg><span>Audiencias</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check tab-pill-icon"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Evidencias</span></div></div></div><div class="dossier-layer layer-front-expediente"><h4 class="expediente-card-title">Expediente</h4><div class="expediente-check-list"><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Antecedentes</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Pretensiones</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Soportes</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Estado procesal</span></div></div><div class="expediente-skeleton-bars" aria-hidden="true"><div class="skel-line line-long"></div><div class="skel-line line-short"></div></div></div><div class="dossier-seal-badge" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale seal-scale-icon"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div></div></div></div><div class="pillars-editorial-right"><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div><div class="pillar-feature-content"><h3>Expedientes organizados y filtrados</h3><p>No más mensajes dispersos por WhatsApp ni reuniones exploratorias sin datos. Recibes un resumen claro preparado con nuestro intake asistido: antecedentes, objetivos del cliente y archivos ordenados.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Resumen ejecutivo previo a postularte</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Clasificación por rama del derecho y cuantía</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Acceso controlado a piezas procesales</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg></div><div class="pillar-feature-content"><h3>Honorarios en custodia protegida</h3><p>El dinero del cliente se consigna en la plataforma antes de que redactes el primer memorial o asumas la diligencia. Una vez cumplido y aprobado el hito, los fondos se transfieren directamente a tu cuenta.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Anticipos garantizados en depósito escrow</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Liquidación transparente por etapas o hitos</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Fin a las cuentas de cobro ignoradas</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div><div class="pillar-feature-content"><h3>Autonomía total de honorarios</h3><p>Tú eres el profesional a cargo. Tú fijas tus honorarios (tarifa fija, por hito procesal o mixta con cuota litis) según la complejidad, tiempo estimado y valor estratégico del asunto.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Propuestas a la medida de cada caso</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Libertad para aceptar o rechazar solicitudes</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Cumplimiento de tarifas del Colegio de Abogados</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg></div><div class="pillar-feature-content"><h3>Canal seguro y formalidad legal</h3><p>Espacio de trabajo seguro con mensajería privada, control de versiones de documentos y trazabilidad completa de cada actuación. Formaliza poderes y contratos de prestación de servicios con respaldo digital.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Cifrado y secreto profesional amparado</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Bitácora cronológica inalterable</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Entrega y revocatoria de poderes auditada</li></ul></div></div></div></div></section><section id="como-funciona-abogado" class="lawyer-workflow-editorial wrap"><div class="section-head text-center workflow-editorial-head"><div class="workflow-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text workflow-badge-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>UN FLUJO CLARO Y SEGURO</span></div><h2 class="workflow-editorial-title">De la postulación a la liquidación <br/><em>en 3 pasos.</em></h2><p class="workflow-editorial-subtitle">Un flujo intuitivo diseñado para integrarse a la rutina de tu práctica profesional individual o de firma.</p></div><div class="workflow-editorial-grid"><div class="workflow-timeline-column"><div class="workflow-timeline-rail" aria-hidden="true"></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">01</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">FILTRADO Y EVALUACIÓN</span><h3 class="workflow-step-heading">Explora casos afines a tu especialidad</h3><p class="workflow-step-text">Revisa casos calificados en Bogotá, Medellín, Cali, Barranquilla y todo el territorio nacional. Lee el resumen público aprobado y, si el asunto coincide con tu experiencia, solicita acceso al expediente reservado.</p><div class="workflow-step-chips"><span class="wf-chip">Civil y Comercial</span><span class="wf-chip">Laboral y Seguridad Social</span><span class="wf-chip">Familia</span><span class="wf-chip">Administrativo</span><span class="wf-chip">Penal</span></div></div></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">02</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">PROPUESTA E HITOS</span><h3 class="workflow-step-heading">Plantea tu estrategia y define tus etapas</h3><p class="workflow-step-text">Presenta una propuesta clara: explica tu enfoque jurídico, los documentos requeridos y desglosa el trabajo en hitos verificables (ej. concepto previo, radicación de demanda, contestación). El cliente aprueba y deposita los fondos del primer hito en custodia.</p><div class="workflow-step-chips"><span class="wf-chip">Honorarios por etapas</span><span class="wf-chip">Poder especial integrado</span><span class="wf-chip">Fondos asegurados</span></div></div></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">03</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">EJECUCIÓN Y COBRO</span><h3 class="workflow-step-heading">Sube evidencias de avance y recibe tus honorarios</h3><p class="workflow-step-text">Carga el radicado del juzgado, memorial presentado o entregable acordado en el espacio compartido. El cliente valida el cumplimiento del hito y la plataforma transfiere automáticamente los honorarios custodiados a tu cuenta bancaria.</p><div class="workflow-step-chips"><span class="wf-chip">Transferencia bancaria directa</span><span class="wf-chip">Trazabilidad para tu cliente</span><span class="wf-chip">Constancia de entrega</span></div></div></div></div><div class="workflow-cascade-stage" aria-label="Simulación visual del flujo operativo"><div class="workflow-ambient-glow" aria-hidden="true"></div><svg class="workflow-arrows-svg" viewBox="0 0 540 620" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><marker id="wfArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M 0 0 L 6 3 L 0 6 z" fill="#661e27"></path></marker></defs><path d="M 45 190 C 2 245 14 290 48 296" stroke="#702735" stroke-width="1.3" stroke-dasharray="3.5 3" marker-end="url(#wfArrow)"></path><path d="M 56 415 C 8 475 22 525 66 532" stroke="#702735" stroke-width="1.3" stroke-dasharray="3.5 3" marker-end="url(#wfArrow)"></path></svg><div class="wf-card wf-card-explorer"><div class="wf-card-explorer-bg" aria-hidden="true"></div><div class="wf-card-explorer-inner"><div class="wf-search-bar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search wf-search-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span class="wf-search-placeholder">Buscar casos por área del derecho...</span><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal wf-filter-icon"><line x1="21" x2="14" y1="4" y2="4"></line><line x1="10" x2="3" y1="4" y2="4"></line><line x1="21" x2="12" y1="12" y2="12"></line><line x1="8" x2="3" y1="12" y2="12"></line><line x1="21" x2="16" y1="20" y2="20"></line><line x1="12" x2="3" y1="20" y2="20"></line><line x1="14" x2="14" y1="2" y2="6"></line><line x1="8" x2="8" y1="10" y2="14"></line><line x1="16" x2="16" y1="18" y2="22"></line></svg></div><div class="wf-case-row"><div class="wf-case-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div><div class="wf-case-bars"><div class="wf-bar bar-dark w-70"></div><div class="wf-bar bar-light w-45"></div></div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right wf-chevron"><path d="m9 18 6-6-6-6"></path></svg></div><div class="wf-case-row wf-case-row-active"><div class="wf-case-icon-box active-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div class="wf-case-bars"><div class="wf-bar bar-active w-80"></div><div class="wf-bar bar-active-light w-55"></div></div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right wf-chevron"><path d="m9 18 6-6-6-6"></path></svg></div></div></div><div class="wf-card wf-card-milestones"><h4 class="wf-milestones-title">Propuesta por hitos</h4><div class="wf-milestones-list"><div class="wf-milestone-item"><div class="wf-milestone-check checked"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="wf-milestone-label">Concepto previo</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line w-60"></div><div class="wf-pill-dot"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check checked"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="wf-milestone-label">Radicación de demanda</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line w-60"></div><div class="wf-pill-dot"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check pending"></div><span class="wf-milestone-label text-muted">Contestación</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line-light w-60"></div><div class="wf-pill-dot dot-light"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check pending"></div><span class="wf-milestone-label text-muted">Audiencia</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line-light w-60"></div><div class="wf-pill-dot dot-light"></div></div></div></div></div><div class="wf-card wf-card-payment"><div class="wf-payment-check-circle"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="wf-payment-info"><strong>Honorarios transferidos</strong><p>El hito fue aprobado y los fondos se han liberado a tu cuenta.</p></div><div class="wf-payment-bank-col"><div class="wf-bank-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg></div><div class="wf-bank-bars"><div class="wf-bar bar-bank w-full"></div><div class="wf-bar bar-bank w-full"></div></div></div></div></div></div></section><section class="lawyer-comparison-section wrap"><div class="section-head text-center"><span class="overline">EL CONTRASTE</span><h2>La práctica legal convencional vs. LexMarket</h2><p class="section-subtitle">Compara cómo cambia tu día a día profesional cuando la tecnología resuelve la parte administrativa y de cobranza.</p></div><div class="comparison-table-wrapper"><div class="comparison-column traditional"><div class="comparison-col-header"><span class="col-badge bad">EJERCICIO TRADICIONAL</span><h3>Modelo convencional</h3><p>Alta incertidumbre y fricción operativa constante.</p></div><div class="comparison-items"><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Captación dispersa</strong><p>Dependencia de recomendaciones esporádicas y llamadas informales sin garantía de contratación.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Expedientes caóticos</strong><p>Fotos borrosas por WhatsApp, audios de 10 minutos y documentos incompletos que exigen días de clasificación.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Cobro desgastante</strong><p>Horas invertidas cobrando anticipos y honorarios, con riesgo real de no pago tras radicar el trabajo.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Desorganización de evidencias</strong><p>Comprobantes perdidos en correos o chats personales, dificultando la rendición de cuentas al cliente.</p></div></div></div></div><div class="comparison-column lexmarket"><div class="comparison-col-header"><span class="col-badge good">CON LEXMARKET</span><h3>Tu despacho en LexMarket</h3><p>Estructura profesional, seguridad económica y prestigio.</p></div><div class="comparison-items"><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Casos calificados y filtrados</strong><p>Acceso constante a clientes informados que buscan activamente representación profesional.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Intake legal estructurado</strong><p>Hechos ordenados cronológicamente, pretensiones claras y documentos adjuntos clasificados desde el día uno.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Custodia protegida de honorarios</strong><p>El dinero está resguardado en la plataforma antes de que des el primer paso. Cero morosidad.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Despacho digital seguro</strong><p>Espacio colaborativo con trazabilidad de radicados, bitácora de actuaciones y respaldo documental continuo.</p></div></div></div></div></div></section><section class="lawyer-verification-section wrap"><div class="lawyer-verification-card"><div class="verification-content"><div class="verification-header-pill"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg><span>ESTÁNDAR ÉTICO Y PROFESIONAL</span></div><div class="verification-hero-block"><div class="tarjeta-illustration-wrap" aria-hidden="true"><svg width="150" height="135" viewBox="0 0 150 135" fill="none" xmlns="http://www.w3.org/2000/svg" class="tarjeta-svg"><circle cx="68" cy="68" r="62" fill="#FAF3EA"></circle><g transform="rotate(-8 60 62)"><rect x="18" y="24" width="86" height="58" rx="7" fill="#FBF8F2" stroke="#EADBCA" stroke-width="1.2"></rect><path d="M36 34 C36 31 46 31 46 34 C46 38 41 42 41 44 C41 42 36 38 36 34 Z" stroke="#D1BEA5" stroke-width="1" fill="#F5ECDE"></path><line x1="52" y1="36" x2="86" y2="36" stroke="#E5D8C7" stroke-width="1.5" stroke-linecap="round"></line><line x1="52" y1="42" x2="78" y2="42" stroke="#E5D8C7" stroke-width="1.2" stroke-linecap="round"></line></g><g transform="rotate(-1 68 68)"><rect x="24" y="30" width="88" height="60" rx="7" fill="#FFFFFF" stroke="#E8DCCA" stroke-width="1.2"></rect><g transform="translate(36, 40) scale(0.7)"><path d="M12 2 C8 4 3 4 3 8 C3 14 8 18 12 21 C16 18 21 14 21 8 C21 4 16 4 12 2 Z" fill="#F6EFE5" stroke="#C8AD8D" stroke-width="1.2"></path><line x1="6" y1="9" x2="18" y2="9" stroke="#C8AD8D" stroke-width="1"></line><line x1="6" y1="13" x2="18" y2="13" stroke="#C8AD8D" stroke-width="1"></line><circle cx="12" cy="11" r="1.5" fill="#C8AD8D"></circle></g><line x1="58" y1="46" x2="98" y2="46" stroke="#DFD2C0" stroke-width="1.6" stroke-linecap="round"></line><line x1="58" y1="53" x2="88" y2="53" stroke="#E8DDCE" stroke-width="1.3" stroke-linecap="round"></line><line x1="36" y1="68" x2="80" y2="68" stroke="#EFE4D6" stroke-width="1.3" stroke-linecap="round"></line><line x1="36" y1="74" x2="68" y2="74" stroke="#EFE4D6" stroke-width="1.3" stroke-linecap="round"></line></g><g transform="translate(104, 76)"><circle cx="0" cy="2" r="19" fill="rgba(80, 20, 30, 0.18)"></circle><circle cx="0" cy="0" r="18" fill="#5D1622"></circle><circle cx="0" cy="0" r="15" fill="none" stroke="#872B3B" stroke-width="1.2" stroke-dasharray="2 1"></circle><path d="M-6 0.5 L-2 4.5 L6 -3.5" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></g></svg></div><div class="verification-title-copy"><h2>Verificación rigurosa <br/>con Tarjeta Profesional</h2><p>Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en LexMarket son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.</p></div></div><div class="verification-process-strip"><div class="strip-official-col"><div class="strip-official-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg></div><div class="strip-official-text"><strong>Validación oficial</strong><span>Consulta activa en el Registro Nacional de Abogados (SIRNA)</span></div></div><div class="strip-vertical-divider" aria-hidden="true"></div><div class="strip-steps-col"><div class="strip-step"><div class="strip-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div class="strip-step-info"><strong>1. Solicitud</strong><span>Datos del abogado</span></div></div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right strip-step-arrow" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><div class="strip-step"><div class="strip-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div><div class="strip-step-info"><strong>2. Validación</strong><span>Consulta en SIRNA</span></div></div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right strip-step-arrow" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><div class="strip-step"><div class="strip-step-icon verified-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="strip-step-info"><strong>3. Habilitación</strong><span>Perfil verificado</span></div></div></div></div><div class="verification-bullets"><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg></div><div><strong>Vigencia y habilitación activa</strong><span>Validamos que la tarjeta profesional no cuente con sanciones o suspensiones vigentes.</span></div></div><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div><div><strong>Cumplimiento de la Ley 1123 de 2007</strong><span>Promovemos las mejores prácticas del Código Disciplinario del Abogado en cada interacción.</span></div></div><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg></div><div><strong>Distintivo de verificación en tu perfil</strong><span>Los clientes visualizan tu insignia oficial de profesional verificado, generando confianza inmediata.</span></div></div></div></div><div class="verification-visual"><div class="profile-preview-card"><div class="preview-top"><div class="preview-avatar"><img src="../public/lawyers/camilo-restrepo.jpg" alt="Dr. Camilo Restrepo" class="preview-avatar-img"/></div><div class="preview-meta"><h4 class="preview-lawyer-name">Dr. Camilo Restrepo</h4><span class="verified-chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg> Verificado</span><span class="preview-spec">Especialista en Derecho Comercial y Litigios</span><span class="preview-tp">T.P. No. 248.910 del C. S. de la J.</span></div></div><div class="preview-divider"></div><div class="preview-stats"><div class="preview-stat-item"><strong>100%</strong><span>Hitos cumplidos</span></div><div class="preview-stat-divider" aria-hidden="true"></div><div class="preview-stat-item"><strong>4.9 / 5</strong><span>Calificación clientes</span></div><div class="preview-stat-divider" aria-hidden="true"></div><div class="preview-stat-item"><strong>12 años</strong><span>Experiencia</span></div></div></div></div></div></section><section id="preguntas-abogados" class="lawyer-faq-section wrap"><div class="section-head text-center"><span class="overline">RESOLVEMOS TUS DUDAS</span><h2>Preguntas frecuentes de abogados</h2><p class="section-subtitle">Todo lo que necesitas saber sobre el funcionamiento, pagos y condiciones para profesionales.</p></div><div class="faq-accordion"><div class="faq-item-card "><div class="faq-question-row"><h4>¿Tiene algún costo registrarse como abogado en LexMarket?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Cómo garantiza LexMarket el pago de mis honorarios?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Puedo fijar mis propias tarifas o LexMarket impone los precios?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿LexMarket interviene en mi criterio jurídico o estrategia procesal?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Qué documentos requiero para validar mi cuenta profesional?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Cómo se formaliza el poder con el cliente?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div></div></section><section class="lawyer-final-cta wrap"><div class="final-cta-card"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles final-cta-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><h2>Lleva tu ejercicio profesional al siguiente nivel.</h2><p>Conéctate con clientes reales, trabaja con expedientes listos y ten la seguridad de que tus honorarios están respaldados desde el primer momento.</p><div class="final-cta-buttons"><a class="button" href="/?auth=signup&amp;role=lawyer">Crear perfil profesional <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><a class="button outline lawyer-account-btn" style="color:#2c2526;border-color:#d4c2b2;background:#ffffff;font-weight:600;display:inline-flex;align-items:center;box-shadow:0 2px 8px rgba(44, 37, 38, 0.06)" href="/?auth=login&amp;role=lawyer">Ya tengo una cuenta</a></div><div class="final-cta-subnote"><span>Puedes registrarte con Google, LinkedIn o tu correo institucional. Verificación obligatoria de Tarjeta Profesional.</span></div></div></section></main><footer class="wrap"><span class="brand">lex<span>market</span><span class="brand-dot">.</span></span><span>Plataforma tecnológica para el ejercicio legal seguro y transparente en Colombia.</span><div class="footer-links"><a href="/">Inicio</a><a href="/abogados">Directorio de Abogados</a><a href="/como-funciona">Cómo funciona</a><a href="/para-abogados">Para abogados</a></div></footer></div>
+  <link rel="preload" as="image" href="/lawyers/camilo-restrepo.jpg"/><div class="lawyer-landing-page"><div class="public-header-spacer" aria-hidden="true"></div><header class="public-header-wrapper   "><div class="public-header wrap"><a aria-label="MatchJurídico inicio" href="/"><span class="brand">Match<span>Jurídico</span><span class="brand-dot">.</span></span></a><nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="/como-funciona">Cómo funciona</a><a class="active-nav" href="/para-abogados">Para abogados</a><a href="/#preguntas">Preguntas</a></nav><a class="button small outline" href="/?auth=login">Entrar <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a></div></header><main><section class="lawyer-hero wrap"><div class="lawyer-hero-badge"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg><span>RED DE ABOGADOS VERIFICADOS EN COLOMBIA</span></div><h1>Casos reales, clientes calificados <br/><em>y tus honorarios respaldados.</em></h1><p class="lawyer-hero-subtitle">MatchJurídico conecta tu experiencia con personas y empresas que ya han estructurado su caso y reunido sus soportes. Evalúa cada oportunidad antes de participar, trabaja con fondos previamente respaldados y conserva el control sobre tus honorarios y condiciones.</p><div class="lawyer-hero-actions"><a class="button" href="/?auth=signup&amp;role=lawyer">Crear perfil profesional <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><a href="#como-funciona-abogado" class="quiet-link">Conoce el flujo de trabajo <span>↓</span></a></div><div class="lawyer-hero-trust-strip"><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check trust-icon"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Tarjeta Profesional requerida (CSJ - SIRNA)</span></div><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins trust-icon"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg><span>Custodia de fondos antes de iniciar cada hito</span></div><div class="trust-pill"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole trust-icon"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg><span>Canal cifrado y confidencialidad protegida</span></div></div></section><section class="lawyer-benefits-section wrap"><div class="section-head text-center benefits-head"><span class="overline">POR QUÉ TRABAJAR CON MATCHJURÍDICO</span></div><div class="lawyer-benefits-grid"><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-1"><div class="dossier-graphic-wrapper"><div class="dossier-back-folder"><span class="folder-tab-snippet">Ex...</span></div><div class="dossier-front-file"><div class="dossier-file-header">Expediente</div><ul class="dossier-check-list"><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Hechos</li><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Pretensiones</li><li><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check ico-chk"><path d="M20 6 9 17l-5-5"></path></svg> Soportes</li></ul></div></div></div><span class="benefit-badge">EXPEDIENTES LISTOS</span><h3 class="benefit-title">Evalúa antes de decidir</h3><p class="benefit-desc">Hechos, pretensiones y soportes organizados antes de que participes.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">01</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-2"><div class="escrow-graphic-wrapper"><div class="escrow-node"><div class="escrow-circle active-done"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="escrow-node-label">Depósito<br/>del cliente</span></div><div class="escrow-connector"></div><div class="escrow-node"><div class="escrow-circle soft-card"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><span class="escrow-node-label">Trabajo<br/>por etapas</span></div><div class="escrow-connector"></div><div class="escrow-node"><div class="escrow-circle soft-card"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg></div><span class="escrow-node-label">Liberación<br/>de fondos</span></div></div></div><span class="benefit-badge">FONDOS RESPALDADOS</span><h3 class="benefit-title">Empieza con fondos respaldados</h3><p class="benefit-desc">El cliente deposita previamente el valor acordado antes de que comiences cada etapa.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">02</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-3"><div class="controls-widget-card"><div class="ctrl-row"><span class="ctrl-title">Honorarios</span><div class="ctrl-track"><div class="ctrl-fill" style="width:68%"></div><div class="ctrl-thumb" style="left:68%"></div></div><span class="ctrl-icon-tag">$</span></div><div class="ctrl-row"><span class="ctrl-title">Condiciones</span><div class="ctrl-track"><div class="ctrl-fill" style="width:52%"></div><div class="ctrl-thumb" style="left:52%"></div></div><span class="ctrl-icon-tag">≡</span></div><div class="ctrl-row"><span class="ctrl-title">Casos a aceptar</span><div class="ctrl-switch-active"><div class="ctrl-switch-knob"></div></div></div></div></div><span class="benefit-badge">LIBERTAD PROFESIONAL</span><h3 class="benefit-title">Tú defines tus condiciones</h3><p class="benefit-desc">Establece tus honorarios, condiciones y qué casos aceptar.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">03</div></div></div><div class="lawyer-benefit-card"><div class="benefit-visual-stage stage-4"><div class="tags-floating-wrapper"><div class="tags-row row-1"><div class="tag-chip chip-solid"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg><span>Laboral</span></div><div class="tag-chip chip-glass"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Civil</span></div></div><div class="tags-row row-2"><div class="tag-chip chip-glass-wide"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span>Comercial</span></div></div><div class="tags-row row-3"><div class="tag-chip chip-micro"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg><span>Bogotá</span></div><div class="tag-chip chip-micro"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wifi"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg><span>Remoto</span></div></div></div></div><span class="benefit-badge">OPORTUNIDADES RELEVANTES</span><h3 class="benefit-title">Encuentra casos relevantes</h3><p class="benefit-desc">Recibe invitaciones y descubre casos compatibles con tus áreas de práctica jurídica.</p><div class="benefit-card-footer"><div class="benefit-number-circle" aria-hidden="true">04</div></div></div></div></section><section class="lawyer-pillars-editorial wrap"><div class="pillars-editorial-grid"><div class="pillars-editorial-left"><div class="pillars-badge"><span class="badge-dots" aria-hidden="true">:::</span><span>DISEÑADO PARA TU DESPACHO</span></div><h2 class="pillars-editorial-title">Una forma más digna <br/>y eficiente de <br/><em>ejercer el derecho.</em></h2><p class="pillars-editorial-subtitle">Eliminamos la fricción administrativa y el desgaste de la cobranza para que te concentres exclusivamente en tu técnica jurídica.</p><div class="pillars-dossier-visual" aria-label="Expediente estructurado y gestión legal con fondos en custodia"><div class="pillars-dossier-stage"><div class="dossier-ambient-wave wave-back"></div><div class="dossier-ambient-wave wave-front"></div><svg class="dossier-orbit-svg" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 335 38 C 395 95 405 210 325 285" stroke="#dac4b2" stroke-width="1.2" stroke-dasharray="3 3.5"></path><circle cx="335" cy="38" r="4.5" fill="#661e27" class="orbit-dot-point"></circle><circle cx="335" cy="38" r="8.5" stroke="#ecdccf" stroke-width="1"></circle></svg><div class="dossier-layer layer-back-mauve" aria-hidden="true"></div><div class="dossier-layer layer-mid-flap" aria-hidden="true"></div><div class="dossier-layer layer-tabs-folder"><div class="folder-tabs-list"><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Demandas</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Recursos</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text tab-pill-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Memoriales</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark tab-pill-icon"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg><span>Audiencias</span></div><div class="folder-tab-pill"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check tab-pill-icon"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><span>Evidencias</span></div></div></div><div class="dossier-layer layer-front-expediente"><h4 class="expediente-card-title">Expediente</h4><div class="expediente-check-list"><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Antecedentes</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Pretensiones</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Soportes</span></div><div class="expediente-check-item"><span class="expediente-check-dot"><svg xmlns="http://www.w3.org/2000/svg" width="9.5" height="9.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></span><span>Estado procesal</span></div></div><div class="expediente-skeleton-bars" aria-hidden="true"><div class="skel-line line-long"></div><div class="skel-line line-short"></div></div></div><div class="dossier-seal-badge" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale seal-scale-icon"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div></div></div></div><div class="pillars-editorial-right"><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div><div class="pillar-feature-content"><h3>Expedientes organizados y filtrados</h3><p>No más mensajes dispersos por WhatsApp ni reuniones exploratorias sin datos. Recibes un resumen claro preparado con nuestro intake asistido: antecedentes, objetivos del cliente y archivos ordenados.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Resumen ejecutivo previo a postularte</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Clasificación por rama del derecho y cuantía</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Acceso controlado a piezas procesales</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg></div><div class="pillar-feature-content"><h3>Honorarios en custodia protegida</h3><p>El dinero del cliente se consigna en la plataforma antes de que redactes el primer memorial o asumas la diligencia. Una vez cumplido y aprobado el hito, los fondos se transfieren directamente a tu cuenta.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Anticipos garantizados en depósito escrow</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Liquidación transparente por etapas o hitos</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Fin a las cuentas de cobro ignoradas</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div><div class="pillar-feature-content"><h3>Autonomía total de honorarios</h3><p>Tú eres el profesional a cargo. Tú fijas tus honorarios (tarifa fija, por hito procesal o mixta con cuota litis) según la complejidad, tiempo estimado y valor estratégico del asunto.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Propuestas a la medida de cada caso</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Libertad para aceptar o rechazar solicitudes</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Cumplimiento de tarifas del Colegio de Abogados</li></ul></div></div><div class="pillar-feature-item"><div class="pillar-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole"><circle cx="12" cy="16" r="1"></circle><rect x="3" y="10" width="18" height="12" rx="2"></rect><path d="M7 10V7a5 5 0 0 1 10 0v3"></path></svg></div><div class="pillar-feature-content"><h3>Canal seguro y formalidad legal</h3><p>Espacio de trabajo seguro con mensajería privada, control de versiones de documentos y trazabilidad completa de cada actuación. Formaliza poderes y contratos de prestación de servicios con respaldo digital.</p><ul class="pillar-feature-checklist"><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Cifrado y secreto profesional amparado</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Bitácora cronológica inalterable</li><li><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check pillar-chk"><path d="M20 6 9 17l-5-5"></path></svg> Entrega y revocatoria de poderes auditada</li></ul></div></div></div></div></section><section id="como-funciona-abogado" class="lawyer-workflow-editorial wrap"><div class="section-head text-center workflow-editorial-head"><div class="workflow-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text workflow-badge-icon"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>UN FLUJO CLARO Y SEGURO</span></div><h2 class="workflow-editorial-title">De la postulación a la liquidación <br/><em>en 3 pasos.</em></h2><p class="workflow-editorial-subtitle">Un flujo intuitivo diseñado para integrarse a la rutina de tu práctica profesional individual o de firma.</p></div><div class="workflow-editorial-grid"><div class="workflow-timeline-column"><div class="workflow-timeline-rail" aria-hidden="true"></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">01</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">FILTRADO Y EVALUACIÓN</span><h3 class="workflow-step-heading">Explora casos afines a tu especialidad</h3><p class="workflow-step-text">Revisa casos calificados en Bogotá, Medellín, Cali, Barranquilla y todo el territorio nacional. Lee el resumen público aprobado y, si el asunto coincide con tu experiencia, solicita acceso al expediente reservado.</p><div class="workflow-step-chips"><span class="wf-chip">Civil y Comercial</span><span class="wf-chip">Laboral y Seguridad Social</span><span class="wf-chip">Familia</span><span class="wf-chip">Administrativo</span><span class="wf-chip">Penal</span></div></div></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">02</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">PROPUESTA E HITOS</span><h3 class="workflow-step-heading">Plantea tu estrategia y define tus etapas</h3><p class="workflow-step-text">Presenta una propuesta clara: explica tu enfoque jurídico, los documentos requeridos y desglosa el trabajo en hitos verificables (ej. concepto previo, radicación de demanda, contestación). El cliente aprueba y deposita los fondos del primer hito en custodia.</p><div class="workflow-step-chips"><span class="wf-chip">Honorarios por etapas</span><span class="wf-chip">Poder especial integrado</span><span class="wf-chip">Fondos asegurados</span></div></div></div><div class="workflow-step-row"><div class="workflow-step-bullet-group"><div class="workflow-step-circle">03</div><div class="workflow-step-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg></div></div><div class="workflow-step-content"><span class="workflow-step-tag">EJECUCIÓN Y COBRO</span><h3 class="workflow-step-heading">Sube evidencias de avance y recibe tus honorarios</h3><p class="workflow-step-text">Carga el radicado del juzgado, memorial presentado o entregable acordado en el espacio compartido. El cliente valida el cumplimiento del hito y la plataforma transfiere automáticamente los honorarios custodiados a tu cuenta bancaria.</p><div class="workflow-step-chips"><span class="wf-chip">Transferencia bancaria directa</span><span class="wf-chip">Trazabilidad para tu cliente</span><span class="wf-chip">Constancia de entrega</span></div></div></div></div><div class="workflow-cascade-stage" aria-label="Simulación visual del flujo operativo"><div class="workflow-ambient-glow" aria-hidden="true"></div><svg class="workflow-arrows-svg" viewBox="0 0 540 620" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><marker id="wfArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M 0 0 L 6 3 L 0 6 z" fill="#661e27"></path></marker></defs><path d="M 45 190 C 2 245 14 290 48 296" stroke="#702735" stroke-width="1.3" stroke-dasharray="3.5 3" marker-end="url(#wfArrow)"></path><path d="M 56 415 C 8 475 22 525 66 532" stroke="#702735" stroke-width="1.3" stroke-dasharray="3.5 3" marker-end="url(#wfArrow)"></path></svg><div class="wf-card wf-card-explorer"><div class="wf-card-explorer-bg" aria-hidden="true"></div><div class="wf-card-explorer-inner"><div class="wf-search-bar"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search wf-search-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span class="wf-search-placeholder">Buscar casos por área del derecho...</span><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal wf-filter-icon"><line x1="21" x2="14" y1="4" y2="4"></line><line x1="10" x2="3" y1="4" y2="4"></line><line x1="21" x2="12" y1="12" y2="12"></line><line x1="8" x2="3" y1="12" y2="12"></line><line x1="21" x2="16" y1="20" y2="20"></line><line x1="12" x2="3" y1="20" y2="20"></line><line x1="14" x2="14" y1="2" y2="6"></line><line x1="8" x2="8" y1="10" y2="14"></line><line x1="16" x2="16" y1="18" y2="22"></line></svg></div><div class="wf-case-row"><div class="wf-case-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></div><div class="wf-case-bars"><div class="wf-bar bar-dark w-70"></div><div class="wf-bar bar-light w-45"></div></div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right wf-chevron"><path d="m9 18 6-6-6-6"></path></svg></div><div class="wf-case-row wf-case-row-active"><div class="wf-case-icon-box active-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div class="wf-case-bars"><div class="wf-bar bar-active w-80"></div><div class="wf-bar bar-active-light w-55"></div></div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right wf-chevron"><path d="m9 18 6-6-6-6"></path></svg></div></div></div><div class="wf-card wf-card-milestones"><h4 class="wf-milestones-title">Propuesta por hitos</h4><div class="wf-milestones-list"><div class="wf-milestone-item"><div class="wf-milestone-check checked"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="wf-milestone-label">Concepto previo</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line w-60"></div><div class="wf-pill-dot"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check checked"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><span class="wf-milestone-label">Radicación de demanda</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line w-60"></div><div class="wf-pill-dot"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check pending"></div><span class="wf-milestone-label text-muted">Contestación</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line-light w-60"></div><div class="wf-pill-dot dot-light"></div></div></div><div class="wf-milestone-item"><div class="wf-milestone-check pending"></div><span class="wf-milestone-label text-muted">Audiencia</span><div class="wf-milestone-skeleton"><div class="wf-bar bar-line-light w-60"></div><div class="wf-pill-dot dot-light"></div></div></div></div></div><div class="wf-card wf-card-payment"><div class="wf-payment-check-circle"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="wf-payment-info"><strong>Honorarios transferidos</strong><p>El hito fue aprobado y los fondos se han liberado a tu cuenta.</p></div><div class="wf-payment-bank-col"><div class="wf-bank-icon-box"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg></div><div class="wf-bank-bars"><div class="wf-bar bar-bank w-full"></div><div class="wf-bar bar-bank w-full"></div></div></div></div></div></div></section><section class="lawyer-comparison-section wrap"><div class="section-head text-center"><span class="overline">EL CONTRASTE</span><h2>La práctica legal convencional vs. MatchJurídico</h2><p class="section-subtitle">Compara cómo cambia tu día a día profesional cuando la tecnología resuelve la parte administrativa y de cobranza.</p></div><div class="comparison-table-wrapper"><div class="comparison-column traditional"><div class="comparison-col-header"><span class="col-badge bad">EJERCICIO TRADICIONAL</span><h3>Modelo convencional</h3><p>Alta incertidumbre y fricción operativa constante.</p></div><div class="comparison-items"><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Captación dispersa</strong><p>Dependencia de recomendaciones esporádicas y llamadas informales sin garantía de contratación.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Expedientes caóticos</strong><p>Fotos borrosas por WhatsApp, audios de 10 minutos y documentos incompletos que exigen días de clasificación.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Cobro desgastante</strong><p>Horas invertidas cobrando anticipos y honorarios, con riesgo real de no pago tras radicar el trabajo.</p></div></div><div class="comparison-row"><div class="row-icon-x"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div><div><strong>Desorganización de evidencias</strong><p>Comprobantes perdidos en correos o chats personales, dificultando la rendición de cuentas al cliente.</p></div></div></div></div><div class="comparison-column lexmarket matchjuridico"><div class="comparison-col-header"><span class="col-badge good">CON MATCHJURÍDICO</span><h3>Tu despacho en MatchJurídico</h3><p>Estructura profesional, seguridad económica y prestigio.</p></div><div class="comparison-items"><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Casos calificados y filtrados</strong><p>Acceso constante a clientes informados que buscan activamente representación profesional.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Intake legal estructurado</strong><p>Hechos ordenados cronológicamente, pretensiones claras y documentos adjuntos clasificados desde el día uno.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Custodia protegida de honorarios</strong><p>El dinero está resguardado en la plataforma antes de que des el primer paso. Cero morosidad.</p></div></div><div class="comparison-row"><div class="row-icon-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div><strong>Despacho digital seguro</strong><p>Espacio colaborativo con trazabilidad de radicados, bitácora de actuaciones y respaldo documental continuo.</p></div></div></div></div></div></section><section class="lawyer-verification-section wrap"><div class="lawyer-verification-card"><div class="verification-content"><div class="verification-header-pill"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg><span>ESTÁNDAR ÉTICO Y PROFESIONAL</span></div><div class="verification-hero-block"><div class="tarjeta-illustration-wrap" aria-hidden="true"><svg width="150" height="135" viewBox="0 0 150 135" fill="none" xmlns="http://www.w3.org/2000/svg" class="tarjeta-svg"><circle cx="68" cy="68" r="62" fill="#FAF3EA"></circle><g transform="rotate(-8 60 62)"><rect x="18" y="24" width="86" height="58" rx="7" fill="#FBF8F2" stroke="#EADBCA" stroke-width="1.2"></rect><path d="M36 34 C36 31 46 31 46 34 C46 38 41 42 41 44 C41 42 36 38 36 34 Z" stroke="#D1BEA5" stroke-width="1" fill="#F5ECDE"></path><line x1="52" y1="36" x2="86" y2="36" stroke="#E5D8C7" stroke-width="1.5" stroke-linecap="round"></line><line x1="52" y1="42" x2="78" y2="42" stroke="#E5D8C7" stroke-width="1.2" stroke-linecap="round"></line></g><g transform="rotate(-1 68 68)"><rect x="24" y="30" width="88" height="60" rx="7" fill="#FFFFFF" stroke="#E8DCCA" stroke-width="1.2"></rect><g transform="translate(36, 40) scale(0.7)"><path d="M12 2 C8 4 3 4 3 8 C3 14 8 18 12 21 C16 18 21 14 21 8 C21 4 16 4 12 2 Z" fill="#F6EFE5" stroke="#C8AD8D" stroke-width="1.2"></path><line x1="6" y1="9" x2="18" y2="9" stroke="#C8AD8D" stroke-width="1"></line><line x1="6" y1="13" x2="18" y2="13" stroke="#C8AD8D" stroke-width="1"></line><circle cx="12" cy="11" r="1.5" fill="#C8AD8D"></circle></g><line x1="58" y1="46" x2="98" y2="46" stroke="#DFD2C0" stroke-width="1.6" stroke-linecap="round"></line><line x1="58" y1="53" x2="88" y2="53" stroke="#E8DDCE" stroke-width="1.3" stroke-linecap="round"></line><line x1="36" y1="68" x2="80" y2="68" stroke="#EFE4D6" stroke-width="1.3" stroke-linecap="round"></line><line x1="36" y1="74" x2="68" y2="74" stroke="#EFE4D6" stroke-width="1.3" stroke-linecap="round"></line></g><g transform="translate(104, 76)"><circle cx="0" cy="2" r="19" fill="rgba(80, 20, 30, 0.18)"></circle><circle cx="0" cy="0" r="18" fill="#5D1622"></circle><circle cx="0" cy="0" r="15" fill="none" stroke="#872B3B" stroke-width="1.2" stroke-dasharray="2 1"></circle><path d="M-6 0.5 L-2 4.5 L6 -3.5" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></g></svg></div><div class="verification-title-copy"><h2>Verificación rigurosa <br/>con Tarjeta Profesional</h2><p>Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en MatchJurídico son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.</p></div></div><div class="verification-process-strip"><div class="strip-official-col"><div class="strip-official-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg></div><div class="strip-official-text"><strong>Validación oficial</strong><span>Consulta activa en el Registro Nacional de Abogados (SIRNA)</span></div></div><div class="strip-vertical-divider" aria-hidden="true"></div><div class="strip-steps-col"><div class="strip-step"><div class="strip-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div class="strip-step-info"><strong>1. Solicitud</strong><span>Datos del abogado</span></div></div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right strip-step-arrow" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><div class="strip-step"><div class="strip-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div><div class="strip-step-info"><strong>2. Validación</strong><span>Consulta en SIRNA</span></div></div><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right strip-step-arrow" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg><div class="strip-step"><div class="strip-step-icon verified-step-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div><div class="strip-step-info"><strong>3. Habilitación</strong><span>Perfil verificado</span></div></div></div></div><div class="verification-bullets"><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg></div><div><strong>Vigencia y habilitación activa</strong><span>Validamos que la tarjeta profesional no cuente con sanciones o suspensiones vigentes.</span></div></div><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg></div><div><strong>Cumplimiento de la Ley 1123 de 2007</strong><span>Promovemos las mejores prácticas del Código Disciplinario del Abogado en cada interacción.</span></div></div><div class="v-bullet"><div class="v-bullet-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg></div><div><strong>Distintivo de verificación en tu perfil</strong><span>Los clientes visualizan tu insignia oficial de profesional verificado, generando confianza inmediata.</span></div></div></div></div><div class="verification-visual"><div class="profile-preview-card"><div class="preview-top"><div class="preview-avatar"><img src="../public/lawyers/camilo-restrepo.jpg" alt="Dr. Camilo Restrepo" class="preview-avatar-img"/></div><div class="preview-meta"><h4 class="preview-lawyer-name">Dr. Camilo Restrepo</h4><span class="verified-chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg> Verificado</span><span class="preview-spec">Especialista en Derecho Comercial y Litigios</span><span class="preview-tp">T.P. No. 248.910 del C. S. de la J.</span></div></div><div class="preview-divider"></div><div class="preview-stats"><div class="preview-stat-item"><strong>100%</strong><span>Hitos cumplidos</span></div><div class="preview-stat-divider" aria-hidden="true"></div><div class="preview-stat-item"><strong>4.9 / 5</strong><span>Calificación clientes</span></div><div class="preview-stat-divider" aria-hidden="true"></div><div class="preview-stat-item"><strong>12 años</strong><span>Experiencia</span></div></div></div></div></div></section><section id="preguntas-abogados" class="lawyer-faq-section wrap"><div class="section-head text-center"><span class="overline">RESOLVEMOS TUS DUDAS</span><h2>Preguntas frecuentes de abogados</h2><p class="section-subtitle">Todo lo que necesitas saber sobre el funcionamiento, pagos y condiciones para profesionales.</p></div><div class="faq-accordion"><div class="faq-item-card "><div class="faq-question-row"><h4>¿Tiene algún costo registrarse como abogado en MatchJurídico?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Cómo garantiza MatchJurídico el pago de mis honorarios?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Puedo fijar mis propias tarifas o MatchJurídico impone los precios?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿MatchJurídico interviene en mi criterio jurídico o estrategia procesal?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Qué documentos requiero para validar mi cuenta profesional?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div><div class="faq-item-card "><div class="faq-question-row"><h4>¿Cómo se formaliza el poder con el cliente?</h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down faq-chevron"><path d="m6 9 6 6 6-6"></path></svg></div></div></div></section><section class="lawyer-final-cta wrap"><div class="final-cta-card"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles final-cta-icon"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><h2>Lleva tu ejercicio profesional al siguiente nivel.</h2><p>Conéctate con clientes reales, trabaja con expedientes listos y ten la seguridad de que tus honorarios están respaldados desde el primer momento.</p><div class="final-cta-buttons"><a class="button" href="/?auth=signup&amp;role=lawyer">Crear perfil profesional <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a><a class="button outline lawyer-account-btn" style="color:#2c2526;border-color:#d4c2b2;background:#ffffff;font-weight:600;display:inline-flex;align-items:center;box-shadow:0 2px 8px rgba(44, 37, 38, 0.06)" href="/?auth=login&amp;role=lawyer">Ya tengo una cuenta</a></div><div class="final-cta-subnote"><span>Puedes registrarte con Google, LinkedIn o tu correo institucional. Verificación obligatoria de Tarjeta Profesional.</span></div></div></section></main><footer class="wrap"><span class="brand">Match<span>Jurídico</span><span class="brand-dot">.</span></span><span>Plataforma tecnológica para el ejercicio legal seguro y transparente en Colombia.</span><div class="footer-links"><a href="/">Inicio</a><a href="/abogados">Directorio de Abogados</a><a href="/como-funciona">Cómo funciona</a><a href="/para-abogados">Para abogados</a></div></footer></div>
   <script>
     // FAQ accordion interactive behavior
     document.querySelectorAll('.faq-item-card').forEach(card => {

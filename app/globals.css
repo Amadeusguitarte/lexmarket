@@ -2667,7 +2667,7 @@ img{max-width:100%}
 }
 
 /* ==========================================================================
-   Microsección: Por qué trabajar con LexMarket (4 pilares conceptuales táctiles)
+   Microsección: Por qué trabajar con MatchJurídico (4 pilares conceptuales táctiles)
    ========================================================================== */
 .lawyer-benefits-section {
   padding: 64px 0 80px;
@@ -4474,7 +4474,8 @@ img{max-width:100%}
   border: 1px solid #e7dfd5;
 }
 
-.comparison-column.lexmarket {
+.comparison-column.lexmarket,
+.comparison-column.matchjuridico {
   background: #ffffff;
   border: 2px solid var(--purple);
   box-shadow: 0 14px 44px rgba(107, 45, 62, 0.08);

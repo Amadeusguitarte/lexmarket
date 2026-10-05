@@ -180,7 +180,7 @@ export default function LawyerProfileView({
                       </div>
                       <p className="review-text">“{r.comment}”</p>
                       <div className="review-author">
-                        <span>{r.author_name || 'Cliente de LexMarket'}</span>
+                        <span>{r.author_name || 'Cliente de MatchJurídico'}</span>
                         <small>· {new Date(r.created_at).toLocaleDateString('es-CO', { year: 'numeric', month: 'short' })}</small>
                       </div>
                     </div>

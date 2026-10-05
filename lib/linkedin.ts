@@ -1,5 +1,5 @@
 /**
- * LinkedIn Integration Infrastructure for LexMarket
+ * LinkedIn Integration Infrastructure for MatchJurídico
  * Handles OAuth 2.0 OpenID Connect, Profile Extraction, Avatar Sync, and Field Enrichment
  */
 
@@ -27,7 +27,7 @@ export interface LinkedInProfileData {
   }>;
 }
 
-// Maps common LinkedIn skills and headlines to official LexMarket practice areas
+// Maps common LinkedIn skills and headlines to official MatchJurídico practice areas
 export function mapLinkedInSkillsToSpecialties(text: string): string[] {
   const lower = text.toLowerCase();
   const matched = new Set<string>();
@@ -141,7 +141,7 @@ export async function fetchLinkedInUserInfo(accessToken: string): Promise<any> {
 }
 
 /**
- * Normalizes raw LinkedIn data into clean LexMarket profile fields
+ * Normalizes raw LinkedIn data into clean MatchJurídico profile fields
  */
 export function normalizeLinkedInData(raw: any): LinkedInProfileData {
   const name = raw.name || `${raw.given_name || ''} ${raw.family_name || ''}`.trim() || 'Abogado Verificado';

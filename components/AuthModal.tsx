@@ -127,7 +127,7 @@ export default function AuthModal({
           />
           <div className="auth-editorial-bg-scrim" aria-hidden="true" />
           <div className="auth-editorial-left-content">
-            <span className="auth-editorial-badge">TU ESPACIO EN LEXMARKET</span>
+            <span className="auth-editorial-badge">TU ESPACIO EN MATCHJURÍDICO</span>
 
             <h2 className="auth-editorial-title">
               {!isReset ? (
@@ -138,7 +138,7 @@ export default function AuthModal({
               ) : (
                 <>
                   Recupera tu acceso <br />
-                  <em>a LexMarket</em>
+                  <em>a MatchJurídico</em>
                 </>
               )}
             </h2>
@@ -187,11 +187,11 @@ export default function AuthModal({
         {/* Right Column: Interaction Form */}
         <div className="auth-editorial-right">
           <div className="auth-form-wrapper">
-            {/* Role Selector Cards - ¿Cómo quieres usar LexMarket? */}
+            {/* Role Selector Cards - ¿Cómo quieres usar MatchJurídico? */}
             {isSignup && (
               <div className="auth-role-section">
-                <h3 className="auth-role-heading">¿Cómo quieres usar LexMarket?</h3>
-                <div className="auth-role-cards-grid" role="radiogroup" aria-label="¿Cómo quieres usar LexMarket?">
+                <h3 className="auth-role-heading">¿Cómo quieres usar MatchJurídico?</h3>
+                <div className="auth-role-cards-grid" role="radiogroup" aria-label="¿Cómo quieres usar MatchJurídico?">
                   {/* Option 1: Necesito ayuda legal */}
                   <button
                     type="button"

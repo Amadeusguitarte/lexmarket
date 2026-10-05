@@ -10,7 +10,7 @@ import type { LawyerData } from './LawyerCard';
 
 import PublicHeaderWrapper from './PublicHeader';
 
-export function Brand(){return <span className="brand">lex<span>market</span><span className="brand-dot">.</span></span>;}
+export function Brand(){return <span className="brand">Match<span>Jurídico</span><span className="brand-dot">.</span></span>;}
 
 export default function Landing({
 
@@ -42,7 +42,7 @@ export default function Landing({
  return <div className="landing">
   <PublicHeaderWrapper>
    <div className="public-header wrap">
-    <a href="/" aria-label="LexMarket inicio"><Brand/></a>
+    <a href="/" aria-label="MatchJurídico inicio"><Brand/></a>
     <nav aria-label="Principal"><a href="/abogados">Explorar Abogados</a><a href="/como-funciona">Cómo funciona</a><a href="/para-abogados">Para abogados</a><a href="#preguntas">Preguntas</a></nav>
     <button className="button small outline" onClick={onLogin}>Entrar <ArrowRight size={15}/></button>
    </div>
@@ -173,7 +173,7 @@ export default function Landing({
     ['¿Necesito tener todo terminado?','Puedes empezar con lo que tengas. Lo importante es explicar qué buscas y compartir el material que ayude a entender tu asunto. El profesional revisará contigo lo que haga falta.'],
     ['¿Qué verán los abogados?','Los profesionales verificados pueden explorar el resumen que apruebes. Para abrir tus documentos y conversar sobre el expediente, primero deberán solicitarte acceso.'],
     ['¿Publicar significa contratar?','Publicar no te obliga a elegir una propuesta. Cuando encuentres al profesional adecuado, deberán confirmar el encargo y, cuando corresponda, el poder antes de cualquier actuación.'],
-    ['¿LexMarket presenta mi caso automáticamente?','La presentación corresponde al profesional que asuma la actuación, o a quien esté habilitado para hacerlo. La plataforma facilita el encuentro y el seguimiento.'],
+    ['¿MatchJurídico presenta mi caso automáticamente?','La presentación corresponde al profesional que asuma la actuación, o a quien esté habilitado para hacerlo. La plataforma facilita el encuentro y el seguimiento.'],
    ].map(([q,a])=><details key={q}><summary>{q}<Plus size={18}/></summary><p>{a}</p></details>)}</div></section>
    <section className="final-cta wrap"><Sparkles size={24}/><h2>Lo que sigue, empieza con un paso.</h2><button className="button" onClick={onStart}>Empezar con mi caso <ArrowRight size={17}/></button></section>
   </main><footer className="wrap"><Brand/><span>Hecho para avanzar con más tranquilidad.</span><div><button onClick={()=>onInfo('privacy')}>Privacidad</button><button onClick={()=>onInfo('terms')}>Condiciones de la beta</button><button onClick={()=>onInfo('help')}>Ayuda</button></div></footer>

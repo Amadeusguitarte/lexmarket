@@ -590,11 +590,11 @@ const adjustedMarkup = markup
   );
 
 const html =
-  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LexMarket · Vista de diseño</title><style>' +
+  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MatchJurídico · Vista de diseño</title><style>' +
   css +
   '</style></head><body>' +
   adjustedMarkup +
-  '<dialog id="preview-info" class="modal"><h2>Una primera mirada a LexMarket</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>' +
+  '<dialog id="preview-info" class="modal"><h2>Una primera mirada a MatchJurídico</h2><p>Esta es la vista de diseño. Las cuentas, archivos y propuestas funcionan en la aplicación del repositorio después de conectar Supabase y desplegarla.</p><a class="button" href="https://github.com/Amadeusguitarte/lexmarket">Ver repositorio</a> <button id="preview-close" class="button outline">Volver</button></dialog><script>' +
   script +
   '</script></body></html>';
 

@@ -49,7 +49,7 @@ export default function ParaAbogadosPage() {
       {/* Header */}
       <PublicHeaderWrapper>
         <div className="public-header wrap">
-          <Link href="/" aria-label="LexMarket inicio">
+          <Link href="/" aria-label="MatchJurídico inicio">
             <Brand />
           </Link>
           <nav aria-label="Principal">
@@ -78,7 +78,7 @@ export default function ParaAbogadosPage() {
           </h1>
 
           <p className="lawyer-hero-subtitle">
-            LexMarket conecta tu experiencia con personas y empresas que ya han estructurado su caso y reunido sus soportes. Evalúa cada oportunidad antes de participar, trabaja con fondos previamente respaldados y conserva el control sobre tus honorarios y condiciones.
+            MatchJurídico conecta tu experiencia con personas y empresas que ya han estructurado su caso y reunido sus soportes. Evalúa cada oportunidad antes de participar, trabaja con fondos previamente respaldados y conserva el control sobre tus honorarios y condiciones.
           </p>
 
           <div className="lawyer-hero-actions">
@@ -107,10 +107,10 @@ export default function ParaAbogadosPage() {
           </div>
         </section>
 
-        {/* Por qué trabajar con LexMarket - Microsección de 4 pilares conceptuales */}
+        {/* Por qué trabajar con MatchJurídico - Microsección de 4 pilares conceptuales */}
         <section className="lawyer-benefits-section wrap">
           <div className="section-head text-center benefits-head">
-            <span className="overline">POR QUÉ TRABAJAR CON LEXMARKET</span>
+            <span className="overline">POR QUÉ TRABAJAR CON MATCHJURÍDICO</span>
           </div>
 
           <div className="lawyer-benefits-grid">
@@ -666,11 +666,11 @@ export default function ParaAbogadosPage() {
           </div>
         </section>
 
-        {/* Comparison: Traditional vs LexMarket */}
+        {/* Comparison: Traditional vs MatchJurídico */}
         <section className="lawyer-comparison-section wrap">
           <div className="section-head text-center">
             <span className="overline">EL CONTRASTE</span>
-            <h2>La práctica legal convencional vs. LexMarket</h2>
+            <h2>La práctica legal convencional vs. MatchJurídico</h2>
             <p className="section-subtitle">
               Compara cómo cambia tu día a día profesional cuando la tecnología resuelve la parte administrativa y de cobranza.
             </p>
@@ -715,10 +715,10 @@ export default function ParaAbogadosPage() {
               </div>
             </div>
 
-            <div className="comparison-column lexmarket">
+            <div className="comparison-column lexmarket matchjuridico">
               <div className="comparison-col-header">
-                <span className="col-badge good">CON LEXMARKET</span>
-                <h3>Tu despacho en LexMarket</h3>
+                <span className="col-badge good">CON MATCHJURÍDICO</span>
+                <h3>Tu despacho en MatchJurídico</h3>
                 <p>Estructura profesional, seguridad económica y prestigio.</p>
               </div>
               <div className="comparison-items">
@@ -806,7 +806,7 @@ export default function ParaAbogadosPage() {
                 <div className="verification-title-copy">
                   <h2>Verificación rigurosa <br />con Tarjeta Profesional</h2>
                   <p>
-                    Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en LexMarket son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.
+                    Para garantizar la idoneidad técnica y proteger a los usuarios, todos los abogados en MatchJurídico son verificados contra el <strong>Registro Nacional de Abogados (SIRNA)</strong> administrado por el <strong>Consejo Superior de la Judicatura</strong>.
                   </p>
                 </div>
               </div>
@@ -949,20 +949,20 @@ export default function ParaAbogadosPage() {
           <div className="faq-accordion">
             {[
               {
-                q: '¿Tiene algún costo registrarse como abogado en LexMarket?',
+                q: '¿Tiene algún costo registrarse como abogado en MatchJurídico?',
                 a: 'El registro inicial y la creación de tu perfil profesional son completamente gratuitos. No cobramos mensualidades fijas ni suscripciones obligatorias para empezar. Solo cuando acuerdas un encargo y recibes tus honorarios, se aplica una comisión por servicio de plataforma que incluye la custodia bancaria del dinero y la infraestructura tecnológica.'
               },
               {
-                q: '¿Cómo garantiza LexMarket el pago de mis honorarios?',
+                q: '¿Cómo garantiza MatchJurídico el pago de mis honorarios?',
                 a: 'Mediante un esquema de custodia previa (escrow). Cuando el cliente aprueba tu propuesta de honorarios, debe fondear el valor acordado para el primer hito antes de que comiences a trabajar. Tú tienes la certeza de que el dinero ya está resguardado en la plataforma, y se libera a tu cuenta una vez acredites el cumplimiento del hito acordado.'
               },
               {
-                q: '¿Puedo fijar mis propias tarifas o LexMarket impone los precios?',
-                a: 'Tienes absoluta autonomía. En LexMarket no imponemos tablas rígidas ni fijamos precios mínimos o máximos. Tú evalúas el caso, estimas el tiempo, la complejidad y propones tus honorarios bajo la modalidad que prefieras: valor fijo global, honorarios por hitos procesales o esquemas mixtos conforme a la ética profesional.'
+                q: '¿Puedo fijar mis propias tarifas o MatchJurídico impone los precios?',
+                a: 'Tienes absoluta autonomía. En MatchJurídico no imponemos tablas rígidas ni fijamos precios mínimos o máximos. Tú evalúas el caso, estimas el tiempo, la complejidad y propones tus honorarios bajo la modalidad que prefieras: valor fijo global, honorarios por hitos procesales o esquemas mixtos conforme a la ética profesional.'
               },
               {
-                q: '¿LexMarket interviene en mi criterio jurídico o estrategia procesal?',
-                a: 'En ningún momento. LexMarket es una plataforma tecnológica que facilita el encuentro, la organización del expediente y la custodia segura de pagos. La relación jurídica, el análisis sustancial, la estrategia procesal y el ejercicio profesional corresponden de forma exclusiva y autónoma al abogado apoderado.'
+                q: '¿MatchJurídico interviene en mi criterio jurídico o estrategia procesal?',
+                a: 'En ningún momento. MatchJurídico es una plataforma tecnológica que facilita el encuentro, la organización del expediente y la custodia segura de pagos. La relación jurídica, el análisis sustancial, la estrategia procesal y el ejercicio profesional corresponden de forma exclusiva y autónoma al abogado apoderado.'
               },
               {
                 q: '¿Qué documentos requiero para validar mi cuenta profesional?',

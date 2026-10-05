@@ -14,7 +14,7 @@ export function result<T>(r:{data:T;error:unknown}):T {
   }
   return r.data;
 }
-export function isAdmin(user:User) {return !!user.email_confirmed_at && (user.app_metadata?.lexmarket_admin===true || (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||''));}
+export function isAdmin(user:User) {return !!user.email_confirmed_at && (user.app_metadata?.matchjuridico_admin===true || user.app_metadata?.lexmarket_admin===true || (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||''));}
 export async function auth(req:Request) {
  const token=req.headers.get('authorization')?.match(/^Bearer (.+)$/)?.[1];
  if(!token) throw new HttpError(401,'Inicia sesión para continuar.');

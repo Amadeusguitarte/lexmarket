@@ -45,7 +45,7 @@ export function LinkedInOfficialIcon({ size = 20 }: { size?: number }) {
   );
 }
 
-export function LexMarketScaleLogo({ size = 28 }: { size?: number }) {
+export function MatchJuridicoScaleLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#68232c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
@@ -56,6 +56,7 @@ export function LexMarketScaleLogo({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+export const LexMarketScaleLogo = MatchJuridicoScaleLogo;
 
 function getInitials(name?: string) {
   if (!name || name === 'Abogado' || name.trim() === '') return 'AB';
@@ -294,7 +295,7 @@ export default function LawyerOnboardingDashboard({
       <aside className="lawyer-dash-sidebar">
         <div className="lawyer-sidebar-top">
           <div className="lawyer-sidebar-logo">
-            <LexMarketScaleLogo size={32} />
+            <MatchJuridicoScaleLogo size={32} />
           </div>
 
           <nav className="lawyer-sidebar-nav" aria-label="Menú principal de abogado">

@@ -34,7 +34,7 @@ async function work(job:Record<string,any>) {
   result(await client.from('cases').update({ai_result:{...suggestion,source_note:sourceNote}}).eq('id',job.case_id).eq('status','draft'));
  }
 }
-async function main(){console.info('LexMarket worker started');while(!stopping){let job:Record<string,any>|undefined;try{
+async function main(){console.info('MatchJurídico worker started');while(!stopping){let job:Record<string,any>|undefined;try{
  const jobs=result(await client.rpc('claim_job'));job=jobs?.[0];
  if(job){await work(job);result(await client.from('jobs').update({state:'done',error:null}).eq('id',job.id));}
  }catch{
@@ -42,5 +42,5 @@ async function main(){console.info('LexMarket worker started');while(!stopping){
   if(job){const exhausted=job.attempts>=3;await client.from('jobs').update({state:exhausted?'failed':'queued',error:exhausted?'No se pudo procesar. Revisa la conexión del servicio o contacta soporte.':null}).eq('id',job.id);if(exhausted&&job.document_id)await client.from('documents').update({state:'failed',extraction_note:'No se pudo procesar el archivo.'}).eq('id',job.document_id);}
  }
  await new Promise(r=>setTimeout(r,2500));
-}console.info('LexMarket worker stopped');}
+}console.info('MatchJurídico worker stopped');}
 main().catch(()=>{console.error('worker_start_failed');process.exitCode=1;});
