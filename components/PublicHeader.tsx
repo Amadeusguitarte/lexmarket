@@ -14,11 +14,36 @@ export function PublicHeaderWrapper({
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isHoveredRef = useRef(false);
+  const revealedByScrollUpRef = useRef(false);
+  const revealedByMouseRef = useRef(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
+
+    const cancelHide = () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+    };
+
+    const scheduleHide = (delay = 300) => {
+      cancelHide();
+      hideTimeoutRef.current = setTimeout(() => {
+        // Only hide if user did NOT reveal by scrolling up, is scrolled down, and not hovering
+        if (
+          window.scrollY > 80 &&
+          !isHoveredRef.current &&
+          !revealedByScrollUpRef.current
+        ) {
+          setHidden(true);
+          revealedByMouseRef.current = false;
+        }
+        hideTimeoutRef.current = null;
+      }, delay);
+    };
 
     const evaluateHeader = (isScrollEvent: boolean) => {
       const currentScrollY = window.scrollY;
@@ -27,27 +52,41 @@ export function PublicHeaderWrapper({
       const diff = currentScrollY - lastScrollY;
 
       if (currentScrollY <= 25) {
-        // At the very top: natural transparent resting state over the spacer
+        // At the very top: natural transparent resting state
+        cancelHide();
+        revealedByScrollUpRef.current = false;
+        revealedByMouseRef.current = false;
         setHidden(false);
         setScrolled(false);
       } else {
-        // Anywhere scrolled: always frosted glass, never transparent over content
         setScrolled(true);
 
         if (!isScrollEvent) {
-          // On page load / reload with scroll restoration or anchor hash
-          if (currentScrollY > 80 && !isHoveredRef.current) {
+          if (
+            currentScrollY > 80 &&
+            !isHoveredRef.current &&
+            !revealedByMouseRef.current &&
+            !revealedByScrollUpRef.current
+          ) {
             setHidden(true);
           } else {
             setHidden(false);
           }
         } else if (currentScrollY < maxScrollY - 20) {
           if (Math.abs(diff) > 8) {
-            if (diff > 0 && currentScrollY > 80 && !isHoveredRef.current) {
-              // Scrolling down -> hide smoothly
-              setHidden(true);
+            if (diff > 0 && currentScrollY > 80) {
+              // Scrolling down -> hide smoothly and reset revealed state
+              if (!isHoveredRef.current) {
+                cancelHide();
+                revealedByScrollUpRef.current = false;
+                revealedByMouseRef.current = false;
+                setHidden(true);
+              }
             } else if (diff < 0) {
-              // Scrolling up -> reveal frosted
+              // Scrolling up -> PERMANENTLY reveal header while navigating up
+              cancelHide();
+              revealedByScrollUpRef.current = true;
+              revealedByMouseRef.current = false;
               setHidden(false);
             }
           }
@@ -65,46 +104,34 @@ export function PublicHeaderWrapper({
       }
     };
 
-    const scheduleHide = (delay = 250) => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-      hideTimeoutRef.current = setTimeout(() => {
-        if (window.scrollY > 80 && !isHoveredRef.current) {
-          setHidden(true);
-        }
-        hideTimeoutRef.current = null;
-      }, delay);
-    };
-
-    const cancelHide = () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-        hideTimeoutRef.current = null;
-      }
-    };
-
     const handleMouseMove = (e: MouseEvent) => {
       const currentScrollY = window.scrollY;
       if (currentScrollY <= 25) return;
 
-      // Reveal header if cursor moves near the top (<= 75px) or moves up towards top
       const isNearTop = e.clientY <= 75;
       const isMovingUpNearTop = e.movementY < -4 && e.clientY < 140;
 
       if (isNearTop || isMovingUpNearTop) {
         cancelHide();
+        if (!revealedByScrollUpRef.current) {
+          revealedByMouseRef.current = true;
+        }
         setHidden(false);
-      } else if (e.clientY > 85 && !isHoveredRef.current && currentScrollY > 80) {
-        // Cursor left the top area -> auto-hide header
-        scheduleHide(250);
+      } else if (
+        e.clientY > 85 &&
+        !isHoveredRef.current &&
+        revealedByMouseRef.current &&
+        !revealedByScrollUpRef.current &&
+        currentScrollY > 80
+      ) {
+        // Only auto-hide on mouse leave if it was revealed by cursor (not by scrolling up!)
+        scheduleHide(300);
       }
     };
 
     // Evaluate immediately on mount
     evaluateHeader(false);
 
-    // Browser scroll restoration can occur asynchronously right after mount:
     const t1 = setTimeout(() => evaluateHeader(false), 60);
     const t2 = setTimeout(() => evaluateHeader(false), 200);
 
@@ -115,7 +142,7 @@ export function PublicHeaderWrapper({
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      cancelHide();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('pageshow', () => evaluateHeader(false));
@@ -139,16 +166,27 @@ export function PublicHeaderWrapper({
         }}
         onMouseLeave={(e) => {
           isHoveredRef.current = false;
-          if (window.scrollY > 80 && e.clientY > 70) {
+          // Only auto-hide if revealed by mouse and user didn't scroll up to it
+          if (
+            window.scrollY > 80 &&
+            e.clientY > 70 &&
+            revealedByMouseRef.current &&
+            !revealedByScrollUpRef.current
+          ) {
             if (hideTimeoutRef.current) {
               clearTimeout(hideTimeoutRef.current);
             }
             hideTimeoutRef.current = setTimeout(() => {
-              if (window.scrollY > 80 && !isHoveredRef.current) {
+              if (
+                window.scrollY > 80 &&
+                !isHoveredRef.current &&
+                !revealedByScrollUpRef.current
+              ) {
                 setHidden(true);
+                revealedByMouseRef.current = false;
               }
               hideTimeoutRef.current = null;
-            }, 200);
+            }, 250);
           }
         }}
       >

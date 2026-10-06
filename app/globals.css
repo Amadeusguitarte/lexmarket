@@ -2393,10 +2393,10 @@ img{max-width:100%}
   box-shadow: 0 0 0 transparent;
   transform: translateY(0);
   transition:
-    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 0.28s ease,
-    border-color 0.28s ease,
-    box-shadow 0.28s ease;
+    transform 0.46s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.32s ease,
+    border-color 0.32s ease,
+    box-shadow 0.32s ease;
   will-change: transform;
 }
 
@@ -2423,7 +2423,7 @@ img{max-width:100%}
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: height 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: height 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .header-scrolled .public-header {

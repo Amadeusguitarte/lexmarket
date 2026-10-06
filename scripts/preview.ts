@@ -528,24 +528,27 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
   let lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
   let isHovered = false;
+  let revealedByScrollUp = false;
+  let revealedByMouse = false;
   let hideTimeout = null;
-
-  function scheduleHide(delay) {
-    if (hideTimeout) clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(function() {
-      const y = window.scrollY || document.documentElement.scrollTop || 0;
-      if (y > 80 && !isHovered) {
-        headerWrapper.classList.add('header-hidden');
-      }
-      hideTimeout = null;
-    }, delay || 250);
-  }
 
   function cancelHide() {
     if (hideTimeout) {
       clearTimeout(hideTimeout);
       hideTimeout = null;
     }
+  }
+
+  function scheduleHide(delay) {
+    cancelHide();
+    hideTimeout = setTimeout(function() {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (y > 80 && !isHovered && !revealedByScrollUp) {
+        headerWrapper.classList.add('header-hidden');
+        revealedByMouse = false;
+      }
+      hideTimeout = null;
+    }, delay || 300);
   }
 
   headerWrapper.addEventListener('mouseenter', function() {
@@ -557,8 +560,8 @@ document.querySelectorAll('.example-pill').forEach(button => {
   headerWrapper.addEventListener('mouseleave', function(e) {
     isHovered = false;
     const y = window.scrollY || document.documentElement.scrollTop || 0;
-    if (y > 80 && e.clientY > 70) {
-      scheduleHide(200);
+    if (y > 80 && e.clientY > 70 && revealedByMouse && !revealedByScrollUp) {
+      scheduleHide(250);
     }
   });
 
@@ -568,22 +571,33 @@ document.querySelectorAll('.example-pill').forEach(button => {
     const diff = currentScrollY - lastScrollY;
 
     if (currentScrollY <= 25) {
+      cancelHide();
+      revealedByScrollUp = false;
+      revealedByMouse = false;
       headerWrapper.classList.remove('header-hidden');
       headerWrapper.classList.remove('header-scrolled');
     } else {
       headerWrapper.classList.add('header-scrolled');
 
       if (!isScrollEvent) {
-        if (currentScrollY > 80 && !isHovered) {
+        if (currentScrollY > 80 && !isHovered && !revealedByMouse && !revealedByScrollUp) {
           headerWrapper.classList.add('header-hidden');
         } else {
           headerWrapper.classList.remove('header-hidden');
         }
       } else if (currentScrollY < maxScrollY - 20) {
         if (Math.abs(diff) > 8) {
-          if (diff > 0 && currentScrollY > 80 && !isHovered) {
-            headerWrapper.classList.add('header-hidden');
+          if (diff > 0 && currentScrollY > 80) {
+            if (!isHovered) {
+              cancelHide();
+              revealedByScrollUp = false;
+              revealedByMouse = false;
+              headerWrapper.classList.add('header-hidden');
+            }
           } else if (diff < 0) {
+            cancelHide();
+            revealedByScrollUp = true;
+            revealedByMouse = false;
             headerWrapper.classList.remove('header-hidden');
           }
         }
@@ -603,9 +617,18 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
     if (isNearTop || isMovingUpNearTop) {
       cancelHide();
+      if (!revealedByScrollUp) {
+        revealedByMouse = true;
+      }
       headerWrapper.classList.remove('header-hidden');
-    } else if (e.clientY > 85 && !isHovered && currentScrollY > 80) {
-      scheduleHide(250);
+    } else if (
+      e.clientY > 85 &&
+      !isHovered &&
+      revealedByMouse &&
+      !revealedByScrollUp &&
+      currentScrollY > 80
+    ) {
+      scheduleHide(300);
     }
   }, { passive: true });
 
