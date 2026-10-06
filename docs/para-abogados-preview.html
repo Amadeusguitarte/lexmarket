@@ -2525,6 +2525,28 @@ img{max-width:100%}
 }
 
 /* ==========================================================================
+   Button Light Variant (Fix text disappearing on hover)
+   ========================================================================== */
+.button.light {
+  background: #ffffff;
+  color: var(--purple-dark);
+  box-shadow: 0 4px 14px rgba(107, 45, 62, 0.12);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.button.light:hover:not(:disabled) {
+  background: var(--purple-dark);
+  color: #ffffff;
+  box-shadow: 0 7px 22px rgba(82, 34, 47, 0.28);
+}
+
+.button.light:hover:not(:disabled) svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+
+/* ==========================================================================
    OAuth Buttons Group & LinkedIn Integration
    ========================================================================== */
 .oauth-buttons-group {
