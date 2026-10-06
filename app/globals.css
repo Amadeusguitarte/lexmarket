@@ -2401,8 +2401,10 @@ img{max-width:100%}
 }
 
 .public-header-wrapper.header-hidden {
-  transform: translateY(-100%);
+  transform: translateY(-120%);
   pointer-events: none;
+  box-shadow: none !important;
+  border-bottom-color: transparent !important;
 }
 
 /* Scrolled state: Rich Vinotinto (Burgundy / Wine) header */

@@ -527,7 +527,21 @@ document.querySelectorAll('.example-pill').forEach(button => {
   if (!headerWrapper) return;
 
   let lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-  let ticking = false;
+  let isHovered = false;
+  let hideTimeout = null;
+
+  headerWrapper.addEventListener('mouseenter', function() {
+    isHovered = true;
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    headerWrapper.classList.remove('header-hidden');
+  });
+
+  headerWrapper.addEventListener('mouseleave', function() {
+    isHovered = false;
+  });
 
   function evaluateHeader(isScrollEvent) {
     const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -541,14 +555,14 @@ document.querySelectorAll('.example-pill').forEach(button => {
       headerWrapper.classList.add('header-scrolled');
 
       if (!isScrollEvent) {
-        if (currentScrollY > 80) {
+        if (currentScrollY > 80 && !isHovered) {
           headerWrapper.classList.add('header-hidden');
         } else {
           headerWrapper.classList.remove('header-hidden');
         }
       } else if (currentScrollY < maxScrollY - 20) {
         if (Math.abs(diff) > 8) {
-          if (diff > 0 && currentScrollY > 80) {
+          if (diff > 0 && currentScrollY > 80 && !isHovered) {
             headerWrapper.classList.add('header-hidden');
           } else if (diff < 0) {
             headerWrapper.classList.remove('header-hidden');
@@ -560,6 +574,32 @@ document.querySelectorAll('.example-pill').forEach(button => {
     lastScrollY = currentScrollY;
     ticking = false;
   }
+
+  window.addEventListener('mousemove', function(e) {
+    const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    if (currentScrollY <= 25) return;
+
+    const isNearTop = e.clientY <= 75;
+    const isMovingUpNearTop = e.movementY < -4 && e.clientY < 140;
+
+    if (isNearTop || isMovingUpNearTop) {
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      headerWrapper.classList.remove('header-hidden');
+    } else if (e.clientY > 115 && !isHovered && currentScrollY > 80) {
+      if (!hideTimeout) {
+        hideTimeout = setTimeout(function() {
+          const y = window.scrollY || document.documentElement.scrollTop || 0;
+          if (y > 80 && !isHovered) {
+            headerWrapper.classList.add('header-hidden');
+          }
+          hideTimeout = null;
+        }, 2000);
+      }
+    }
+  }, { passive: true });
 
   window.addEventListener('scroll', function() {
     if (!ticking) {
