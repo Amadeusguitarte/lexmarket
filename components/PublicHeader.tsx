@@ -65,6 +65,25 @@ export function PublicHeaderWrapper({
       }
     };
 
+    const scheduleHide = (delay = 250) => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+      hideTimeoutRef.current = setTimeout(() => {
+        if (window.scrollY > 80 && !isHoveredRef.current) {
+          setHidden(true);
+        }
+        hideTimeoutRef.current = null;
+      }, delay);
+    };
+
+    const cancelHide = () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
       const currentScrollY = window.scrollY;
       if (currentScrollY <= 25) return;
@@ -74,21 +93,11 @@ export function PublicHeaderWrapper({
       const isMovingUpNearTop = e.movementY < -4 && e.clientY < 140;
 
       if (isNearTop || isMovingUpNearTop) {
-        if (hideTimeoutRef.current) {
-          clearTimeout(hideTimeoutRef.current);
-          hideTimeoutRef.current = null;
-        }
+        cancelHide();
         setHidden(false);
-      } else if (e.clientY > 115 && !isHoveredRef.current && currentScrollY > 80) {
-        // If cursor moved back down into content and header is not hovered
-        if (!hideTimeoutRef.current) {
-          hideTimeoutRef.current = setTimeout(() => {
-            if (window.scrollY > 80 && !isHoveredRef.current) {
-              setHidden(true);
-            }
-            hideTimeoutRef.current = null;
-          }, 2000);
-        }
+      } else if (e.clientY > 85 && !isHoveredRef.current && currentScrollY > 80) {
+        // Cursor left the top area -> auto-hide header
+        scheduleHide(250);
       }
     };
 
@@ -128,8 +137,19 @@ export function PublicHeaderWrapper({
           }
           setHidden(false);
         }}
-        onMouseLeave={() => {
+        onMouseLeave={(e) => {
           isHoveredRef.current = false;
+          if (window.scrollY > 80 && e.clientY > 70) {
+            if (hideTimeoutRef.current) {
+              clearTimeout(hideTimeoutRef.current);
+            }
+            hideTimeoutRef.current = setTimeout(() => {
+              if (window.scrollY > 80 && !isHoveredRef.current) {
+                setHidden(true);
+              }
+              hideTimeoutRef.current = null;
+            }, 200);
+          }
         }}
       >
         {children}

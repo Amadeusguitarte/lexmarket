@@ -530,17 +530,36 @@ document.querySelectorAll('.example-pill').forEach(button => {
   let isHovered = false;
   let hideTimeout = null;
 
-  headerWrapper.addEventListener('mouseenter', function() {
-    isHovered = true;
+  function scheduleHide(delay) {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(function() {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (y > 80 && !isHovered) {
+        headerWrapper.classList.add('header-hidden');
+      }
+      hideTimeout = null;
+    }, delay || 250);
+  }
+
+  function cancelHide() {
     if (hideTimeout) {
       clearTimeout(hideTimeout);
       hideTimeout = null;
     }
+  }
+
+  headerWrapper.addEventListener('mouseenter', function() {
+    isHovered = true;
+    cancelHide();
     headerWrapper.classList.remove('header-hidden');
   });
 
-  headerWrapper.addEventListener('mouseleave', function() {
+  headerWrapper.addEventListener('mouseleave', function(e) {
     isHovered = false;
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    if (y > 80 && e.clientY > 70) {
+      scheduleHide(200);
+    }
   });
 
   function evaluateHeader(isScrollEvent) {
@@ -583,21 +602,10 @@ document.querySelectorAll('.example-pill').forEach(button => {
     const isMovingUpNearTop = e.movementY < -4 && e.clientY < 140;
 
     if (isNearTop || isMovingUpNearTop) {
-      if (hideTimeout) {
-        clearTimeout(hideTimeout);
-        hideTimeout = null;
-      }
+      cancelHide();
       headerWrapper.classList.remove('header-hidden');
-    } else if (e.clientY > 115 && !isHovered && currentScrollY > 80) {
-      if (!hideTimeout) {
-        hideTimeout = setTimeout(function() {
-          const y = window.scrollY || document.documentElement.scrollTop || 0;
-          if (y > 80 && !isHovered) {
-            headerWrapper.classList.add('header-hidden');
-          }
-          hideTimeout = null;
-        }, 2000);
-      }
+    } else if (e.clientY > 85 && !isHovered && currentScrollY > 80) {
+      scheduleHide(250);
     }
   }, { passive: true });
 
