@@ -33,25 +33,6 @@ const html = `<!doctype html>
       });
     });
 
-    // Header scroll behavior
-    const header = document.querySelector('.public-header-wrapper');
-    if (header) {
-      let lastScroll = 0;
-      window.addEventListener('scroll', () => {
-        const current = window.scrollY;
-        if (current <= 25) {
-          header.classList.remove('header-scrolled', 'header-hidden');
-        } else {
-          header.classList.add('header-scrolled');
-          if (current > lastScroll && current > 80) {
-            header.classList.add('header-hidden');
-          } else {
-            header.classList.remove('header-hidden');
-          }
-        }
-        lastScroll = current;
-      });
-    }
   </script>
 </body>
 </html>`;
