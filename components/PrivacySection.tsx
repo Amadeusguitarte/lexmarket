@@ -66,7 +66,7 @@ export default function PrivacySection({ onStart }: PrivacySectionProps) {
               onClick={onStart}
               className="fees-cta-link"
             >
-              Empezar con mi caso <ArrowRight size={16} className="fees-cta-arrow" />
+              Empezar mi caso <ArrowRight size={16} className="fees-cta-arrow" />
             </button>
           </div>
         </div>

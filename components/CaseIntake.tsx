@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Lock, ShieldCheck, ArrowLeft, ArrowRight } from 'lucide-react';
 import { draftStore, fileProblem, suggestKind, type IntakeFile, type IntakeDraft } from '@/lib/intake';
 import {
@@ -125,14 +126,11 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   const [hasExistingDraft, setHasExistingDraft] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   // Open modal on mount and check for saved drafts in IndexedDB
   useEffect(() => {
-    try {
-      if (dialogRef.current && !dialogRef.current.open) {
-        dialogRef.current.showModal();
-      }
-    } catch {}
+    setMounted(true);
     void draftStore('read')
       .then((savedDraft) => {
         if (savedDraft && (savedDraft.data?.description || savedDraft.files?.length)) {
@@ -141,6 +139,19 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (mounted && dialogRef.current) {
+      const dialog = dialogRef.current;
+      try {
+        if (!dialog.open) {
+          dialog.showModal();
+        }
+      } catch {
+        dialog.setAttribute('open', '');
+      }
+    }
+  }, [mounted]);
 
   // Save current progress to IndexedDB
   const persistDraft = async (overrideStage?: IntakeStage) => {
@@ -388,15 +399,19 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   const asideContent = STAGE_ASIDE_CONTENT[stage] || STAGE_ASIDE_CONTENT.welcome;
   const currentCategory = userOverriddenCategory || extractedFacts.suggestedCategory;
 
-  return (
+  const dialogContent = (
     <dialog
-      open
       ref={dialogRef}
       className="intake-dialog redesign-dialog"
       aria-labelledby="intake-step-title"
       onCancel={(e) => {
         e.preventDefault();
         void handleSaveAndExit();
+      }}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) {
+          void handleSaveAndExit();
+        }
       }}
     >
       <div className="intake-layout redesign-layout">
@@ -582,4 +597,10 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
       </div>
     </dialog>
   );
+
+  if (typeof document !== 'undefined' && mounted) {
+    return createPortal(dialogContent, document.body);
+  }
+
+  return dialogContent;
 }

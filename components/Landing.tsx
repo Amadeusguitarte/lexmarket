@@ -58,7 +58,7 @@ export default function Landing({
       <h1>Dale a tu caso<br/>el <em>siguiente paso.</em></h1>
       <p className="hero-description">Encuentra al abogado que lo revise contigo y te acompañe a llevarlo adelante.</p>
       <div className="hero-actions">
-       <button className="button" aria-label="Compartir mi caso" onClick={onStart}>Empezar con mi caso <ArrowRight size={18}/></button>
+       <button className="button" aria-label="Compartir mi caso" onClick={onStart}>Empezar mi caso <ArrowRight size={18}/></button>
        <a className="quiet-link" href="#como-funciona">Conoce cómo funciona <span>↗</span></a>
       </div>
       <div className="hero-note"><LockKeyhole size={15}/> Tú decides con quién compartir tus documentos.</div>
@@ -175,7 +175,7 @@ export default function Landing({
     ['¿Publicar significa contratar?','Publicar no te obliga a elegir una propuesta. Cuando encuentres al profesional adecuado, deberán confirmar el encargo y, cuando corresponda, el poder antes de cualquier actuación.'],
     ['¿MatchJurídico presenta mi caso automáticamente?','La presentación corresponde al profesional que asuma la actuación, o a quien esté habilitado para hacerlo. La plataforma facilita el encuentro y el seguimiento.'],
    ].map(([q,a])=><details key={q}><summary>{q}<Plus size={18}/></summary><p>{a}</p></details>)}</div></section>
-   <section className="final-cta wrap"><Sparkles size={24}/><h2>Lo que sigue, empieza con un paso.</h2><button className="button" onClick={onStart}>Empezar con mi caso <ArrowRight size={17}/></button></section>
+   <section className="final-cta wrap"><Sparkles size={24}/><h2>Lo que sigue, empieza con un paso.</h2><button className="button" onClick={onStart}>Empezar mi caso <ArrowRight size={17}/></button></section>
   </main><footer className="wrap"><Brand/><span>Hecho para avanzar con más tranquilidad.</span><div><button onClick={()=>onInfo('privacy')}>Privacidad</button><button onClick={()=>onInfo('terms')}>Condiciones de la beta</button><button onClick={()=>onInfo('help')}>Ayuda</button></div></footer>
  </div>;
 }
