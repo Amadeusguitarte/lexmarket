@@ -6,6 +6,7 @@ import { auth, db, event, getCase, HttpError, isAdmin, lawyer, rate, result, typ
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
 import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
+import { analyzeNarrativeHeuristically, INTAKE_CATEGORIES } from '@/lib/intake-engine';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const uuid=z.string().uuid();
@@ -138,6 +139,48 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           return NextResponse.redirect(new URL('/?linkedin_notice=error', req.url));
         }
       }
+    }
+
+    if(path[0]==='cases'&&path[1]==='analyze-intake'&&method==='POST') {
+      const b=await body(req);
+      const narrative=String(b.narrative||'').trim();
+      if(!narrative) throw new HttpError(400,'Por favor incluye una descripción de tu caso.');
+      
+      const heuristic=analyzeNarrativeHeuristically(narrative);
+      const key=process.env.OPENAI_API_KEY,model=process.env.OPENAI_MODEL;
+      if(key&&model) {
+        try {
+          const aiResponse=await fetch('https://api.openai.com/v1/chat/completions',{
+            method:'POST',
+            signal:AbortSignal.timeout(15000),
+            headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+            body:JSON.stringify({
+              model,
+              messages:[
+                {
+                  role:'system',
+                  content:'Eres el asistente de admisión jurídica de MatchJurídico en Colombia. Analiza el relato del usuario en lenguaje común y extrae información estructurada en JSON SIN inventar datos y SIN incluir nombres ni datos identificables de personas. Devuelve un JSON válido con: suggestedCategory (una de: laboral, familia, civil_contractual, comercial, inmobiliario, consumidor, administrativo, penal, transito_responsabilidad, propiedad_intelectual, otro, no_seguro), confidence (high, medium, low), summary (resumen objetivo y no identificatorio de max 250 caracteres), desiredOutcome (qué busca resolver), importantDates (array de strings con fechas clave mencionadas), detectedCity (ciudad si se menciona o cadena vacía), urgency (normal, soon, urgent), extractedFacts (array de max 5 hechos relevantes clave).'
+                },
+                {role:'user',content:narrative}
+              ],
+              response_format:{type:'json_object'},
+              temperature:0.2
+            })
+          });
+          if(aiResponse.ok) {
+            const aiData=await aiResponse.json();
+            const parsed=JSON.parse(aiData.choices?.[0]?.message?.content||'{}');
+            if(parsed.suggestedCategory && parsed.summary) {
+              return json({
+                ...heuristic,
+                ...parsed,
+                categoryLabel: INTAKE_CATEGORIES[parsed.suggestedCategory as keyof typeof INTAKE_CATEGORIES]?.label || heuristic.categoryLabel
+              });
+            }
+          }
+        } catch {}
+      }
+      return json(heuristic);
     }
 
    const ctx=await auth(req),{client,user,profile}=ctx;

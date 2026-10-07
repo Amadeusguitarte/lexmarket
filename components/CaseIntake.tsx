@@ -1,22 +1,585 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
-import {ArrowLeft,ArrowRight,Check,FileText,FolderOpen,LockKeyhole,Plus,Trash2,X} from 'lucide-react';
-import {categories,services,caseSchema} from '@/lib/shared';
-import {documentKinds,draftStore,fileProblem,suggestKind,type IntakeFile} from '@/lib/intake';
-const headings=['Todo empieza por aquí.','Vamos a ponerle orden.','¿Qué te gustaría hacer ahora?','Así empieza tu espacio.'];
-export default function CaseIntake({onClose,onReady,signedIn=false}:{onClose:()=>void;onReady:(data:Record<string,string>)=>void|Promise<void>;signedIn?:boolean}){
- const ref=useRef<HTMLDialogElement>(null),input=useRef<HTMLInputElement>(null);
- const [step,setStep]=useState(0),[files,setFiles]=useState<IntakeFile[]>([]),[data,setData]=useState<Record<string,string>>({title:'',description:'',category:'Otro',city:'',service:services[0],urgency:'normal',public_summary:''}),[error,setError]=useState(''),[busy,setBusy]=useState(false),[ready,setReady]=useState(false);
- useEffect(()=>{ref.current?.showModal();void draftStore('read').then(d=>{if(d){setData(d.data);setFiles(d.files);if(d.caseId)setStep(3);}setReady(true);}).catch(()=>setReady(true));},[]);
- function update(key:string,value:string){setData(d=>({...d,[key]:value}));}
- async function save(){const previous=await draftStore('read');await draftStore('write',{...previous,data,files,updated:Date.now()});}
- async function leave(){setBusy(true);try{await save();onClose();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
- async function add(list:File[]){setError('');if(files.length+list.length>30){setError('Puedes reunir hasta 30 archivos.');return;}const problem=list.map(fileProblem).find(Boolean);if(problem){setError(problem);return;}setBusy(true);try{const added=await Promise.all(list.map(async file=>{const text=/\.txt$/i.test(file.name)?(await file.text()).slice(0,10000):'';return {id:crypto.randomUUID(),file,kind:suggestKind(file.name,text)};}));setFiles(f=>[...f,...added]);}finally{setBusy(false);}}
- async function next(){setError('');if(step===0&&!files.length&&data.description.trim().length<30){setError('Añade un documento o cuéntanos un poco más: al menos 30 caracteres.');return;}if(step===2){const parsed=caseSchema.safeParse(data);if(!parsed.success){setError('Completa el nombre (8 caracteres), la ciudad y un relato de al menos 30 caracteres.');return;}}setBusy(true);try{await save();if(step===3){await onReady(data);}else setStep(s=>s+1);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
- return <dialog ref={ref} className="intake-dialog" aria-labelledby="intake-title" onCancel={e=>{e.preventDefault();void leave();}}><div className="intake-layout"><aside className="intake-aside"><a className="brand" href="#" onClick={e=>{e.preventDefault();void leave();}}>Match<span>Jurídico</span><span className="brand-dot">.</span></a><div><span className="eyebrow">UN PASO A LA VEZ</span><h2>Lo que tienes.<br/>Lo que sigue.</h2><p>Un lugar para reunir tu material y encontrar a quién confiarle el siguiente paso.</p></div><img src="/lexmarket-journey.webp" alt="Papeles y una carpeta conectados por un camino lila hacia una puerta abierta"/><p className="intake-private"><LockKeyhole size={15}/> Por ahora, todo se queda en este dispositivo.</p></aside><main className="intake-main"><header><span>{['Tu punto de partida','Tu material','El siguiente paso','Tu espacio'][step]} · {step+1} de 4</span><button className="icon-button" onClick={()=>void leave()} aria-label="Guardar borrador en este dispositivo y salir" disabled={busy}><X/></button></header><div className="intake-progress" aria-label={`Paso ${step+1} de 4`}>{headings.map((h,i)=><span key={h} className={i<=step?'active':''}/>)}</div><section className="intake-content" key={step}><h1 id="intake-title">{headings[step]}</h1>
- {step===0&&<><p>Puedes traer un escrito, una conversación, los documentos que has reunido… o empezar contándonos.</p><div className="intake-drop" onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();void add(Array.from(e.dataTransfer.files));}}><FolderOpen size={38}/><h3>Hazle espacio a tus documentos</h3><p>Arrástralos aquí o selecciónalos desde tu dispositivo.</p><button className="button outline" disabled={busy} onClick={()=>input.current?.click()}><Plus size={18}/> Elegir archivos</button><small>PDF, Word (.docx) o texto · hasta 10 MB por archivo</small></div>{files.length>0&&<p className="intake-selected"><Check size={17}/>{files.length} archivo{files.length!==1?'s':''} seleccionado{files.length!==1?'s':''}. Los organizamos en el siguiente paso.</p>}<label className="field"><span>También puedes contarnos o pegar tus notas</span><textarea rows={4} maxLength={40000} value={data.description} onChange={e=>update('description',e.target.value)} placeholder="Lo que pasó, lo que ya has hecho, lo que te gustaría resolver…"/></label></>}
- {step===1&&<><p>Estas etiquetas son sugerencias por el nombre del archivo y, en los TXT, por su texto. Puedes cambiarlas. Los PDF y Word se procesan después de guardarlos en tu cuenta.</p><div className="intake-files">{files.map(f=><article key={f.id}><FileText size={23}/><div><b>{f.file.name}</b><small>{(f.file.size/1024/1024).toFixed(2)} MB</small><select aria-label={'Tipo de '+f.file.name} value={f.kind} onChange={e=>setFiles(a=>a.map(v=>v.id===f.id?{...v,kind:e.target.value}:v))}>{documentKinds.map(k=><option key={k}>{k}</option>)}</select></div><button className="icon-button" aria-label={'Quitar '+f.file.name} onClick={()=>setFiles(a=>a.filter(v=>v.id!==f.id))}><Trash2 size={17}/></button></article>)}</div>{!files.length&&<div className="intake-note"><FileText/><p>Tus palabras también son un buen punto de partida. Puedes añadir documentos más adelante.</p></div>}<button className="text-button" onClick={()=>input.current?.click()} disabled={busy}><Plus size={17}/> Añadir otro archivo</button></>}
- {step===2&&<><p>Elige lo que necesitas del profesional. Podrás ajustarlo después.</p><div className="intake-choices">{services.map((s,i)=><button key={s} className={data.service===s?'selected':''} aria-pressed={data.service===s} onClick={()=>update('service',s)}><span>0{i+1}</span>{s}{data.service===s&&<Check size={17}/>}</button>)}</div><div className="form-grid"><label className="field"><span>¿Dónde ocurre?</span><input maxLength={80} placeholder="Ciudad o municipio" value={data.city} onChange={e=>update('city',e.target.value)}/></label><label className="field"><span>¿Con qué se relaciona?</span><select value={data.category} onChange={e=>update('category',e.target.value)}>{categories.map(c=><option key={c}>{c}</option>)}</select></label></div><label className="field"><span>Un nombre para encontrarlo fácilmente</span><input maxLength={120} placeholder="Por ejemplo: mi reclamación laboral" value={data.title} onChange={e=>update('title',e.target.value)}/></label><label className="field"><span>Lo que debería entender quien te acompañe</span><textarea rows={4} maxLength={40000} value={data.description} onChange={e=>update('description',e.target.value)} placeholder="Cuéntanos brevemente qué sucede y qué has preparado."/></label><label className="field"><span>¿Qué tan pronto necesitas avanzar?</span><select value={data.urgency} onChange={e=>update('urgency',e.target.value)}><option value="normal">Puedo revisar las opciones con calma</option><option value="soon">Me gustaría avanzar pronto</option><option value="urgent">Tengo una urgencia o un plazo</option></select></label>{data.urgency==='urgent'&&<p className="microcopy">Busca atención directa si tienes un vencimiento. Aquí no se suspenden plazos ni se garantiza respuesta inmediata.</p>}</>}
- {step===3&&<><p>Primero lo guardamos para ti. Compartirlo con abogados será una decisión aparte.</p><article className="intake-preview"><span className="tag">BORRADOR PRIVADO</span><h2>{data.title}</h2><p>{data.city} · {data.category}</p><strong>{data.service}</strong><p className="intake-excerpt">{data.description}</p><div className="intake-preview-bottom"><FileText size={18}/>{files.length} documentos preparados</div></article><div className="intake-note"><LockKeyhole size={24}/><p>{signedIn?'Al continuar, guardaremos el caso y sus archivos en tu cuenta.':'Al continuar, crea tu cuenta o entra a la que ya tienes. Guardaremos tu caso y subiremos los archivos a tu espacio privado.'} Tú eliges qué resumen publicar y a quién dar acceso.</p></div></>}
- {error&&<p role="alert" className="intake-error">{error}</p>}</section><footer className="intake-footer"><button className="text-button" onClick={()=>step?setStep(s=>s-1):void leave()} disabled={busy}><ArrowLeft size={17}/>{step?'Atrás':'Guardar y salir'}</button><button className="button" disabled={busy||!ready} onClick={()=>void next()}>{busy?'Un momento…':step===3?'Guardar mi espacio':'Continuar'}<ArrowRight size={17}/></button></footer></main></div><input hidden ref={input} type="file" multiple accept=".pdf,.docx,.txt" onChange={e=>{void add(Array.from(e.target.files||[]));e.target.value='';}}/></dialog>;
+import { useEffect, useRef, useState } from 'react';
+import { X, Lock, ShieldCheck, ArrowLeft, ArrowRight } from 'lucide-react';
+import { draftStore, fileProblem, suggestKind, type IntakeFile, type IntakeDraft } from '@/lib/intake';
+import {
+  type LegalCategoryKey,
+  type ExtractedFacts,
+  type PrivateClientData,
+  type PrivacyPreferences,
+  analyzeNarrativeHeuristically,
+  mapToSystemCategory,
+  INTAKE_CATEGORIES
+} from '@/lib/intake-engine';
+import { services } from '@/lib/shared';
+import type { IntakeStage, CaseIntakeState } from './intake/types';
+import IntakeProgress from './intake/IntakeProgress';
+import WelcomeStep from './intake/WelcomeStep';
+import NarrativeStep from './intake/NarrativeStep';
+import SummaryReviewStep from './intake/SummaryReviewStep';
+import DynamicQuestionsStep from './intake/DynamicQuestionsStep';
+import DocumentsStep from './intake/DocumentsStep';
+import PrivatePartiesStep from './intake/PrivatePartiesStep';
+import PublishReviewStep from './intake/PublishReviewStep';
+import SuccessStep from './intake/SuccessStep';
+
+interface CaseIntakeProps {
+  onClose: () => void;
+  onReady: (data: Record<string, string>) => void | Promise<void>;
+  signedIn?: boolean;
+}
+
+// Editorial sidebar contents per intake stage
+const STAGE_ASIDE_CONTENT: Record<
+  IntakeStage,
+  { eyebrow: string; title: string; subtitle: string; image: string }
+> = {
+  welcome: {
+    eyebrow: 'MATCHJURÍDICO · ADMISIÓN',
+    title: 'Tu situación.\nTú decides el ritmo.',
+    subtitle: 'Un espacio pensado para entender lo que ocurrió sin tecnicismos ni formularios fríos.',
+    image: '/lexmarket-journey.webp'
+  },
+  narrative: {
+    eyebrow: 'EN TUS PALABRAS',
+    title: 'Tu situación.\nEn tus palabras.',
+    subtitle: 'Explícanos lo que pasó tal como se lo contarías a alguien de confianza.',
+    image: '/hero/hero-tu-caso.png'
+  },
+  summary_review: {
+    eyebrow: 'ASISTENCIA INTELIGENTE',
+    title: 'Organizamos\ntu información.',
+    subtitle: 'Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.',
+    image: '/hero/hero-expediente.png'
+  },
+  clarification: {
+    eyebrow: 'PRECISIÓN JURÍDICA',
+    title: 'Algunos detalles\npara entender mejor tu caso.',
+    subtitle: 'Preguntas adaptadas a tu situación concreta para conectar con el especialista adecuado.',
+    image: '/hero/hero-tutela.png'
+  },
+  evidence: {
+    eyebrow: 'EXPEDIENTE PROTEGIDO',
+    title: 'Documentos que\npueden ayudar.',
+    subtitle: 'Sube contratos, cartas o comprobantes cuando quieras. Todo permanece privado.',
+    image: '/Privacidad/tarjeta 1.png'
+  },
+  parties: {
+    eyebrow: 'CONFIDENCIALIDAD TOTAL',
+    title: 'Información\nprivada.',
+    subtitle: 'Tus datos de contacto y la contraparte se mantienen bajo reserva absoluta.',
+    image: '/Privacidad/Tarjeta 2.png'
+  },
+  review: {
+    eyebrow: 'CONTROL ABSOLUTO',
+    title: 'Revisa y decide\nqué compartir.',
+    subtitle: 'Verifica la separación exacta entre lo que verán los abogados y tu esfera privada.',
+    image: '/honorarios/honorarios-base.png'
+  },
+  success: {
+    eyebrow: 'CASO PUBLICADO',
+    title: 'El siguiente paso,\nen buenas manos.',
+    subtitle: 'Tu expediente anónimo ya está activo. Te notificaremos ante cualquier interés.',
+    image: '/lexmarket-journey.webp'
+  }
+};
+
+export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseIntakeProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  // Core intake state
+  const [stage, setStage] = useState<IntakeStage>('welcome');
+  const [narrative, setNarrative] = useState('');
+  const [extractedFacts, setExtractedFacts] = useState<ExtractedFacts>({
+    suggestedCategory: 'otro',
+    categoryLabel: 'Otro asunto',
+    confidence: 'low',
+    summary: '',
+    desiredOutcome: 'Entender mis opciones y posibles reclamaciones.',
+    importantDates: [],
+    detectedCity: '',
+    urgency: 'normal',
+    extractedFacts: []
+  });
+  const [userOverriddenCategory, setUserOverriddenCategory] = useState<LegalCategoryKey | undefined>(undefined);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [otherTexts, setOtherTexts] = useState<Record<string, string>>({});
+  const [files, setFiles] = useState<IntakeFile[]>([]);
+  const [privateData, setPrivateData] = useState<PrivateClientData>({
+    fullName: '',
+    email: '',
+    phone: '',
+    city: '',
+    counterparties: []
+  });
+  const [privacy, setPrivacy] = useState<PrivacyPreferences>({
+    publishAnonymously: true,
+    allowProposals: true,
+    allowDocumentAccessRequests: true
+  });
+  const [title, setTitle] = useState('');
+  const [city, setCity] = useState('');
+  const [urgency, setUrgency] = useState<'normal' | 'soon' | 'urgent'>('normal');
+  const [caseId, setCaseId] = useState<string | undefined>(undefined);
+
+  const [hasExistingDraft, setHasExistingDraft] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  // Open modal on mount and check for saved drafts in IndexedDB
+  useEffect(() => {
+    try {
+      if (dialogRef.current && !dialogRef.current.open) {
+        dialogRef.current.showModal();
+      }
+    } catch {}
+    void draftStore('read')
+      .then((savedDraft) => {
+        if (savedDraft && (savedDraft.data?.description || savedDraft.files?.length)) {
+          setHasExistingDraft(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Save current progress to IndexedDB
+  const persistDraft = async (overrideStage?: IntakeStage) => {
+    try {
+      const activeCat = userOverriddenCategory || extractedFacts.suggestedCategory;
+      const effectiveCity = answers['city'] || city || extractedFacts.detectedCity || '';
+      const finalTitle =
+        title ||
+        (extractedFacts.summary
+          ? extractedFacts.summary.slice(0, 70).replace(/\.+$/, '')
+          : `Consulta sobre ${INTAKE_CATEGORIES[activeCat]?.shortLabel || 'asunto legal'}`);
+
+      const dataToStore: Record<string, string> = {
+        title: finalTitle,
+        category: mapToSystemCategory(activeCat),
+        city: effectiveCity,
+        service: services[0],
+        description: narrative,
+        public_summary: extractedFacts.summary,
+        urgency: urgency,
+        client_name: privateData.fullName,
+        client_email: privateData.email,
+        client_phone: privateData.phone || '',
+        counterparties_json: JSON.stringify(privateData.counterparties || []),
+        answers_json: JSON.stringify(answers),
+        other_texts_json: JSON.stringify(otherTexts),
+        stage: overrideStage || stage
+      };
+
+      const previous = await draftStore('read');
+      const draftPayload: IntakeDraft = {
+        ...(previous || {}),
+        data: dataToStore,
+        files,
+        caseId,
+        updated: Date.now()
+      };
+      await draftStore('write', draftPayload);
+    } catch {}
+  };
+
+  // Resume a previously stored draft
+  const handleResumeDraft = async () => {
+    try {
+      const saved = await draftStore('read');
+      if (!saved) return;
+      if (saved.data) {
+        if (saved.data.description) setNarrative(saved.data.description);
+        if (saved.data.title) setTitle(saved.data.title);
+        if (saved.data.city) setCity(saved.data.city);
+        if (saved.data.public_summary) {
+          setExtractedFacts((prev) => ({
+            ...prev,
+            summary: saved.data.public_summary
+          }));
+        }
+        if (saved.data.client_name || saved.data.client_email) {
+          setPrivateData((prev) => ({
+            ...prev,
+            fullName: saved.data.client_name || '',
+            email: saved.data.client_email || '',
+            phone: saved.data.client_phone || ''
+          }));
+        }
+        if (saved.data.answers_json) {
+          try {
+            setAnswers(JSON.parse(saved.data.answers_json));
+          } catch {}
+        }
+        if (saved.data.other_texts_json) {
+          try {
+            setOtherTexts(JSON.parse(saved.data.other_texts_json));
+          } catch {}
+        }
+        if (saved.data.stage && saved.data.stage !== 'welcome') {
+          setStage(saved.data.stage as IntakeStage);
+        } else {
+          setStage('narrative');
+        }
+      }
+      if (saved.files) {
+        setFiles(saved.files);
+      }
+      if (saved.caseId) {
+        setCaseId(saved.caseId);
+      }
+    } catch {}
+  };
+
+  const handleSaveAndExit = async () => {
+    setBusy(true);
+    try {
+      await persistDraft();
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Stage 1 -> Stage 2: Analyze narrative
+  const handleNarrativeContinue = async (userNarrative: string) => {
+    setNarrative(userNarrative);
+    setBusy(true);
+    setError('');
+
+    try {
+      // First, get fast client-side heuristic analysis
+      const heuristic = analyzeNarrativeHeuristically(userNarrative);
+      let analyzedData = heuristic;
+
+      // Call API analyze endpoint
+      try {
+        const res = await fetch('/api/cases/analyze-intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ narrative: userNarrative })
+        });
+        if (res.ok) {
+          const apiFacts = await res.json();
+          if (apiFacts.suggestedCategory && apiFacts.summary) {
+            analyzedData = apiFacts;
+          }
+        }
+      } catch {
+        // Fallback to client-side heuristics seamlessly
+      }
+
+      setExtractedFacts(analyzedData);
+      if (analyzedData.detectedCity && !city) {
+        setCity(analyzedData.detectedCity);
+      }
+      if (analyzedData.urgency) {
+        setUrgency(analyzedData.urgency);
+      }
+
+      // Generate suggested title
+      const catShort = INTAKE_CATEGORIES[analyzedData.suggestedCategory]?.shortLabel || 'Asunto legal';
+      setTitle(`Consulta sobre ${catShort.toLowerCase()}`);
+
+      setStage('summary_review');
+      await persistDraft('summary_review');
+    } catch (err: any) {
+      setError(err.message || 'No pudimos procesar tu relato. Por favor intenta de nuevo.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Stage 2 -> Stage 3: Confirmed summary
+  const handleSummaryConfirm = async (confirmedFacts: ExtractedFacts) => {
+    setExtractedFacts(confirmedFacts);
+    setUserOverriddenCategory(confirmedFacts.suggestedCategory);
+    setStage('clarification');
+    await persistDraft('clarification');
+  };
+
+  // Stage 3 -> Stage 4: Completed dynamic questions
+  const handleQuestionsContinue = async (
+    confirmedAnswers: Record<string, any>,
+    confirmedOtherTexts: Record<string, string>
+  ) => {
+    setAnswers(confirmedAnswers);
+    setOtherTexts(confirmedOtherTexts);
+    if (confirmedAnswers['city']) {
+      setCity(confirmedAnswers['city']);
+    }
+    setStage('evidence');
+    await persistDraft('evidence');
+  };
+
+  // Stage 4 -> Stage 5: Documents done / skipped
+  const handleDocumentsContinue = async () => {
+    setStage('parties');
+    await persistDraft('parties');
+  };
+
+  // Stage 5 -> Stage 6: Parties done
+  const handlePartiesContinue = async (confirmedParties: PrivateClientData) => {
+    setPrivateData(confirmedParties);
+    setStage('review');
+    await persistDraft('review');
+  };
+
+  // Stage 6 -> Stage 7: Publish case
+  const handlePublishCase = async () => {
+    setBusy(true);
+    setError('');
+
+    try {
+      const activeCat = userOverriddenCategory || extractedFacts.suggestedCategory;
+      const effectiveCity = answers['city'] || city || extractedFacts.detectedCity || 'Colombia';
+      const effectiveTitle =
+        title ||
+        (extractedFacts.summary.length > 10
+          ? extractedFacts.summary.slice(0, 60).replace(/\.+$/, '')
+          : `Consulta sobre ${INTAKE_CATEGORIES[activeCat]?.shortLabel || 'asunto'}`);
+
+      // Compose private details breakdown to preserve alongside description
+      const detailsList: string[] = [];
+      if (answers) {
+        Object.entries(answers).forEach(([k, v]) => {
+          if (v && k !== 'city') {
+            const otherVal = otherTexts[k] ? ` (${otherTexts[k]})` : '';
+            detailsList.push(`• ${k}: ${Array.isArray(v) ? v.join(', ') : v}${otherVal}`);
+          }
+        });
+      }
+
+      const counterpartyInfo = privateData.counterparties
+        ?.filter((c) => c.name)
+        .map((c) => `${c.name} (${c.role || c.type})`)
+        .join(', ');
+
+      const structuredDescription = [
+        narrative,
+        detailsList.length > 0 ? `\n\nDetalles del asunto:\n${detailsList.join('\n')}` : '',
+        counterpartyInfo ? `\n\nContraparte señalada: ${counterpartyInfo}` : '',
+        privateData.fullName ? `\nContacto: ${privateData.fullName} (${privateData.email})` : ''
+      ].join('');
+
+      const publicationData: Record<string, string> = {
+        title: effectiveTitle.slice(0, 110),
+        category: mapToSystemCategory(activeCat),
+        city: effectiveCity.slice(0, 80),
+        service: 'Definir el siguiente paso',
+        description: structuredDescription.slice(0, 39000),
+        public_summary: extractedFacts.summary.slice(0, 1900),
+        urgency: urgency
+      };
+
+      // Persist to IndexedDB
+      await persistDraft('review');
+
+      // Forward to parent case publisher
+      await onReady(publicationData);
+
+      setStage('success');
+    } catch (err: any) {
+      setError(err.message || 'No se pudo publicar el caso. Por favor revisa la información.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const asideContent = STAGE_ASIDE_CONTENT[stage] || STAGE_ASIDE_CONTENT.welcome;
+  const currentCategory = userOverriddenCategory || extractedFacts.suggestedCategory;
+
+  return (
+    <dialog
+      open
+      ref={dialogRef}
+      className="intake-dialog redesign-dialog"
+      aria-labelledby="intake-step-title"
+      onCancel={(e) => {
+        e.preventDefault();
+        void handleSaveAndExit();
+      }}
+    >
+      <div className="intake-layout redesign-layout">
+        {/* Left Side: Contextual Narrative & Reassurance */}
+        <aside className="intake-aside redesign-aside">
+          <div className="aside-top">
+            <a
+              className="brand"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                void handleSaveAndExit();
+              }}
+            >
+              Match<span>Jurídico</span>
+              <span className="brand-dot">.</span>
+            </a>
+
+            <div className="aside-narrative-copy">
+              <span className="eyebrow aside-eyebrow">
+                <span className="tiny-dot" /> {asideContent.eyebrow}
+              </span>
+              <h2 className="aside-headline">{asideContent.title}</h2>
+              <p className="aside-sub">{asideContent.subtitle}</p>
+            </div>
+          </div>
+
+          <div className="aside-visual-wrapper">
+            <img
+              src={asideContent.image}
+              alt="MatchJurídico atmósfera visual"
+              className="aside-atmospheric-img"
+            />
+          </div>
+
+          <div className="aside-bottom">
+            <p className="intake-private-notice">
+              <Lock size={14} className="lock-icon" />
+              <span>Por ahora, todo se guarda bajo tu control en este dispositivo.</span>
+            </p>
+          </div>
+        </aside>
+
+        {/* Right Side: Interactive Workflow Stages */}
+        <main className="intake-main redesign-main">
+          {/* Top Header & Close Action */}
+          <header className="intake-main-header">
+            <div className="header-meta">
+              <IntakeProgress currentStage={stage} />
+            </div>
+
+            <button
+              type="button"
+              className="icon-button close-intake-btn"
+              onClick={() => void handleSaveAndExit()}
+              aria-label="Guardar borrador y salir"
+              disabled={busy}
+              title="Guardar borrador y salir"
+            >
+              <X size={20} />
+            </button>
+          </header>
+
+          {/* Error Banner */}
+          {error && (
+            <div className="intake-global-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          {/* Interactive Steps */}
+          <div className="intake-scroll-content">
+            {stage === 'welcome' && (
+              <WelcomeStep
+                onStart={() => setStage('narrative')}
+                hasExistingDraft={hasExistingDraft}
+                onResumeDraft={handleResumeDraft}
+              />
+            )}
+
+            {stage === 'narrative' && (
+              <NarrativeStep
+                initialNarrative={narrative}
+                onContinue={handleNarrativeContinue}
+                onSaveAndExit={handleSaveAndExit}
+                onImportDocument={(file) => {
+                  setFiles((prev) => [
+                    ...prev,
+                    {
+                      id: crypto.randomUUID(),
+                      file,
+                      kind: suggestKind(file.name)
+                    }
+                  ]);
+                }}
+                busy={busy}
+              />
+            )}
+
+            {stage === 'summary_review' && (
+              <SummaryReviewStep
+                facts={extractedFacts}
+                onConfirm={handleSummaryConfirm}
+                onBackToNarrative={() => setStage('narrative')}
+                onSaveAndExit={handleSaveAndExit}
+              />
+            )}
+
+            {stage === 'clarification' && (
+              <DynamicQuestionsStep
+                category={currentCategory}
+                extractedFacts={extractedFacts}
+                initialAnswers={answers}
+                initialOtherTexts={otherTexts}
+                onContinue={handleQuestionsContinue}
+                onBack={() => setStage('summary_review')}
+                onSaveAndExit={handleSaveAndExit}
+              />
+            )}
+
+            {stage === 'evidence' && (
+              <DocumentsStep
+                category={currentCategory}
+                files={files}
+                onFilesChange={setFiles}
+                onContinue={handleDocumentsContinue}
+                onSkip={handleDocumentsContinue}
+                onBack={() => setStage('clarification')}
+                onSaveAndExit={handleSaveAndExit}
+                busy={busy}
+              />
+            )}
+
+            {stage === 'parties' && (
+              <PrivatePartiesStep
+                initialData={privateData}
+                onContinue={handlePartiesContinue}
+                onBack={() => setStage('evidence')}
+                onSaveAndExit={handleSaveAndExit}
+              />
+            )}
+
+            {stage === 'review' && (
+              <PublishReviewStep
+                state={{
+                  stage,
+                  narrative,
+                  extractedFacts,
+                  userOverriddenCategory,
+                  answers,
+                  otherTexts,
+                  files,
+                  privateData,
+                  privacy,
+                  title,
+                  city,
+                  urgency,
+                  caseId
+                }}
+                onPublish={handlePublishCase}
+                onBackToEdit={() => setStage('parties')}
+                onSaveAndExit={handleSaveAndExit}
+                onUpdatePrivacy={(updates) => setPrivacy((prev) => ({ ...prev, ...updates }))}
+                busy={busy}
+              />
+            )}
+
+            {stage === 'success' && (
+              <SuccessStep
+                onGoToDashboard={() => onClose()}
+                onPublishAnother={() => {
+                  setStage('welcome');
+                  setNarrative('');
+                  setFiles([]);
+                  setAnswers({});
+                  setOtherTexts({});
+                }}
+                caseTitle={title}
+              />
+            )}
+          </div>
+        </main>
+      </div>
+    </dialog>
+  );
 }
