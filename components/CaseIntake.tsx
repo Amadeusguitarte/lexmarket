@@ -51,7 +51,7 @@ const STAGE_ASIDE_CONTENT: Record<
     eyebrow: 'ASISTENCIA INTELIGENTE',
     title: 'Organizamos\ntu información.',
     subtitle: 'Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.',
-    image: '/hero/hero-expediente.png'
+    image: '/intake-expediente.png'
   },
   clarification: {
     eyebrow: 'PRECISIÓN JURÍDICA',
