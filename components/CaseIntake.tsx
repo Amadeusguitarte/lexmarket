@@ -398,11 +398,12 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
 
   const asideContent = STAGE_ASIDE_CONTENT[stage] || STAGE_ASIDE_CONTENT.welcome;
   const currentCategory = userOverriddenCategory || extractedFacts.suggestedCategory;
+  const isWelcome = stage === 'welcome';
 
   const dialogContent = (
     <dialog
       ref={dialogRef}
-      className="intake-dialog redesign-dialog"
+      className={`intake-dialog redesign-dialog ${isWelcome ? 'welcome-modal-mode' : 'workflow-modal-mode'}`}
       aria-labelledby="intake-step-title"
       onCancel={(e) => {
         e.preventDefault();
@@ -414,52 +415,44 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
         }
       }}
     >
-      <div className="intake-layout redesign-layout">
-        {/* Left Side: Contextual Narrative & Reassurance */}
-        <aside className="intake-aside redesign-aside">
-          <div className="aside-top">
-            <a
-              className="brand"
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                void handleSaveAndExit();
-              }}
-            >
-              Match<span>Jurídico</span>
-              <span className="brand-dot">.</span>
-            </a>
+      {/* Close button for Welcome Mode (top right) */}
+      {isWelcome && (
+        <button
+          type="button"
+          className="welcome-modal-close-btn"
+          onClick={() => void handleSaveAndExit()}
+          aria-label="Cerrar"
+          title="Cerrar"
+        >
+          <X size={19} />
+        </button>
+      )}
 
-            <div className="aside-narrative-copy">
-              <span className="eyebrow aside-eyebrow">
-                <span className="tiny-dot" /> {asideContent.eyebrow}
-              </span>
-              <h2 className="aside-headline">{asideContent.title}</h2>
-              <p className="aside-sub">{asideContent.subtitle}</p>
+      {/* When in welcome stage: render WelcomeStep directly matching Screenshot 1 */}
+      {isWelcome ? (
+        <WelcomeStep
+          onStart={() => setStage('narrative')}
+          hasExistingDraft={hasExistingDraft}
+          onResumeDraft={handleResumeDraft}
+        />
+      ) : (
+        <div className="workflow-wrapper">
+          {/* Top Unified Header across whole modal matching Screenshot 2 */}
+          <header className="intake-top-unified-header">
+            <div className="header-brand-wrap">
+              <a
+                className="brand"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  void handleSaveAndExit();
+                }}
+              >
+                Match<span>Jurídico</span><span className="brand-dot">.</span>
+              </a>
             </div>
-          </div>
 
-          <div className="aside-visual-wrapper">
-            <img
-              src={asideContent.image}
-              alt="MatchJurídico atmósfera visual"
-              className="aside-atmospheric-img"
-            />
-          </div>
-
-          <div className="aside-bottom">
-            <p className="intake-private-notice">
-              <Lock size={14} className="lock-icon" />
-              <span>Por ahora, todo se guarda bajo tu control en este dispositivo.</span>
-            </p>
-          </div>
-        </aside>
-
-        {/* Right Side: Interactive Workflow Stages */}
-        <main className="intake-main redesign-main">
-          {/* Top Header & Close Action */}
-          <header className="intake-main-header">
-            <div className="header-meta">
+            <div className="header-stepper-wrap">
               <IntakeProgress currentStage={stage} />
             </div>
 
@@ -471,28 +464,20 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
               disabled={busy}
               title="Guardar borrador y salir"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </header>
 
-          {/* Error Banner */}
+          {/* Error Banner if any */}
           {error && (
             <div className="intake-global-error" role="alert">
               {error}
             </div>
           )}
 
-          {/* Interactive Steps */}
-          <div className="intake-scroll-content">
-            {stage === 'welcome' && (
-              <WelcomeStep
-                onStart={() => setStage('narrative')}
-                hasExistingDraft={hasExistingDraft}
-                onResumeDraft={handleResumeDraft}
-              />
-            )}
-
-            {stage === 'narrative' && (
+          {/* Workflow Body */}
+          <div className="workflow-body-container">
+            {stage === 'narrative' ? (
               <NarrativeStep
                 initialNarrative={narrative}
                 onContinue={handleNarrativeContinue}
@@ -509,92 +494,127 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
                 }}
                 busy={busy}
               />
-            )}
+            ) : (
+              <div className="intake-layout redesign-layout">
+                {/* Left Side: Contextual Narrative & Reassurance for subsequent stages */}
+                <aside className="intake-aside redesign-aside">
+                  <div className="aside-top">
+                    <div className="aside-narrative-copy">
+                      <span className="eyebrow aside-eyebrow">
+                        <span className="tiny-dot" /> {asideContent.eyebrow}
+                      </span>
+                      <h2 className="aside-headline">{asideContent.title}</h2>
+                      <p className="aside-sub">{asideContent.subtitle}</p>
+                    </div>
+                  </div>
 
-            {stage === 'summary_review' && (
-              <SummaryReviewStep
-                facts={extractedFacts}
-                onConfirm={handleSummaryConfirm}
-                onBackToNarrative={() => setStage('narrative')}
-                onSaveAndExit={handleSaveAndExit}
-              />
-            )}
+                  <div className="aside-visual-wrapper">
+                    <img
+                      src={asideContent.image}
+                      alt="MatchJurídico atmósfera visual"
+                      className="aside-atmospheric-img"
+                    />
+                  </div>
 
-            {stage === 'clarification' && (
-              <DynamicQuestionsStep
-                category={currentCategory}
-                extractedFacts={extractedFacts}
-                initialAnswers={answers}
-                initialOtherTexts={otherTexts}
-                onContinue={handleQuestionsContinue}
-                onBack={() => setStage('summary_review')}
-                onSaveAndExit={handleSaveAndExit}
-              />
-            )}
+                  <div className="aside-bottom">
+                    <p className="intake-private-notice">
+                      <Lock size={14} className="lock-icon" />
+                      <span>Por ahora, todo se guarda bajo tu control en este dispositivo.</span>
+                    </p>
+                  </div>
+                </aside>
 
-            {stage === 'evidence' && (
-              <DocumentsStep
-                category={currentCategory}
-                files={files}
-                onFilesChange={setFiles}
-                onContinue={handleDocumentsContinue}
-                onSkip={handleDocumentsContinue}
-                onBack={() => setStage('clarification')}
-                onSaveAndExit={handleSaveAndExit}
-                busy={busy}
-              />
-            )}
+                {/* Right Side: Step Content */}
+                <main className="intake-main redesign-main">
+                  <div className="intake-scroll-content">
+                    {stage === 'summary_review' && (
+                      <SummaryReviewStep
+                        facts={extractedFacts}
+                        onConfirm={handleSummaryConfirm}
+                        onBackToNarrative={() => setStage('narrative')}
+                        onSaveAndExit={handleSaveAndExit}
+                      />
+                    )}
 
-            {stage === 'parties' && (
-              <PrivatePartiesStep
-                initialData={privateData}
-                onContinue={handlePartiesContinue}
-                onBack={() => setStage('evidence')}
-                onSaveAndExit={handleSaveAndExit}
-              />
-            )}
+                    {stage === 'clarification' && (
+                      <DynamicQuestionsStep
+                        category={currentCategory}
+                        extractedFacts={extractedFacts}
+                        initialAnswers={answers}
+                        initialOtherTexts={otherTexts}
+                        onContinue={handleQuestionsContinue}
+                        onBack={() => setStage('summary_review')}
+                        onSaveAndExit={handleSaveAndExit}
+                      />
+                    )}
 
-            {stage === 'review' && (
-              <PublishReviewStep
-                state={{
-                  stage,
-                  narrative,
-                  extractedFacts,
-                  userOverriddenCategory,
-                  answers,
-                  otherTexts,
-                  files,
-                  privateData,
-                  privacy,
-                  title,
-                  city,
-                  urgency,
-                  caseId
-                }}
-                onPublish={handlePublishCase}
-                onBackToEdit={() => setStage('parties')}
-                onSaveAndExit={handleSaveAndExit}
-                onUpdatePrivacy={(updates) => setPrivacy((prev) => ({ ...prev, ...updates }))}
-                busy={busy}
-              />
-            )}
+                    {stage === 'evidence' && (
+                      <DocumentsStep
+                        category={currentCategory}
+                        files={files}
+                        onFilesChange={setFiles}
+                        onContinue={handleDocumentsContinue}
+                        onSkip={handleDocumentsContinue}
+                        onBack={() => setStage('clarification')}
+                        onSaveAndExit={handleSaveAndExit}
+                        busy={busy}
+                      />
+                    )}
 
-            {stage === 'success' && (
-              <SuccessStep
-                onGoToDashboard={() => onClose()}
-                onPublishAnother={() => {
-                  setStage('welcome');
-                  setNarrative('');
-                  setFiles([]);
-                  setAnswers({});
-                  setOtherTexts({});
-                }}
-                caseTitle={title}
-              />
+                    {stage === 'parties' && (
+                      <PrivatePartiesStep
+                        initialData={privateData}
+                        onContinue={handlePartiesContinue}
+                        onBack={() => setStage('evidence')}
+                        onSaveAndExit={handleSaveAndExit}
+                      />
+                    )}
+
+                    {stage === 'review' && (
+                      <PublishReviewStep
+                        state={{
+                          stage,
+                          narrative,
+                          extractedFacts,
+                          userOverriddenCategory,
+                          answers,
+                          otherTexts,
+                          files,
+                          privateData,
+                          privacy,
+                          title,
+                          city,
+                          urgency,
+                          caseId
+                        }}
+                        onPublish={handlePublishCase}
+                        onBackToEdit={() => setStage('parties')}
+                        onSaveAndExit={handleSaveAndExit}
+                        onUpdatePrivacy={(updates) => setPrivacy((prev) => ({ ...prev, ...updates }))}
+                        busy={busy}
+                      />
+                    )}
+
+                    {stage === 'success' && (
+                      <SuccessStep
+                        onGoToDashboard={() => onClose()}
+                        onPublishAnother={() => {
+                          setStage('welcome');
+                          setNarrative('');
+                          setFiles([]);
+                          setAnswers({});
+                          setOtherTexts({});
+                        }}
+                        caseTitle={title}
+                      />
+                    )}
+                  </div>
+                </main>
+              </div>
             )}
           </div>
-        </main>
-      </div>
+        </div>
+      )}
     </dialog>
   );
 

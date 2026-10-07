@@ -105,12 +105,14 @@ test('WelcomeStep renders calm trust principles without registration barrier', (
   );
   const doc = new JSDOM(html).window.document;
 
-  assert.ok(doc.querySelector('h1')?.textContent?.includes('Cuéntanos qué está pasando'));
-  assert.ok(html.includes('Identidad privada'));
-  assert.ok(html.includes('Puedes omitir preguntas'));
-  assert.ok(html.includes('Tú autorizas cada acceso'));
+  assert.ok(doc.querySelector('h1')?.textContent?.includes('Cuéntanos qué pasó'));
+  assert.ok(html.includes('Tú eliges cuánto compartir'));
+  assert.ok(html.includes('Puedes empezar solo con lo básico'));
+  assert.ok(html.includes('Adjunta los documentos que ya tengas'));
+  assert.ok(html.includes('Revisas todo antes de compartirlo'));
   assert.ok(html.includes('Empezar'));
-  assert.ok(html.includes('Esto solo tomará unos minutos'));
+  assert.ok(html.includes('Toma unos minutos'));
+  assert.ok(html.includes('Cómo cuidamos tu información'));
 });
 
 test('NarrativeStep includes privacy helper, textarea, and dictation button', () => {
@@ -124,9 +126,10 @@ test('NarrativeStep includes privacy helper, textarea, and dictation button', ()
   const doc = new JSDOM(html).window.document;
 
   assert.ok(doc.querySelector('textarea#narrative-input'));
-  assert.ok(html.includes('Dictar por voz'));
-  assert.ok(html.includes('Privacidad primero:'));
-  assert.ok(html.includes('No incluyas nombres completos, números de cédula'));
+  assert.ok(html.includes('Cuéntanos qué está pasando'));
+  assert.ok(html.includes('Dictar'));
+  assert.ok(html.includes('Bajo tu control'));
+  assert.ok(html.includes('Sin lenguaje técnico'));
   assert.ok(html.includes('Guardar y salir'));
   assert.ok(html.includes('Continuar'));
 });
