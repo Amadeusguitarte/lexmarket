@@ -7940,7 +7940,7 @@ input.auth-input-control.with-trailing {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
@@ -7993,23 +7993,26 @@ input.auth-input-control.with-trailing {
 
 .aside-visual-wrapper {
   position: relative;
-  margin: 14px 0;
+  margin: 18px 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
   pointer-events: none;
+  z-index: 10;
 }
 
 .aside-atmospheric-img {
-  max-width: 175px;
-  max-height: 215px;
+  max-width: 195px;
+  max-height: 230px;
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 16px 32px rgba(60, 35, 45, 0.16));
+  filter: drop-shadow(0 14px 28px rgba(60, 35, 45, 0.16));
   animation: folder-float-gentle 5s ease-in-out infinite;
   display: block;
+  position: relative;
+  z-index: 10;
 }
 
 .aside-bottom {
