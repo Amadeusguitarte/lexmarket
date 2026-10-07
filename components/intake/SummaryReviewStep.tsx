@@ -9,10 +9,7 @@ import {
   Clock,
   ArrowRight,
   ArrowLeft,
-  HelpCircle,
-  Layers,
-  ChevronDown,
-  X
+  HelpCircle
 } from 'lucide-react';
 import type { ExtractedFacts, LegalCategoryKey } from '@/lib/intake-engine';
 import { INTAKE_CATEGORIES } from '@/lib/intake-engine';
@@ -24,6 +21,21 @@ interface SummaryReviewStepProps {
   onSaveAndExit: () => void;
 }
 
+const CATEGORY_ORDER: LegalCategoryKey[] = [
+  'laboral',
+  'familia',
+  'civil_contractual',
+  'comercial',
+  'inmobiliario',
+  'consumidor',
+  'administrativo',
+  'penal',
+  'transito_responsabilidad',
+  'propiedad_intelectual',
+  'otro',
+  'no_seguro'
+];
+
 export default function SummaryReviewStep({
   facts,
   onConfirm,
@@ -31,7 +43,6 @@ export default function SummaryReviewStep({
   onSaveAndExit
 }: SummaryReviewStepProps) {
   const [data, setData] = useState<ExtractedFacts>({ ...facts });
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
 
   // Field edit states
@@ -60,7 +71,6 @@ export default function SummaryReviewStep({
       suggestedCategory: catKey,
       categoryLabel: INTAKE_CATEGORIES[catKey]?.label || 'General'
     }));
-    setShowCategoryModal(false);
   };
 
   return (
@@ -76,24 +86,43 @@ export default function SummaryReviewStep({
       </div>
 
       <div className="extracted-overview-card">
-        {/* Provisional Category Banner */}
-        <div className="summary-category-bar">
+        {/* Direct Legal Area Selection */}
+        <div className="summary-category-bar direct-select">
           <div className="category-meta">
             <span className="provisional-tag">ÁREA LEGAL SUGERIDA (PROVISIONAL)</span>
-            <h2 className="current-category-name">{data.categoryLabel}</h2>
-            {data.secondaryCategory && (
-              <span className="secondary-category-pill">
-                + También se relaciona con: {INTAKE_CATEGORIES[data.secondaryCategory]?.shortLabel}
-              </span>
-            )}
+            <h2 className="current-category-name">Seleccionar área legal</h2>
+            <p className="category-select-sub">
+              Elige la especialidad más adecuada para tu caso, o marca &quot;No estoy seguro&quot; si prefieres que la definamos juntos.
+            </p>
           </div>
-          <button
-            type="button"
-            className="button outline small edit-category-btn"
-            onClick={() => setShowCategoryModal(true)}
-          >
-            <Edit2 size={13} /> Cambiar área legal
-          </button>
+
+          <div className="category-pills-container" role="radiogroup" aria-label="Seleccionar área legal">
+            {CATEGORY_ORDER.map((catKey) => {
+              const meta = INTAKE_CATEGORIES[catKey];
+              const isSelected = data.suggestedCategory === catKey;
+              const isNoSeguro = catKey === 'no_seguro';
+
+              return (
+                <button
+                  key={catKey}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  className={`category-pill-option ${isSelected ? 'active' : ''} ${isNoSeguro ? 'pill-no-seguro' : ''}`}
+                  onClick={() => handleSelectCategory(catKey)}
+                >
+                  {isSelected && <Check size={13} className="pill-check-icon" />}
+                  <span>{meta.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {data.secondaryCategory && data.suggestedCategory !== data.secondaryCategory && (
+            <span className="secondary-category-pill">
+              + También detectamos posible relación con: {INTAKE_CATEGORIES[data.secondaryCategory]?.shortLabel}
+            </span>
+          )}
         </div>
 
         {/* Structured Insights Grid */}
@@ -321,70 +350,11 @@ export default function SummaryReviewStep({
         </button>
 
         <div className="summary-forward-actions">
-          <button
-            type="button"
-            className="button outline"
-            onClick={() => setShowCategoryModal(true)}
-          >
-            Elegir otra área
-          </button>
-
           <button type="button" className="button" onClick={() => onConfirm(data)}>
             Está bien, continuar <ArrowRight size={17} />
           </button>
         </div>
       </div>
-
-      {/* Category Selection Modal */}
-      {showCategoryModal && (
-        <div className="modal-backdrop-intake" onClick={() => setShowCategoryModal(false)}>
-          <div
-            className="modal-content-category"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="modal-head">
-              <div>
-                <h2>Área legal para tu caso</h2>
-                <p className="modal-sub">
-                  Elige la categoría que mejor describa tu situación, o selecciona &quot;No estoy seguro&quot; si tienes dudas.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="icon-button"
-                onClick={() => setShowCategoryModal(false)}
-                aria-label="Cerrar modal"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="category-options-grid">
-              {(Object.keys(INTAKE_CATEGORIES) as LegalCategoryKey[]).map((catKey) => {
-                const meta = INTAKE_CATEGORIES[catKey];
-                const isSelected = data.suggestedCategory === catKey;
-
-                return (
-                  <button
-                    key={catKey}
-                    type="button"
-                    className={`category-card-select ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSelectCategory(catKey)}
-                  >
-                    <div className="category-card-header">
-                      <strong>{meta.label}</strong>
-                      {isSelected && <Check size={16} className="selected-check" />}
-                    </div>
-                    <p>{meta.description}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
