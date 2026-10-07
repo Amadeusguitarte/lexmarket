@@ -160,7 +160,6 @@ test('SummaryReviewStep renders provisional legal area and editable fields', () 
   assert.ok(html.includes('ÁREA LEGAL SUGERIDA (PROVISIONAL)'));
   assert.ok(html.includes('Laboral y seguridad social'));
   assert.ok(html.includes('Seleccionar área legal'));
-  assert.ok(html.includes('No estoy seguro'));
   assert.ok(html.includes('Editar'));
   assert.ok(html.includes('Está bien, continuar'));
 });

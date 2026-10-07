@@ -9,7 +9,8 @@ import {
   Clock,
   ArrowRight,
   ArrowLeft,
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
 import type { ExtractedFacts, LegalCategoryKey } from '@/lib/intake-engine';
 import { INTAKE_CATEGORIES } from '@/lib/intake-engine';
@@ -43,6 +44,7 @@ export default function SummaryReviewStep({
   onSaveAndExit
 }: SummaryReviewStepProps) {
   const [data, setData] = useState<ExtractedFacts>({ ...facts });
+  const [showAreaPanel, setShowAreaPanel] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
 
   // Field edit states
@@ -86,43 +88,31 @@ export default function SummaryReviewStep({
       </div>
 
       <div className="extracted-overview-card">
-        {/* Direct Legal Area Selection */}
-        <div className="summary-category-bar direct-select">
+        {/* Compact Legal Area Bar */}
+        <div className="summary-category-bar compact-view">
           <div className="category-meta">
             <span className="provisional-tag">ÁREA LEGAL SUGERIDA (PROVISIONAL)</span>
-            <h2 className="current-category-name">Seleccionar área legal</h2>
-            <p className="category-select-sub">
-              Elige la especialidad más adecuada para tu caso, o marca &quot;No estoy seguro&quot; si prefieres que la definamos juntos.
-            </p>
+            <div className="category-current-badge-row">
+              <span className="current-area-badge">
+                <span className="area-indicator-dot" />
+                {data.categoryLabel}
+              </span>
+              {data.secondaryCategory && data.suggestedCategory !== data.secondaryCategory && (
+                <span className="secondary-area-badge">
+                  + {INTAKE_CATEGORIES[data.secondaryCategory]?.shortLabel}
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="category-pills-container" role="radiogroup" aria-label="Seleccionar área legal">
-            {CATEGORY_ORDER.map((catKey) => {
-              const meta = INTAKE_CATEGORIES[catKey];
-              const isSelected = data.suggestedCategory === catKey;
-              const isNoSeguro = catKey === 'no_seguro';
-
-              return (
-                <button
-                  key={catKey}
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  className={`category-pill-option ${isSelected ? 'active' : ''} ${isNoSeguro ? 'pill-no-seguro' : ''}`}
-                  onClick={() => handleSelectCategory(catKey)}
-                >
-                  {isSelected && <Check size={13} className="pill-check-icon" />}
-                  <span>{meta.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {data.secondaryCategory && data.suggestedCategory !== data.secondaryCategory && (
-            <span className="secondary-category-pill">
-              + También detectamos posible relación con: {INTAKE_CATEGORIES[data.secondaryCategory]?.shortLabel}
-            </span>
-          )}
+          <button
+            type="button"
+            className="button outline small select-area-btn"
+            onClick={() => setShowAreaPanel(true)}
+          >
+            <Edit2 size={13} />
+            <span>Seleccionar área legal</span>
+          </button>
         </div>
 
         {/* Structured Insights Grid */}
@@ -355,6 +345,73 @@ export default function SummaryReviewStep({
           </button>
         </div>
       </div>
+
+      {/* Panel con todas las áreas legales */}
+      {showAreaPanel && (
+        <div className="area-panel-backdrop" onClick={() => setShowAreaPanel(false)}>
+          <div
+            className="area-panel-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="area-panel-title"
+          >
+            <div className="area-panel-header">
+              <div>
+                <span className="provisional-tag">ÁREA LEGAL</span>
+                <h2 id="area-panel-title" className="area-panel-title">
+                  Seleccionar área legal
+                </h2>
+                <p className="area-panel-subtitle">
+                  Elige la especialidad que mejor describa tu caso. Si tienes dudas, puedes seleccionar &quot;No estoy seguro&quot; al final.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="icon-button close-panel-btn"
+                onClick={() => setShowAreaPanel(false)}
+                aria-label="Cerrar panel"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="area-panel-grid">
+              {CATEGORY_ORDER.map((catKey) => {
+                const meta = INTAKE_CATEGORIES[catKey];
+                const isSelected = data.suggestedCategory === catKey;
+                const isNoSeguro = catKey === 'no_seguro';
+
+                return (
+                  <button
+                    key={catKey}
+                    type="button"
+                    className={`area-panel-card ${isSelected ? 'selected' : ''} ${isNoSeguro ? 'card-no-seguro' : ''}`}
+                    onClick={() => {
+                      handleSelectCategory(catKey);
+                      setShowAreaPanel(false);
+                    }}
+                  >
+                    <div className="area-card-top">
+                      <strong className="area-card-label">{meta.label}</strong>
+                      {isSelected ? (
+                        <span className="area-check-badge">
+                          <Check size={14} />
+                        </span>
+                      ) : (
+                        <span className="area-radio-dot" />
+                      )}
+                    </div>
+                    {meta.description && (
+                      <p className="area-card-desc">{meta.description}</p>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
