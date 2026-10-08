@@ -7090,7 +7090,7 @@ input.auth-input-control.with-trailing {
 .intake-dialog.redesign-dialog.welcome-modal-mode {
   width: min(990px, calc(100vw - 32px));
   max-width: 990px;
-  height: min(615px, calc(100dvh - 32px));
+  height: min(665px, calc(100dvh - 32px));
   border-radius: 24px;
 }
 
@@ -7136,14 +7136,7 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-visual-column {
-  background-image: 
-    linear-gradient(
-      180deg, 
-      rgba(255, 255, 255, 0.45) 0%, 
-      rgba(246, 239, 233, 0.3) 25%, 
-      rgba(246, 239, 233, 0) 55%
-    ),
-    url('/intake-mediterranean.png');
+  background-image: url('/intake-mediterranean.png');
   background-size: cover;
   background-position: center top;
   position: relative;
@@ -7153,6 +7146,21 @@ input.auth-input-control.with-trailing {
   justify-content: space-between;
   overflow: hidden;
   border-right: 1px solid rgba(107, 45, 62, 0.08);
+}
+
+.welcome-visual-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #f6efe9 0%,
+    #f6efe9 18%,
+    rgba(246, 239, 233, 0.96) 42%,
+    rgba(246, 239, 233, 0.78) 58%,
+    rgba(246, 239, 233, 0) 74%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 .welcome-visual-top {
@@ -7212,11 +7220,11 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-side-body {
-  font-size: 12px;
-  line-height: 1.5;
-  color: #4a3d43;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #2e2429;
+  font-weight: 450;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
 }
 
 .welcome-visual-bottom {
@@ -7253,7 +7261,7 @@ input.auth-input-control.with-trailing {
 
 .welcome-content-column {
   background: #fdfbf7;
-  padding: 32px 42px 26px;
+  padding: 36px 44px 30px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -7262,7 +7270,7 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-content-inner {
-  max-width: 500px;
+  max-width: 505px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -7292,7 +7300,7 @@ input.auth-input-control.with-trailing {
 
 .welcome-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 34px;
+  font-size: 35px;
   line-height: 1.15;
   font-weight: 400;
   color: #1a1618;
@@ -7306,27 +7314,27 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-description {
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: #554449;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
 }
 
 .welcome-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
 .welcome-trust-card {
   background: #ffffff;
   border: 1px solid #f0e6df;
   border-radius: 16px;
-  padding: 11px 16px;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
   box-shadow: 0 2px 6px rgba(44, 37, 38, 0.02);
   transition: all 0.2s ease;
 }
@@ -7337,8 +7345,8 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-card-icon-wrap {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #f8eef2;
   color: #6b2d3e;
@@ -7349,32 +7357,32 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-card-body h3 {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
   color: #1a1618;
   margin: 0 0 2px;
 }
 
 .welcome-card-body p {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #665b60;
   margin: 0;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .welcome-actions-group {
-  margin-top: 4px;
-  margin-bottom: 14px;
+  margin-top: 6px;
+  margin-bottom: 16px;
 }
 
 .welcome-start-cta {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
   background: #6b2d3e;
   color: white;
   border: none;
   border-radius: 9999px;
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -7395,7 +7403,7 @@ input.auth-input-control.with-trailing {
   display: grid;
   grid-template-columns: 1.1fr 1.35fr 1.25fr;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .welcome-badge-item {
@@ -7424,7 +7432,7 @@ input.auth-input-control.with-trailing {
 .welcome-divider-line {
   height: 1px;
   background: #ebd9c8;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .welcome-footer-link-row {

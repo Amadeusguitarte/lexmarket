@@ -18,6 +18,7 @@ export default function WelcomeStep({
     <div className="welcome-screen-container">
       {/* Left Photographic Art Column */}
       <aside className="welcome-visual-column">
+        <div className="welcome-visual-scrim" />
         <div className="welcome-visual-top">
           <div className="welcome-brand">
             <span className="brand">
