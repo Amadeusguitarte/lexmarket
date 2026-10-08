@@ -110,7 +110,7 @@ test('WelcomeStep renders calm trust principles without registration barrier', (
   assert.ok(html.includes('Es simple'));
   assert.ok(html.includes('Puedes adjuntar documentos'));
   assert.ok(html.includes('Tú decides'));
-  assert.ok(html.includes('Empieza mi caso'));
+  assert.ok(html.includes('Empezar mi caso'));
   assert.ok(html.includes('Toma unos minutos'));
   assert.ok(html.includes('Cómo cuidamos tu información'));
 });

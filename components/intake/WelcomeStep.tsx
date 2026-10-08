@@ -42,6 +42,17 @@ export default function WelcomeStep({
             Avanza a tu ritmo. Puedes empezar con una descripción breve, adjuntar documentos si ya los tienes y revisar todo antes de compartirlo con abogados.
           </p>
         </div>
+
+        <div className="welcome-visual-bottom">
+          <div className="welcome-side-lock-note">
+            <Lock size={15} className="welcome-side-lock-icon" />
+            <div className="welcome-side-lock-divider" />
+            <span className="welcome-side-lock-text">
+              Tu información queda<br />
+              bajo tu control.
+            </span>
+          </div>
+        </div>
       </aside>
 
       {/* Right Content Column */}
@@ -109,7 +120,7 @@ export default function WelcomeStep({
           {/* Primary Action Button */}
           <div className="welcome-actions-group">
             <button type="button" className="welcome-start-cta" onClick={onStart}>
-              <span>Empieza mi caso</span>
+              <span>Empezar mi caso</span>
               <ArrowRight size={18} />
             </button>
           </div>
@@ -117,16 +128,16 @@ export default function WelcomeStep({
           {/* 3 Bottom Badges */}
           <div className="welcome-badges-row">
             <div className="welcome-badge-item">
-              <Clock size={15} />
+              <Clock size={16} />
               <span>Toma unos minutos</span>
             </div>
             <div className="welcome-badge-item">
-              <Save size={15} />
+              <Save size={16} />
               <span>Puedes guardar y continuar después</span>
             </div>
             <div className="welcome-badge-item">
-              <Lock size={15} />
-              <span>Tu información queda bajo tu control</span>
+              <Lock size={16} />
+              <span>Tu información está protegida</span>
             </div>
           </div>
 
