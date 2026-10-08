@@ -7135,11 +7135,9 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-visual-column {
-  background-image: url('/intake-mediterranean.png');
-  background-size: cover;
-  background-position: center bottom;
+  background-color: #f6efe9;
   position: relative;
-  padding: 34px 32px;
+  padding: 34px 30px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -7147,11 +7145,36 @@ input.auth-input-control.with-trailing {
   border-right: 1px solid rgba(107, 45, 62, 0.08);
 }
 
+.welcome-visual-column::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 240px;
+  background-image: url('/intake-mediterranean.png');
+  background-size: cover;
+  background-position: center top;
+  z-index: 1;
+}
+
+.welcome-visual-column::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 210px;
+  height: 130px;
+  background: linear-gradient(180deg, #f6efe9 0%, rgba(246, 239, 233, 0.88) 45%, rgba(246, 239, 233, 0) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
 .welcome-visual-top,
 .welcome-visual-middle,
 .welcome-visual-bottom {
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
 
 .welcome-brand .brand {
@@ -7179,51 +7202,57 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-visual-middle {
-  margin-top: 20px;
+  margin-top: 16px;
   margin-bottom: auto;
-  max-width: 310px;
+  max-width: 320px;
 }
 
 .welcome-side-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 32px;
-  line-height: 1.15;
+  font-size: 30px;
+  line-height: 1.16;
   font-weight: 400;
   color: #1a1618;
   letter-spacing: -0.02em;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 
 .welcome-side-accent {
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.25;
   color: #6b2d3e;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
 .welcome-side-body {
   font-size: 12.5px;
-  line-height: 1.6;
-  color: #554a4f;
+  line-height: 1.55;
+  color: #4a3f44;
   margin: 0;
 }
 
 .welcome-side-lock-note {
-  display: flex;
-  align-items: flex-start;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
   font-size: 12px;
   line-height: 1.35;
-  color: #4a3d43;
+  color: #3d2f35;
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .welcome-side-lock-icon {
   color: #6b2d3e;
-  margin-top: 2px;
   flex-shrink: 0;
 }
 
