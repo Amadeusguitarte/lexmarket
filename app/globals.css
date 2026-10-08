@@ -7136,9 +7136,11 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-visual-column {
+  background-color: #f8eef2;
   background-image: url('/intake-mediterranean.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center 105px;
+  background-repeat: no-repeat;
   position: relative;
   padding: 34px 28px;
   display: flex;
@@ -7153,11 +7155,11 @@ input.auth-input-control.with-trailing {
   inset: 0;
   background: linear-gradient(
     180deg,
-    #f6efe9 0%,
-    #f6efe9 18%,
-    rgba(246, 239, 233, 0.96) 42%,
-    rgba(246, 239, 233, 0.78) 58%,
-    rgba(246, 239, 233, 0) 74%
+    #f8eef2 0%,
+    #f8eef2 24%,
+    rgba(248, 238, 242, 0.96) 46%,
+    rgba(248, 238, 242, 0.76) 64%,
+    rgba(248, 238, 242, 0) 82%
   );
   pointer-events: none;
   z-index: 1;
