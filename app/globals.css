@@ -7139,7 +7139,7 @@ input.auth-input-control.with-trailing {
   background-color: #f8eef2;
   background-image: url('/intake-mediterranean.png');
   background-size: cover;
-  background-position: center 105px;
+  background-position: center 120px;
   background-repeat: no-repeat;
   position: relative;
   padding: 34px 28px;
@@ -7156,10 +7156,10 @@ input.auth-input-control.with-trailing {
   background: linear-gradient(
     180deg,
     #f8eef2 0%,
-    #f8eef2 18%,
-    rgba(248, 238, 242, 0.95) 38%,
-    rgba(248, 238, 242, 0.70) 54%,
-    rgba(248, 238, 242, 0) 70%
+    #f8eef2 24%,
+    rgba(248, 238, 242, 0.96) 46%,
+    rgba(248, 238, 242, 0.76) 64%,
+    rgba(248, 238, 242, 0) 82%
   );
   pointer-events: none;
   z-index: 1;
