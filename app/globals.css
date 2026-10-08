@@ -7140,7 +7140,7 @@ input.auth-input-control.with-trailing {
   padding: 34px 30px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   overflow: hidden;
   border-right: 1px solid rgba(107, 45, 62, 0.08);
 }
@@ -7151,7 +7151,7 @@ input.auth-input-control.with-trailing {
   left: 0;
   right: 0;
   bottom: 0;
-  top: 240px;
+  top: 175px;
   background-image: url('/intake-mediterranean.png');
   background-size: cover;
   background-position: center top;
@@ -7163,16 +7163,21 @@ input.auth-input-control.with-trailing {
   position: absolute;
   left: 0;
   right: 0;
-  top: 210px;
-  height: 130px;
-  background: linear-gradient(180deg, #f6efe9 0%, rgba(246, 239, 233, 0.88) 45%, rgba(246, 239, 233, 0) 100%);
+  top: 155px;
+  height: 190px;
+  background: linear-gradient(
+    180deg,
+    #f6efe9 0%,
+    rgba(246, 239, 233, 0.94) 40%,
+    rgba(246, 239, 233, 0.72) 68%,
+    rgba(246, 239, 233, 0) 100%
+  );
   z-index: 2;
   pointer-events: none;
 }
 
 .welcome-visual-top,
-.welcome-visual-middle,
-.welcome-visual-bottom {
+.welcome-visual-middle {
   position: relative;
   z-index: 5;
 }

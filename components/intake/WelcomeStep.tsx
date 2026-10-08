@@ -42,16 +42,6 @@ export default function WelcomeStep({
             Avanza a tu ritmo. Puedes empezar con una descripción breve, adjuntar documentos si ya los tienes y revisar todo antes de compartirlo con abogados.
           </p>
         </div>
-
-        <div className="welcome-visual-bottom">
-          <div className="welcome-side-lock-note">
-            <Lock size={15} className="welcome-side-lock-icon" />
-            <span>
-              Tu información queda<br />
-              bajo tu control.
-            </span>
-          </div>
-        </div>
       </aside>
 
       {/* Right Content Column */}
@@ -136,7 +126,7 @@ export default function WelcomeStep({
             </div>
             <div className="welcome-badge-item">
               <Lock size={15} />
-              <span>Tu información está protegida</span>
+              <span>Tu información queda bajo tu control</span>
             </div>
           </div>
 
