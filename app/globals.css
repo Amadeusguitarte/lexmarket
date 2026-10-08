@@ -7156,10 +7156,10 @@ input.auth-input-control.with-trailing {
   background: linear-gradient(
     180deg,
     #f8eef2 0%,
-    #f8eef2 24%,
-    rgba(248, 238, 242, 0.96) 46%,
-    rgba(248, 238, 242, 0.76) 64%,
-    rgba(248, 238, 242, 0) 82%
+    #f8eef2 18%,
+    rgba(248, 238, 242, 0.95) 38%,
+    rgba(248, 238, 242, 0.70) 54%,
+    rgba(248, 238, 242, 0) 70%
   );
   pointer-events: none;
   z-index: 1;
