@@ -7129,7 +7129,7 @@ input.auth-input-control.with-trailing {
 
 .welcome-screen-container {
   display: grid;
-  grid-template-columns: 390px minmax(0, 1fr);
+  grid-template-columns: 400px minmax(0, 1fr);
   height: 100%;
   min-height: 100%;
 }
@@ -7137,7 +7137,7 @@ input.auth-input-control.with-trailing {
 .welcome-visual-column {
   background-color: #f6efe9;
   position: relative;
-  padding: 34px 30px;
+  padding: 38px 34px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -7151,7 +7151,7 @@ input.auth-input-control.with-trailing {
   left: 0;
   right: 0;
   bottom: 0;
-  top: 175px;
+  top: 130px;
   background-image: url('/intake-mediterranean.png');
   background-size: cover;
   background-position: center top;
@@ -7163,13 +7163,14 @@ input.auth-input-control.with-trailing {
   position: absolute;
   left: 0;
   right: 0;
-  top: 155px;
-  height: 190px;
+  top: 115px;
+  height: 220px;
   background: linear-gradient(
     180deg,
     #f6efe9 0%,
-    rgba(246, 239, 233, 0.94) 40%,
-    rgba(246, 239, 233, 0.72) 68%,
+    #f6efe9 22%,
+    rgba(246, 239, 233, 0.95) 52%,
+    rgba(246, 239, 233, 0.65) 80%,
     rgba(246, 239, 233, 0) 100%
   );
   z-index: 2;
@@ -7183,7 +7184,7 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-brand .brand {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #1a1618;
   display: inline-block;
@@ -7198,7 +7199,7 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-brand-sub {
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   font-weight: 700;
   color: #554449;
@@ -7207,90 +7208,72 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-visual-middle {
-  margin-top: 16px;
+  margin-top: 18px;
   margin-bottom: auto;
-  max-width: 320px;
+  max-width: 330px;
 }
 
 .welcome-side-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 30px;
-  line-height: 1.16;
+  font-size: 34px;
+  line-height: 1.15;
   font-weight: 400;
   color: #1a1618;
   letter-spacing: -0.02em;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
 .welcome-side-accent {
   font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
-  font-size: 21px;
+  font-size: 23px;
   line-height: 1.25;
   color: #6b2d3e;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
 }
 
 .welcome-side-body {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: #4a3f44;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #3b3035;
+  font-weight: 450;
   margin: 0;
-}
-
-.welcome-side-lock-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  line-height: 1.35;
-  color: #3d2f35;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-style: italic;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-}
-
-.welcome-side-lock-icon {
-  color: #6b2d3e;
-  flex-shrink: 0;
 }
 
 .welcome-content-column {
   background: #fdfbf7;
-  padding: 36px 44px;
+  padding: 38px 48px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   overflow-y: auto;
   position: relative;
 }
 
 .welcome-content-inner {
-  max-width: 520px;
+  max-width: 530px;
   width: 100%;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
 }
 
 .welcome-eyebrow {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   color: #6b2d3e;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .welcome-eyebrow-dot {
-  width: 6px;
-  height: 6px;
+  width: 6.5px;
+  height: 6.5px;
   border-radius: 50%;
   background: #6b2d3e;
   display: inline-block;
@@ -7298,12 +7281,12 @@ input.auth-input-control.with-trailing {
 
 .welcome-headline {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 34px;
-  line-height: 1.15;
+  font-size: 38px;
+  line-height: 1.14;
   font-weight: 400;
   color: #1a1618;
   letter-spacing: -0.025em;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
 }
 
 .welcome-headline em {
@@ -7312,39 +7295,39 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-description {
-  font-size: 13px;
-  line-height: 1.6;
-  color: #665b60;
-  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #5a4f54;
+  margin: 0 0 24px;
 }
 
 .welcome-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .welcome-trust-card {
   background: #ffffff;
   border: 1px solid #f0e6df;
-  border-radius: 16px;
-  padding: 14px 18px;
+  border-radius: 18px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 6px rgba(44, 37, 38, 0.02);
+  gap: 18px;
+  box-shadow: 0 2px 8px rgba(44, 37, 38, 0.025);
   transition: all 0.2s ease;
 }
 
 .welcome-trust-card:hover {
   border-color: #e2d4c9;
-  box-shadow: 0 4px 12px rgba(44, 37, 38, 0.04);
+  box-shadow: 0 4px 14px rgba(44, 37, 38, 0.05);
 }
 
 .welcome-card-icon-wrap {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #f8eef2;
   color: #6b2d3e;
@@ -7355,32 +7338,32 @@ input.auth-input-control.with-trailing {
 }
 
 .welcome-card-body h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: #1a1618;
   margin: 0 0 3px;
 }
 
 .welcome-card-body p {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #665b60;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .welcome-actions-group {
   margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .welcome-start-cta {
   width: 100%;
-  min-height: 50px;
+  min-height: 52px;
   background: #6b2d3e;
   color: white;
   border: none;
   border-radius: 9999px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -7388,29 +7371,30 @@ input.auth-input-control.with-trailing {
   gap: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(107, 45, 62, 0.22);
+  box-shadow: 0 4px 16px rgba(107, 45, 62, 0.24);
 }
 
 .welcome-start-cta:hover {
   background: #542230;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(107, 45, 62, 0.28);
+  box-shadow: 0 6px 20px rgba(107, 45, 62, 0.3);
 }
 
 .welcome-badges-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .welcome-badge-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #73686d;
-  line-height: 1.3;
+  gap: 7px;
+  font-size: 11.5px;
+  color: #665b60;
+  line-height: 1.35;
+  font-weight: 500;
 }
 
 .welcome-badge-item svg {
@@ -7421,7 +7405,7 @@ input.auth-input-control.with-trailing {
 .welcome-divider-line {
   height: 1px;
   background: #ebd9c8;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .welcome-footer-link-row {
@@ -7437,10 +7421,16 @@ input.auth-input-control.with-trailing {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 13px;
+  font-weight: 500;
   color: #5a4f54;
   cursor: pointer;
   transition: color 0.2s;
+}
+
+.welcome-privacy-trigger:hover {
+  color: #6b2d3e;
+  text-decoration: underline;
 }
 
 .welcome-privacy-trigger:hover {
