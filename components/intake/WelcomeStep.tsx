@@ -64,7 +64,7 @@ export default function WelcomeStep({
               <span className="welcome-eyebrow-dot" /> ANTES DE EMPEZAR
             </div>
             <h1 className="welcome-headline">
-              Empieza por lo importante.<br />
+              Cuéntanos qué pasó.<br />
               <em>Tú eliges cuánto compartir.</em>
             </h1>
             <p className="welcome-description">

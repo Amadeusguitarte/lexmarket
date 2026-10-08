@@ -7142,7 +7142,7 @@ input.auth-input-control.with-trailing {
   background-position: center 120px;
   background-repeat: no-repeat;
   position: relative;
-  padding: 34px 28px;
+  padding: 34px 28px 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -7232,6 +7232,7 @@ input.auth-input-control.with-trailing {
 .welcome-visual-bottom {
   position: relative;
   z-index: 2;
+  transform: translateY(6px);
 }
 
 .welcome-side-lock-note {

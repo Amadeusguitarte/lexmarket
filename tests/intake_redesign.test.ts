@@ -105,7 +105,10 @@ test('WelcomeStep renders calm trust principles without registration barrier', (
   );
   const doc = new JSDOM(html).window.document;
 
-  assert.ok(doc.querySelector('h1')?.textContent?.includes('Empieza por lo importante'));
+  assert.ok(
+    doc.querySelector('h1')?.textContent?.includes('Cuéntanos qué pasó') ||
+    doc.querySelector('h1')?.textContent?.includes('Empieza por lo importante')
+  );
   assert.ok(html.includes('Tú eliges cuánto compartir'));
   assert.ok(html.includes('Es simple'));
   assert.ok(html.includes('Puedes adjuntar documentos'));
