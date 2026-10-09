@@ -7090,7 +7090,7 @@ input.auth-input-control.with-trailing {
 .intake-dialog.redesign-dialog.welcome-modal-mode {
   width: min(990px, calc(100vw - 32px));
   max-width: 990px;
-  height: min(665px, calc(100dvh - 32px));
+  height: min(675px, calc(100dvh - 32px));
   border-radius: 24px;
 }
 
@@ -7264,7 +7264,7 @@ input.auth-input-control.with-trailing {
 
 .welcome-content-column {
   background: #fdfbf7;
-  padding: 34px 40px 24px;
+  padding: 30px 38px 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -7320,21 +7320,21 @@ input.auth-input-control.with-trailing {
   font-size: 13px;
   line-height: 1.5;
   color: #554449;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
 }
 
 .welcome-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 9px;
+  margin-bottom: 14px;
 }
 
 .welcome-trust-card {
   background: #ffffff;
   border: 1px solid #f0e6df;
   border-radius: 14px;
-  padding: 12px 16px;
+  padding: 11px 16px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -7373,9 +7373,98 @@ input.auth-input-control.with-trailing {
   line-height: 1.35;
 }
 
+/* Compact integrated draft action box */
+.welcome-draft-action-box {
+  background: #fdf6f7;
+  border: 1px solid #ebd3da;
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcome-draft-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.welcome-draft-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #6b2d3e;
+}
+
+.welcome-draft-label strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1618;
+}
+
+.welcome-draft-header-row p {
+  font-size: 11.5px;
+  color: #665b60;
+  margin: 0 0 0 22px;
+  line-height: 1.3;
+}
+
+.welcome-draft-buttons-group {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 10px;
+}
+
+.welcome-resume-cta {
+  min-height: 44px;
+  height: 44px;
+  background: #622332;
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 3px 10px rgba(98, 35, 50, 0.22);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.welcome-resume-cta:hover {
+  background: #501925;
+  transform: translateY(-1px);
+}
+
+.welcome-new-case-btn {
+  min-height: 44px;
+  height: 44px;
+  background: #ffffff;
+  border: 1px solid #ebd9c8;
+  border-radius: 9999px;
+  color: #3b2f34;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.welcome-new-case-btn:hover {
+  background: #faf4f1;
+  border-color: #cbbaa5;
+  color: #1a1618;
+}
+
 .welcome-actions-group {
   margin-top: 2px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .welcome-start-cta {
@@ -8312,28 +8401,28 @@ input.auth-input-control.with-trailing {
   margin: 0;
 }
 
-.existing-draft-banner {
+.existing-draft-banner:not(.welcome-draft-action-box) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f6edf8;
-  border: 1px solid #e4d3ea;
+  background: #fdf6f7;
+  border: 1px solid #ebd3da;
   border-radius: 14px;
-  padding: 16px 20px;
-  margin: 24px 0 10px;
-  gap: 16px;
+  padding: 12px 16px;
+  margin: 12px 0 8px;
+  gap: 14px;
 }
 
-.existing-draft-banner strong {
+.existing-draft-banner:not(.welcome-draft-action-box) strong {
   display: block;
   font-size: 13px;
-  color: var(--purple-dark);
+  color: #1a1618;
   margin-bottom: 2px;
 }
 
-.existing-draft-banner p {
+.existing-draft-banner:not(.welcome-draft-action-box) p {
   font-size: 12px;
-  color: #695b6f;
+  color: #665b60;
   margin: 0;
 }
 

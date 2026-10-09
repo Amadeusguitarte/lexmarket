@@ -101,26 +101,42 @@ export default function WelcomeStep({
             </div>
           </div>
 
-          {/* Resume draft notice if exists */}
-          {hasExistingDraft && (
-            <div className="existing-draft-banner">
-              <div>
-                <strong>Tienes un borrador guardado en este dispositivo</strong>
+          {/* Actions: Integrated dual actions if draft exists, single CTA if new */}
+          {hasExistingDraft ? (
+            <div className="welcome-draft-action-box existing-draft-banner">
+              <div className="welcome-draft-header-row">
+                <div className="welcome-draft-label">
+                  <Save size={15} className="welcome-draft-icon" />
+                  <strong>Tienes un borrador guardado en este dispositivo</strong>
+                </div>
                 <p>Puedes retomarlo donde lo dejaste o comenzar uno nuevo.</p>
               </div>
-              <button type="button" className="button outline small" onClick={onResumeDraft}>
-                Continuar borrador
+              <div className="welcome-draft-buttons-group">
+                <button
+                  type="button"
+                  className="welcome-start-cta welcome-resume-cta"
+                  onClick={onResumeDraft}
+                >
+                  <span>Continuar borrador</span>
+                  <ArrowRight size={17} />
+                </button>
+                <button
+                  type="button"
+                  className="welcome-new-case-btn"
+                  onClick={onStart}
+                >
+                  <span>Comenzar uno nuevo</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="welcome-actions-group">
+              <button type="button" className="welcome-start-cta" onClick={onStart}>
+                <span>Empezar mi caso</span>
+                <ArrowRight size={18} />
               </button>
             </div>
           )}
-
-          {/* Primary Action Button */}
-          <div className="welcome-actions-group">
-            <button type="button" className="welcome-start-cta" onClick={onStart}>
-              <span>Empezar mi caso</span>
-              <ArrowRight size={18} />
-            </button>
-          </div>
 
           {/* 3 Bottom Badges */}
           <div className="welcome-badges-row">
