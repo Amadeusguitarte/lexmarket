@@ -16,7 +16,7 @@ const NAMED_STEPS: { name: ProgressNamedStep; stage: IntakeStage; index: number 
   { name: 'Revisión', stage: 'review', index: 4 }
 ];
 
-export default function IntakeProgress({ currentStage }: IntakeProgressProps) {
+export default function IntakeProgress({ currentStage, onNavigateStage }: IntakeProgressProps) {
   const activeNamed = getNamedStage(currentStage);
   const activeIndex = NAMED_STEPS.findIndex((s) => s.name === activeNamed);
 
@@ -32,14 +32,22 @@ export default function IntakeProgress({ currentStage }: IntakeProgressProps) {
               key={step.name}
               className={`intake-stage-item ${isCurrent ? 'current' : ''} ${isDone ? 'completed' : ''}`}
             >
-              <div className="intake-stage-indicator">
-                {isDone ? (
-                  <Check size={13} className="intake-check-icon" />
-                ) : (
-                  <span className="intake-step-number">{idx + 1}</span>
-                )}
-              </div>
-              <span className="intake-stage-title">{step.name}</span>
+              <button
+                type="button"
+                className={`intake-stage-btn ${isCurrent ? 'current' : ''} ${isDone ? 'completed' : ''}`}
+                onClick={() => onNavigateStage?.(step.stage)}
+                aria-current={isCurrent ? 'step' : undefined}
+                title={`Ir al paso ${idx + 1}: ${step.name}`}
+              >
+                <div className="intake-stage-indicator">
+                  {isDone ? (
+                    <Check size={13} className="intake-check-icon" />
+                  ) : (
+                    <span className="intake-step-number">{idx + 1}</span>
+                  )}
+                </div>
+                <span className="intake-stage-title">{step.name}</span>
+              </button>
               {idx < NAMED_STEPS.length - 1 && <span className="intake-stage-divider" />}
             </li>
           );

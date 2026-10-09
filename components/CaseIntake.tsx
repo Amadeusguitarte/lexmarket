@@ -251,6 +251,29 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
     }
   };
 
+  // Direct navigation between stages from top stepper
+  const handleNavigateStage = async (targetStage: IntakeStage) => {
+    if (targetStage === stage) return;
+
+    // If leaving narrative and user typed something, run heuristic extraction if not already extracted
+    if (stage === 'narrative' && targetStage !== 'narrative') {
+      if (narrative.trim() && (!extractedFacts.summary || extractedFacts.summary === '')) {
+        const heuristic = analyzeNarrativeHeuristically(narrative);
+        setExtractedFacts(heuristic);
+        if (heuristic.detectedCity && !city) {
+          setCity(heuristic.detectedCity);
+        }
+        if (!title) {
+          const catShort = INTAKE_CATEGORIES[heuristic.suggestedCategory]?.shortLabel || 'Asunto legal';
+          setTitle(`Consulta sobre ${catShort.toLowerCase()}`);
+        }
+      }
+    }
+
+    setStage(targetStage);
+    await persistDraft(targetStage);
+  };
+
   // Stage 1 -> Stage 2: Analyze narrative
   const handleNarrativeContinue = async (userNarrative: string) => {
     setNarrative(userNarrative);
@@ -453,7 +476,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
             </div>
 
             <div className="header-stepper-wrap">
-              <IntakeProgress currentStage={stage} />
+              <IntakeProgress currentStage={stage} onNavigateStage={handleNavigateStage} />
             </div>
 
             <button
@@ -480,6 +503,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
             {stage === 'narrative' ? (
               <NarrativeStep
                 initialNarrative={narrative}
+                onChange={(val) => setNarrative(val)}
                 onContinue={handleNarrativeContinue}
                 onSaveAndExit={handleSaveAndExit}
                 onImportDocument={(file) => {
@@ -542,6 +566,11 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
                         extractedFacts={extractedFacts}
                         initialAnswers={answers}
                         initialOtherTexts={otherTexts}
+                        onChange={(newAnswers, newOtherTexts) => {
+                          setAnswers(newAnswers);
+                          setOtherTexts(newOtherTexts);
+                          if (newAnswers['city']) setCity(newAnswers['city']);
+                        }}
                         onContinue={handleQuestionsContinue}
                         onBack={() => setStage('summary_review')}
                         onSaveAndExit={handleSaveAndExit}
@@ -564,6 +593,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
                     {stage === 'parties' && (
                       <PrivatePartiesStep
                         initialData={privateData}
+                        onChange={(newData) => setPrivateData(newData)}
                         onContinue={handlePartiesContinue}
                         onBack={() => setStage('evidence')}
                         onSaveAndExit={handleSaveAndExit}

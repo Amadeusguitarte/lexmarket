@@ -10,11 +10,14 @@ import {
   Shield,
   Users,
   EyeOff,
-  FileText
+  FileText,
+  AlertCircle,
+  X
 } from 'lucide-react';
 
 interface NarrativeStepProps {
   initialNarrative: string;
+  onChange?: (narrative: string) => void;
   onContinue: (narrative: string) => void;
   onSaveAndExit: () => void;
   onImportDocument?: (file: File) => void;
@@ -23,6 +26,7 @@ interface NarrativeStepProps {
 
 export default function NarrativeStep({
   initialNarrative,
+  onChange,
   onContinue,
   onSaveAndExit,
   onImportDocument,
@@ -31,61 +35,129 @@ export default function NarrativeStep({
   const [text, setText] = useState(initialNarrative);
   const [error, setError] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [interimText, setInterimText] = useState('');
+  const [dictationNotice, setDictationNotice] = useState('');
+  const [dictationError, setDictationError] = useState('');
   const [attachedCount, setAttachedCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Web Speech API dictation
+  // Clean up any active speech recognition on unmount
   useEffect(() => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'es-CO';
-
-      recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
-        }
-        setText((prev) => {
-          const separator = prev && !prev.endsWith(' ') ? ' ' : '';
-          return prev + separator + transcript;
-        });
-      };
-
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
-      recognitionRef.current = recognition;
-    }
-
     return () => {
       if (recognitionRef.current) {
         try {
-          recognitionRef.current.stop();
+          recognitionRef.current.abort();
         } catch {}
+        recognitionRef.current = null;
       }
     };
   }, []);
 
+  const stopVoiceInput = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    setInterimText('');
+    setDictationNotice('');
+  };
+
   const toggleVoiceInput = () => {
-    if (!recognitionRef.current) {
-      alert('Tu navegador no tiene soporte directo para dictado por voz. Puedes escribir o pegar tu relato con normalidad.');
+    if (isListening) {
+      stopVoiceInput();
       return;
     }
 
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch {
-        setIsListening(false);
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setDictationError(
+        'Tu navegador actual no tiene activado el dictado por voz nativo. Puedes usar Google Chrome, Microsoft Edge o escribir tu caso aquí directamente.'
+      );
+      return;
+    }
+
+    try {
+      // Abort any old session
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
       }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'es-CO';
+      recognition.maxAlternatives = 1;
+
+      setDictationError('');
+      setDictationNotice('Escuchando... habla y tu voz se escribirá aquí');
+      setIsListening(true);
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalChunk = '';
+        let interimChunk = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const result = event.results[i];
+          const transcript = result[0]?.transcript || '';
+          if (result.isFinal) {
+            finalChunk += transcript;
+          } else {
+            interimChunk += transcript;
+          }
+        }
+
+        if (finalChunk.trim()) {
+          setText((prev) => {
+            const separator = prev && !prev.endsWith(' ') && !prev.endsWith('\n') ? ' ' : '';
+            const next = prev + separator + finalChunk.trim();
+            onChange?.(next);
+            return next;
+          });
+          setInterimText('');
+        } else if (interimChunk) {
+          setInterimText(interimChunk);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        const err = event.error;
+        if (err === 'not-allowed') {
+          setDictationError(
+            'Permiso de micrófono bloqueado. Activa el acceso al micrófono en los ajustes de tu navegador para poder dictar.'
+          );
+        } else if (err === 'no-speech') {
+          setDictationNotice('No se detectó sonido. Vuelve a pulsar Dictar cuando quieras hablar.');
+        } else if (err === 'network') {
+          setDictationError('Se requiere conexión a internet para el reconocimiento de voz.');
+        } else if (err !== 'aborted') {
+          setDictationError(`Aviso de dictado (${err}). Puedes continuar escribiendo con normalidad.`);
+        }
+        setIsListening(false);
+        setInterimText('');
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setInterimText('');
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      setIsListening(false);
+      setDictationError('No fue posible iniciar el micrófono. Puedes redactar tu caso aquí directamente.');
     }
   };
 
@@ -213,9 +285,50 @@ export default function NarrativeStep({
                     title={isListening ? 'Detener dictado' : 'Dictar por voz'}
                   >
                     {isListening ? <MicOff size={14} /> : <Mic size={14} />}
-                    <span>{isListening ? 'Escuchando…' : 'Dictar'}</span>
+                    <span>{isListening ? 'Detener dictado' : 'Dictar'}</span>
                   </button>
                 </div>
+
+                {isListening && (
+                  <div className="dictation-live-bar" role="status">
+                    <span className="live-mic-pulse" />
+                    <span className="live-status-text">
+                      {interimText ? (
+                        <span className="interim-text">&ldquo;{interimText}&rdquo;</span>
+                      ) : (
+                        dictationNotice || 'Escuchando... habla con tranquilidad, estamos transcribiendo'
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      className="stop-dictate-inline-btn"
+                      onClick={stopVoiceInput}
+                    >
+                      Listo
+                    </button>
+                  </div>
+                )}
+
+                {dictationNotice && !isListening && (
+                  <div className="dictation-notice-hint">
+                    <span>{dictationNotice}</span>
+                  </div>
+                )}
+
+                {dictationError && (
+                  <div className="dictation-error-hint" role="alert">
+                    <AlertCircle size={14} className="error-icon" />
+                    <span className="error-msg">{dictationError}</span>
+                    <button
+                      type="button"
+                      className="dismiss-hint-btn"
+                      onClick={() => setDictationError('')}
+                      aria-label="Cerrar aviso"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
 
                 <textarea
                   id="narrative-input"
@@ -225,6 +338,7 @@ export default function NarrativeStep({
                   value={text}
                   onChange={(e) => {
                     setText(e.target.value);
+                    onChange?.(e.target.value);
                     if (error) setError('');
                   }}
                 />
@@ -247,7 +361,10 @@ export default function NarrativeStep({
                       key={p.short}
                       type="button"
                       className="narrative-sample-pill"
-                      onClick={() => setText(p.full)}
+                      onClick={() => {
+                        setText(p.full);
+                        onChange?.(p.full);
+                      }}
                     >
                       <Sparkles size={13} className="sample-sparkle" />
                       <span>{p.short}</span>

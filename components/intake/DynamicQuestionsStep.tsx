@@ -25,6 +25,7 @@ interface DynamicQuestionsStepProps {
   extractedFacts: ExtractedFacts;
   initialAnswers: Record<string, any>;
   initialOtherTexts: Record<string, string>;
+  onChange?: (answers: Record<string, any>, otherTexts: Record<string, string>) => void;
   onContinue: (answers: Record<string, any>, otherTexts: Record<string, string>) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
@@ -35,6 +36,7 @@ export default function DynamicQuestionsStep({
   extractedFacts,
   initialAnswers,
   initialOtherTexts,
+  onChange,
   onContinue,
   onBack,
   onSaveAndExit
@@ -67,10 +69,11 @@ export default function DynamicQuestionsStep({
   });
 
   const handleSingleSelect = (questionId: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value
-    }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: value };
+      onChange?.(next, otherTexts);
+      return next;
+    });
     // Clear skip state if answered
     if (skippedQuestions[questionId]) {
       setSkippedQuestions((prev) => ({ ...prev, [questionId]: false }));
@@ -81,24 +84,27 @@ export default function DynamicQuestionsStep({
     const current: string[] = Array.isArray(answers[questionId]) ? answers[questionId] : [];
     const exists = current.includes(value);
     const updated = exists ? current.filter((v) => v !== current.find((item) => item === value)) : [...current, value];
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: updated
-    }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: updated };
+      onChange?.(next, otherTexts);
+      return next;
+    });
   };
 
   const handleTextChange = (questionId: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value
-    }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: value };
+      onChange?.(next, otherTexts);
+      return next;
+    });
   };
 
   const handleOtherTextChange = (questionId: string, text: string) => {
-    setOtherTexts((prev) => ({
-      ...prev,
-      [questionId]: text
-    }));
+    setOtherTexts((prev) => {
+      const next = { ...prev, [questionId]: text };
+      onChange?.(answers, next);
+      return next;
+    });
   };
 
   const handleSkipQuestion = (questionId: string) => {
@@ -106,6 +112,7 @@ export default function DynamicQuestionsStep({
     setAnswers((prev) => {
       const copy = { ...prev };
       delete copy[questionId];
+      onChange?.(copy, otherTexts);
       return copy;
     });
   };

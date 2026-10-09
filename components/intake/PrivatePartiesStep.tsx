@@ -15,6 +15,7 @@ import type { PrivateClientData, Counterparty } from '@/lib/intake-engine';
 
 interface PrivatePartiesStepProps {
   initialData: PrivateClientData;
+  onChange?: (privateData: PrivateClientData) => void;
   onContinue: (privateData: PrivateClientData) => void;
   onBack: () => void;
   onSaveAndExit: () => void;
@@ -22,6 +23,7 @@ interface PrivatePartiesStepProps {
 
 export default function PrivatePartiesStep({
   initialData,
+  onChange,
   onContinue,
   onBack,
   onSaveAndExit
@@ -46,8 +48,16 @@ export default function PrivatePartiesStep({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const updateData = (updater: (prev: PrivateClientData) => PrivateClientData) => {
+    setData((prev) => {
+      const next = updater(prev);
+      onChange?.(next);
+      return next;
+    });
+  };
+
   const handleAddCounterparty = () => {
-    setData((prev) => ({
+    updateData((prev) => ({
       ...prev,
       counterparties: [
         ...prev.counterparties,
@@ -62,14 +72,14 @@ export default function PrivatePartiesStep({
   };
 
   const handleRemoveCounterparty = (id: string) => {
-    setData((prev) => ({
+    updateData((prev) => ({
       ...prev,
       counterparties: prev.counterparties.filter((c) => c.id !== id)
     }));
   };
 
   const updateCounterparty = (id: string, updates: Partial<Counterparty>) => {
-    setData((prev) => ({
+    updateData((prev) => ({
       ...prev,
       counterparties: prev.counterparties.map((c) => (c.id === id ? { ...c, ...updates } : c))
     }));
@@ -132,7 +142,7 @@ export default function PrivatePartiesStep({
                 placeholder="Tu nombre y apellidos"
                 value={data.fullName}
                 onChange={(e) => {
-                  setData((prev) => ({ ...prev, fullName: e.target.value }));
+                  updateData((prev) => ({ ...prev, fullName: e.target.value }));
                   if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: '' }));
                 }}
                 className={errors.fullName ? 'has-error' : ''}
@@ -147,7 +157,7 @@ export default function PrivatePartiesStep({
                 placeholder="tu@correo.com"
                 value={data.email}
                 onChange={(e) => {
-                  setData((prev) => ({ ...prev, email: e.target.value }));
+                  updateData((prev) => ({ ...prev, email: e.target.value }));
                   if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
                 }}
                 className={errors.email ? 'has-error' : ''}
@@ -161,7 +171,7 @@ export default function PrivatePartiesStep({
                 type="tel"
                 placeholder="Ejemplo: 300 123 4567"
                 value={data.phone}
-                onChange={(e) => setData((prev) => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) => updateData((prev) => ({ ...prev, phone: e.target.value }))}
               />
               <small className="field-hint">Solo te contactaremos si autorizas comunicaciones directas.</small>
             </label>

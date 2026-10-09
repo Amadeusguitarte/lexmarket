@@ -23,6 +23,7 @@ import PublishReviewStep from '../components/intake/PublishReviewStep';
 import SuccessStep from '../components/intake/SuccessStep';
 import CasePermissionsManager from '../components/intake/CasePermissionsManager';
 import AccessRequestModal from '../components/intake/AccessRequestModal';
+import IntakeProgress from '../components/intake/IntakeProgress';
 
 // 1. Engine & NLP Heuristics Tests
 test('NLP engine correctly categorizes a labor case', () => {
@@ -376,4 +377,21 @@ test('AccessRequestModal allows granular selection of documents and identity', (
   assert.ok(modalHtml.includes('Tu identidad y datos de contacto'));
   assert.ok(modalHtml.includes('Dar acceso seleccionado'));
   assert.ok(modalHtml.includes('No por ahora'));
+});
+
+test('IntakeProgress renders interactive clickable step buttons for navigation', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(IntakeProgress, {
+      currentStage: 'parties',
+      onNavigateStage: () => {}
+    })
+  );
+  const doc = new JSDOM(html).window.document;
+  const buttons = doc.querySelectorAll('button.intake-stage-btn');
+  assert.equal(buttons.length, 5);
+  assert.ok(html.includes('Tu situación'));
+  assert.ok(html.includes('Detalles'));
+  assert.ok(html.includes('Documentos'));
+  assert.ok(html.includes('Privacidad'));
+  assert.ok(html.includes('Revisión'));
 });
