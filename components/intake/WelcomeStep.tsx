@@ -1,5 +1,7 @@
 'use client';
+import { useState } from 'react';
 import { MessageSquare, Folder, User, Clock, Save, Lock, ShieldCheck, ArrowRight } from 'lucide-react';
+import PrivacyInfoModal from './PrivacyInfoModal';
 
 interface WelcomeStepProps {
   onStart: () => void;
@@ -14,6 +16,13 @@ export default function WelcomeStep({
   onResumeDraft,
   onPrivacyInfo
 }: WelcomeStepProps) {
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+
+  const handleOpenPrivacy = () => {
+    onPrivacyInfo?.();
+    setShowPrivacyModal(true);
+  };
+
   return (
     <div className="welcome-screen-container">
       {/* Left Photographic Art Column */}
@@ -161,7 +170,7 @@ export default function WelcomeStep({
             <button
               type="button"
               className="welcome-privacy-trigger"
-              onClick={onPrivacyInfo}
+              onClick={handleOpenPrivacy}
             >
               <ShieldCheck size={16} className="welcome-lock-icon" />
               <span>Cómo cuidamos tu información</span>
@@ -169,6 +178,12 @@ export default function WelcomeStep({
           </div>
         </div>
       </main>
+
+      {/* Reassuring privacy & control modal */}
+      <PrivacyInfoModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </div>
   );
 }
