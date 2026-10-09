@@ -51,37 +51,37 @@ const STAGE_ASIDE_CONTENT: Record<
     eyebrow: 'ASISTENCIA INTELIGENTE',
     title: 'Organizamos\ntu información.',
     subtitle: 'Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   },
   clarification: {
     eyebrow: 'PRECISIÓN JURÍDICA',
     title: 'Algunos detalles\npara entender mejor tu caso.',
     subtitle: 'Preguntas adaptadas a tu situación concreta para conectar con el especialista adecuado.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   },
   evidence: {
     eyebrow: 'EXPEDIENTE PROTEGIDO',
     title: 'Documentos que\npueden ayudar.',
     subtitle: 'Sube contratos, cartas o comprobantes cuando quieras. Todo permanece privado.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   },
   parties: {
     eyebrow: 'CONFIDENCIALIDAD TOTAL',
     title: 'Información\nprivada.',
     subtitle: 'Tus datos de contacto y la contraparte se mantienen bajo reserva absoluta.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   },
   review: {
     eyebrow: 'CONTROL ABSOLUTO',
     title: 'Revisa y decide\nqué compartir.',
     subtitle: 'Verifica la separación exacta entre lo que verán los abogados y tu esfera privada.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   },
   success: {
     eyebrow: 'CASO PUBLICADO',
     title: 'El siguiente paso,\nen buenas manos.',
     subtitle: 'Tu expediente anónimo ya está activo. Te notificaremos ante cualquier interés.',
-    image: '/intake-situation-desk.png'
+    image: '/intake-expediente.png'
   }
 };
 
