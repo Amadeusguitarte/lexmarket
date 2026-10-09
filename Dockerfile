@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS dependencies
+FROM public.ecr.aws/docker/library/node:22-bookworm-slim AS dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -12,7 +12,7 @@ ENV NEXT_PUBLIC_SUPPORT_EMAIL=$NEXT_PUBLIC_SUPPORT_EMAIL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY . .
 RUN npm run build
-FROM node:22-bookworm-slim AS web
+FROM public.ecr.aws/docker/library/node:22-bookworm-slim AS web
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000
 RUN groupadd --system --gid 1001 nodejs && useradd --system --uid 1001 --gid nodejs nextjs
