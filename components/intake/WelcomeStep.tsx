@@ -32,15 +32,11 @@ export default function WelcomeStep({
 
         <div className="welcome-visual-middle">
           <h2 className="welcome-side-headline">
-            Tu caso empieza<br />
-            con lo esencial.
+            De una situación,<br />
+            <em>a un caso claro.</em>
           </h2>
-          <p className="welcome-side-accent">
-            Nosotros te ayudamos<br />
-            a organizar el siguiente paso.
-          </p>
           <p className="welcome-side-body">
-            Avanza a tu ritmo. Puedes empezar con una descripción breve, adjuntar documentos si ya los tienes y revisar todo antes de compartirlo con abogados.
+            Organizamos contigo la información para que puedas entender tus opciones y encontrar el apoyo adecuado.
           </p>
         </div>
 
@@ -49,7 +45,7 @@ export default function WelcomeStep({
             <Lock size={15} className="welcome-side-lock-icon" />
             <div className="welcome-side-lock-divider" />
             <span className="welcome-side-lock-text">
-              Tu información queda<br />
+              Tu información,<br />
               bajo tu control.
             </span>
           </div>
@@ -68,7 +64,7 @@ export default function WelcomeStep({
               <em>Tú eliges cuánto compartir.</em>
             </h1>
             <p className="welcome-description">
-              Describe tu situación en pocas palabras. Si ya tienes documentos preparados, puedes adjuntarlos ahora o hacerlo más adelante. Antes de publicar, revisarás todo con calma.
+              Empieza con lo esencial. Nosotros te ayudamos a ordenar tu situación y a prepararla paso a paso. Si ya tienes documentos relacionados, puedes adjuntarlos ahora o subirlos más adelante.
             </p>
           </div>
 
@@ -80,7 +76,7 @@ export default function WelcomeStep({
               </div>
               <div className="welcome-card-body">
                 <h3>Es simple</h3>
-                <p>Explícanos tu situación como la contarías a alguien de confianza.</p>
+                <p>Explícanos tu situación con tus propias palabras.</p>
               </div>
             </div>
 
@@ -90,7 +86,7 @@ export default function WelcomeStep({
               </div>
               <div className="welcome-card-body">
                 <h3>Puedes adjuntar documentos</h3>
-                <p>Si ya tienes algo preparado, súbelo ahora. Si no, podrás hacerlo después.</p>
+                <p>Si ya tienes algo preparado, puedes subirlo ahora. Si no, puedes hacerlo después.</p>
               </div>
             </div>
 
@@ -100,7 +96,7 @@ export default function WelcomeStep({
               </div>
               <div className="welcome-card-body">
                 <h3>Tú decides</h3>
-                <p>Revisas y eliges qué información compartir con los abogados.</p>
+                <p>Revisas y eliges qué información se comparte con los abogados.</p>
               </div>
             </div>
           </div>
