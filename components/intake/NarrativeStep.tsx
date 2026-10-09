@@ -48,14 +48,33 @@ export default function NarrativeStep({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Clean up any active speech recognition on unmount
+  // Clean up any active speech recognition on unmount and listen to browser permission changes
   useEffect(() => {
+    let permStatus: any = null;
+    if (typeof navigator !== 'undefined' && navigator.permissions?.query) {
+      navigator.permissions
+        .query({ name: 'microphone' as any })
+        .then((status) => {
+          permStatus = status;
+          status.onchange = () => {
+            if (status.state === 'granted' || status.state === 'prompt') {
+              setDictationError('');
+              setShowMicHelpModal(false);
+            }
+          };
+        })
+        .catch(() => {});
+    }
+
     return () => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.abort();
         } catch {}
         recognitionRef.current = null;
+      }
+      if (permStatus) {
+        permStatus.onchange = null;
       }
     };
   }, []);
@@ -224,7 +243,11 @@ export default function NarrativeStep({
       setIsListening(false);
       setInterimText('');
       setDictationNotice('');
-      setDictationError('not-allowed');
+      if (err?.name === 'NotFoundError') {
+        setDictationError('not-found');
+      } else {
+        setDictationError('not-allowed');
+      }
       setIsRetryingMic(false);
       return;
     }
@@ -400,12 +423,27 @@ export default function NarrativeStep({
                   </div>
                 )}
 
-                {dictationError === 'not-allowed' ? (
+                {dictationError === 'not-found' ? (
+                  <div className="dictation-error-hint" role="alert">
+                    <AlertCircle size={14} className="error-icon" />
+                    <span className="error-msg">
+                      No se detectó ningún micrófono conectado a tu equipo. Puedes redactar tu caso escribiendo directamente.
+                    </span>
+                    <button
+                      type="button"
+                      className="dismiss-hint-btn"
+                      onClick={() => setDictationError('')}
+                      aria-label="Cerrar aviso"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ) : dictationError === 'not-allowed' ? (
                   <div className="dictation-permission-alert" role="alert">
                     <div className="permission-alert-header">
                       <div className="permission-alert-title-wrap">
                         <AlertCircle size={16} className="permission-alert-icon" />
-                        <strong>Micrófono bloqueado en tu navegador</strong>
+                        <strong>Micrófono bloqueado previamente</strong>
                       </div>
                       <button
                         type="button"
@@ -418,7 +456,9 @@ export default function NarrativeStep({
                     </div>
 
                     <p className="permission-alert-desc">
-                      Para dictar con tu voz, haz clic en el <strong>candado 🔒</strong> o ícono de ajustes ubicado arriba a la izquierda en la barra de tu navegador (junto a la dirección web) y cambia <strong>Micrófono</strong> a <strong>Permitir</strong>.
+                      Tu navegador guardó este sitio como <strong>Bloqueado</strong>. Por seguridad, Chrome y Edge <strong>no vuelven a mostrar la ventana emergente</strong> hasta que restablezcas el permiso:
+                      <br />
+                      👉 Haz clic en el <strong>candado 🔒</strong> o icono de ajustes arriba en la URL y pulsa <strong>&ldquo;Restablecer permisos&rdquo;</strong> o cambia Micrófono a <strong>Permitir</strong>.
                     </p>
 
                     <div className="permission-alert-actions">
@@ -428,7 +468,7 @@ export default function NarrativeStep({
                         onClick={() => setShowMicHelpModal(true)}
                       >
                         <HelpCircle size={14} />
-                        <span>Ver cómo activarlo paso a paso</span>
+                        <span>Ver cómo restablecerlo paso a paso</span>
                       </button>
 
                       <button
@@ -438,7 +478,7 @@ export default function NarrativeStep({
                         disabled={isRetryingMic}
                       >
                         <RotateCw size={13} className={isRetryingMic ? 'spin' : ''} />
-                        <span>{isRetryingMic ? 'Comprobando…' : 'Probar y activar micrófono'}</span>
+                        <span>{isRetryingMic ? 'Comprobando…' : 'Probar de nuevo'}</span>
                       </button>
                     </div>
                   </div>

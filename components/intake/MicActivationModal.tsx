@@ -153,7 +153,7 @@ export default function MicActivationModal({
                   <strong>1. Mira arriba a la izquierda:</strong> en la barra de tu navegador donde está la dirección web, haz clic en el ícono de <strong>candado 🔒</strong> o <strong>ajustes (🎛️)</strong>.
                 </li>
                 <li>
-                  <strong>2. Cambia el permiso:</strong> busca la opción <strong>Micrófono</strong> y cámbiala de &ldquo;Bloqueado&rdquo; a <strong>&ldquo;Permitir&rdquo;</strong> (o enciende el interruptor).
+                  <strong>2. Restablece o cambia el permiso:</strong> pulsa el botón <strong>&ldquo;Restablecer permisos&rdquo;</strong> (para que vuelva a salir la ventana flotante de confirmación) o cambia la opción <strong>Micrófono</strong> a <strong>&ldquo;Permitir&rdquo;</strong>.
                 </li>
                 <li>
                   <strong>3. Pulsa el botón abajo:</strong> haz clic en <strong>&ldquo;Probar micrófono ahora&rdquo;</strong> para empezar a dictar inmediatamente sin recargar.
