@@ -24,6 +24,7 @@ import SuccessStep from '../components/intake/SuccessStep';
 import CasePermissionsManager from '../components/intake/CasePermissionsManager';
 import AccessRequestModal from '../components/intake/AccessRequestModal';
 import IntakeProgress from '../components/intake/IntakeProgress';
+import MicActivationModal from '../components/intake/MicActivationModal';
 
 // 1. Engine & NLP Heuristics Tests
 test('NLP engine correctly categorizes a labor case', () => {
@@ -395,3 +396,21 @@ test('IntakeProgress renders interactive clickable step buttons for navigation',
   assert.ok(html.includes('Privacidad'));
   assert.ok(html.includes('Revisión'));
 });
+
+test('MicActivationModal renders step-by-step guidance for browser microphone permission', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(MicActivationModal, {
+      isOpen: true,
+      onClose: () => {},
+      onRetry: () => {}
+    })
+  );
+
+  assert.ok(html.includes('Cómo activar el micrófono para dictar'));
+  assert.ok(html.includes('Chrome / Edge / Brave'));
+  assert.ok(html.includes('Safari (Mac / iPad)'));
+  assert.ok(html.includes('Celular (Android / iPhone)'));
+  assert.ok(html.includes('Probar micrófono ahora'));
+  assert.ok(html.includes('Entendido, prefiero escribir'));
+});
+

@@ -12,8 +12,12 @@ import {
   EyeOff,
   FileText,
   AlertCircle,
-  X
+  X,
+  HelpCircle,
+  RotateCw,
+  Lock
 } from 'lucide-react';
+import MicActivationModal from './MicActivationModal';
 
 interface NarrativeStepProps {
   initialNarrative: string;
@@ -38,6 +42,8 @@ export default function NarrativeStep({
   const [interimText, setInterimText] = useState('');
   const [dictationNotice, setDictationNotice] = useState('');
   const [dictationError, setDictationError] = useState('');
+  const [showMicHelpModal, setShowMicHelpModal] = useState(false);
+  const [isRetryingMic, setIsRetryingMic] = useState(false);
   const [attachedCount, setAttachedCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -66,16 +72,12 @@ export default function NarrativeStep({
     setDictationNotice('');
   };
 
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      stopVoiceInput();
-      return;
-    }
-
+  const startSpeechRecognition = () => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+      setDictationNotice('');
       setDictationError(
         'Tu navegador actual no tiene activado el dictado por voz nativo. Puedes usar Google Chrome, Microsoft Edge o escribir tu caso aquí directamente.'
       );
@@ -102,6 +104,7 @@ export default function NarrativeStep({
 
       recognition.onstart = () => {
         setIsListening(true);
+        setDictationNotice('Escuchando... habla y tu voz se escribirá aquí');
       };
 
       recognition.onresult = (event: any) => {
@@ -133,10 +136,12 @@ export default function NarrativeStep({
 
       recognition.onerror = (event: any) => {
         const err = event.error;
+        setIsListening(false);
+        setInterimText('');
+        setDictationNotice(''); // Limpiar aviso para no mostrar "Escuchando..." si hay error
+
         if (err === 'not-allowed') {
-          setDictationError(
-            'Permiso de micrófono bloqueado. Activa el acceso al micrófono en los ajustes de tu navegador para poder dictar.'
-          );
+          setDictationError('not-allowed');
         } else if (err === 'no-speech') {
           setDictationNotice('No se detectó sonido. Vuelve a pulsar Dictar cuando quieras hablar.');
         } else if (err === 'network') {
@@ -144,21 +149,55 @@ export default function NarrativeStep({
         } else if (err !== 'aborted') {
           setDictationError(`Aviso de dictado (${err}). Puedes continuar escribiendo con normalidad.`);
         }
-        setIsListening(false);
-        setInterimText('');
       };
 
       recognition.onend = () => {
         setIsListening(false);
         setInterimText('');
+        setDictationNotice('');
       };
 
       recognitionRef.current = recognition;
       recognition.start();
     } catch (err: any) {
       setIsListening(false);
+      setDictationNotice('');
       setDictationError('No fue posible iniciar el micrófono. Puedes redactar tu caso aquí directamente.');
     }
+  };
+
+  const handleRetryMicPermission = async () => {
+    setIsRetryingMic(true);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // ¡Permiso concedido! Cerramos las pistas de audio de inmediato
+        stream.getTracks().forEach((track) => track.stop());
+        setDictationError('');
+        setDictationNotice('');
+        setShowMicHelpModal(false);
+        setIsRetryingMic(false);
+        // Iniciamos el reconocimiento por voz
+        startSpeechRecognition();
+        return;
+      }
+    } catch (err) {
+      // Sigue bloqueado en el navegador
+    }
+    setIsRetryingMic(false);
+    setShowMicHelpModal(true);
+  };
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      stopVoiceInput();
+      return;
+    }
+    if (dictationError === 'not-allowed') {
+      handleRetryMicPermission();
+      return;
+    }
+    startSpeechRecognition();
   };
 
   const handleDocumentPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -309,13 +348,55 @@ export default function NarrativeStep({
                   </div>
                 )}
 
-                {dictationNotice && !isListening && (
+                {dictationNotice && !isListening && !dictationError && (
                   <div className="dictation-notice-hint">
                     <span>{dictationNotice}</span>
                   </div>
                 )}
 
-                {dictationError && (
+                {dictationError === 'not-allowed' ? (
+                  <div className="dictation-permission-alert" role="alert">
+                    <div className="permission-alert-header">
+                      <div className="permission-alert-title-wrap">
+                        <AlertCircle size={16} className="permission-alert-icon" />
+                        <strong>Micrófono bloqueado en tu navegador</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="dismiss-hint-btn"
+                        onClick={() => setDictationError('')}
+                        aria-label="Cerrar aviso"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+
+                    <p className="permission-alert-desc">
+                      Para dictar con tu voz, haz clic en el <strong>candado 🔒</strong> o ícono de ajustes ubicado arriba a la izquierda en la barra de tu navegador (junto a la dirección web) y cambia <strong>Micrófono</strong> a <strong>Permitir</strong>.
+                    </p>
+
+                    <div className="permission-alert-actions">
+                      <button
+                        type="button"
+                        className="permission-help-btn"
+                        onClick={() => setShowMicHelpModal(true)}
+                      >
+                        <HelpCircle size={14} />
+                        <span>Ver cómo activarlo paso a paso</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="permission-retry-btn"
+                        onClick={handleRetryMicPermission}
+                        disabled={isRetryingMic}
+                      >
+                        <RotateCw size={13} className={isRetryingMic ? 'spin' : ''} />
+                        <span>{isRetryingMic ? 'Comprobando…' : 'Probar y activar micrófono'}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : dictationError ? (
                   <div className="dictation-error-hint" role="alert">
                     <AlertCircle size={14} className="error-icon" />
                     <span className="error-msg">{dictationError}</span>
@@ -328,7 +409,7 @@ export default function NarrativeStep({
                       <X size={12} />
                     </button>
                   </div>
-                )}
+                ) : null}
 
                 <textarea
                   id="narrative-input"
@@ -471,6 +552,14 @@ export default function NarrativeStep({
           </div>
         </div>
       </main>
+
+      {/* Mic Activation Help Modal */}
+      <MicActivationModal
+        isOpen={showMicHelpModal}
+        onClose={() => setShowMicHelpModal(false)}
+        onRetry={handleRetryMicPermission}
+        isRetrying={isRetryingMic}
+      />
     </div>
   );
 }
