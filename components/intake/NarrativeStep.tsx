@@ -147,8 +147,8 @@ export default function NarrativeStep({
 
         <div className="narrative-desk-image-wrap">
           <img
-            src="/auth-desk-scene.png"
-            alt="Ambiente de trabajo MatchJurídico"
+            src="/intake-situation-desk.png"
+            alt="Mesa de trabajo y códigos jurídicos MatchJurídico"
             className="narrative-desk-img"
           />
         </div>
