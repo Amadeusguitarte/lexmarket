@@ -166,12 +166,50 @@ export default function NarrativeStep({
     }
   };
 
-  const handleRetryMicPermission = async () => {
+  const handleRetryMicPermission = () => {
+    toggleVoiceInput();
+  };
+
+  const toggleVoiceInput = async () => {
+    if (isListening) {
+      stopVoiceInput();
+      return;
+    }
+
+    const SpeechRecognition =
+      typeof window !== 'undefined'
+        ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        : null;
+
+    if (!SpeechRecognition) {
+      setDictationNotice('');
+      setDictationError(
+        'Tu navegador actual no tiene activado el dictado por voz nativo. Puedes usar Google Chrome, Microsoft Edge o escribir tu caso aquí directamente.'
+      );
+      return;
+    }
+
+    // Comprobación de contexto seguro (HTTPS o localhost)
+    if (typeof window !== 'undefined' && window.isSecureContext === false) {
+      setDictationNotice('');
+      setDictationError(
+        'El navegador requiere una conexión segura (HTTPS o localhost) para permitir el acceso al micrófono.'
+      );
+      return;
+    }
+
     setIsRetryingMic(true);
+    setDictationError('');
+    setDictationNotice('El navegador está solicitando acceso al micrófono…');
+
+    // SOLICITAR DIRECTAMENTE AL NAVEGADOR CON getUserMedia:
+    // Esto es lo que fuerza a que aparezca la ventana flotante nativa del navegador:
+    // "¿Permitir que este sitio use el micrófono? [Permitir] [Bloquear]"
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // ¡Permiso concedido! Cerramos las pistas de audio de inmediato
+        // Permiso concedido por el usuario en la ventana nativa
+        // Cerramos de inmediato las pistas temporales para no retener el hardware
         stream.getTracks().forEach((track) => track.stop());
         setDictationError('');
         setDictationNotice('');
@@ -181,22 +219,17 @@ export default function NarrativeStep({
         startSpeechRecognition();
         return;
       }
-    } catch (err) {
-      // Sigue bloqueado en el navegador
+    } catch (err: any) {
+      console.warn('Permiso de micrófono no concedido en la ventana nativa:', err);
+      setIsListening(false);
+      setInterimText('');
+      setDictationNotice('');
+      setDictationError('not-allowed');
+      setIsRetryingMic(false);
+      return;
     }
-    setIsRetryingMic(false);
-    setShowMicHelpModal(true);
-  };
 
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      stopVoiceInput();
-      return;
-    }
-    if (dictationError === 'not-allowed') {
-      handleRetryMicPermission();
-      return;
-    }
+    setIsRetryingMic(false);
     startSpeechRecognition();
   };
 
@@ -322,9 +355,22 @@ export default function NarrativeStep({
                     className={`narrative-dictate-pill ${isListening ? 'active-listening' : ''}`}
                     onClick={toggleVoiceInput}
                     title={isListening ? 'Detener dictado' : 'Dictar por voz'}
+                    disabled={isRetryingMic}
                   >
-                    {isListening ? <MicOff size={14} /> : <Mic size={14} />}
-                    <span>{isListening ? 'Detener dictado' : 'Dictar'}</span>
+                    {isRetryingMic ? (
+                      <RotateCw size={14} className="spin" />
+                    ) : isListening ? (
+                      <MicOff size={14} />
+                    ) : (
+                      <Mic size={14} />
+                    )}
+                    <span>
+                      {isRetryingMic
+                        ? 'Solicitando permiso…'
+                        : isListening
+                        ? 'Detener dictado'
+                        : 'Dictar'}
+                    </span>
                   </button>
                 </div>
 
