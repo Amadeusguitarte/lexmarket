@@ -39,49 +39,49 @@ const STAGE_ASIDE_CONTENT: Record<
     eyebrow: 'MATCHJURÍDICO · ADMISIÓN',
     title: 'Tu situación.\nTú decides el ritmo.',
     subtitle: 'Un espacio pensado para entender lo que ocurrió sin tecnicismos ni formularios fríos.',
-    image: '/lexmarket-journey.webp'
+    image: '/intake-situation-desk.png'
   },
   narrative: {
     eyebrow: 'EN TUS PALABRAS',
     title: 'Tu situación.\nEn tus palabras.',
     subtitle: 'Explícanos lo que pasó tal como se lo contarías a alguien de confianza.',
-    image: '/hero/hero-tu-caso.png'
+    image: '/intake-situation-desk.png'
   },
   summary_review: {
     eyebrow: 'ASISTENCIA INTELIGENTE',
     title: 'Organizamos\ntu información.',
     subtitle: 'Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.',
-    image: '/intake-expediente.png?v=5'
+    image: '/intake-situation-desk.png'
   },
   clarification: {
     eyebrow: 'PRECISIÓN JURÍDICA',
     title: 'Algunos detalles\npara entender mejor tu caso.',
     subtitle: 'Preguntas adaptadas a tu situación concreta para conectar con el especialista adecuado.',
-    image: '/hero/hero-tutela.png'
+    image: '/intake-situation-desk.png'
   },
   evidence: {
     eyebrow: 'EXPEDIENTE PROTEGIDO',
     title: 'Documentos que\npueden ayudar.',
     subtitle: 'Sube contratos, cartas o comprobantes cuando quieras. Todo permanece privado.',
-    image: '/Privacidad/tarjeta 1.png'
+    image: '/intake-situation-desk.png'
   },
   parties: {
     eyebrow: 'CONFIDENCIALIDAD TOTAL',
     title: 'Información\nprivada.',
     subtitle: 'Tus datos de contacto y la contraparte se mantienen bajo reserva absoluta.',
-    image: '/Privacidad/Tarjeta 2.png'
+    image: '/intake-situation-desk.png'
   },
   review: {
     eyebrow: 'CONTROL ABSOLUTO',
     title: 'Revisa y decide\nqué compartir.',
     subtitle: 'Verifica la separación exacta entre lo que verán los abogados y tu esfera privada.',
-    image: '/honorarios/honorarios-base.png'
+    image: '/intake-situation-desk.png'
   },
   success: {
     eyebrow: 'CASO PUBLICADO',
     title: 'El siguiente paso,\nen buenas manos.',
     subtitle: 'Tu expediente anónimo ya está activo. Te notificaremos ante cualquier interés.',
-    image: '/lexmarket-journey.webp'
+    image: '/intake-situation-desk.png'
   }
 };
 

@@ -77,13 +77,10 @@ export default function SummaryReviewStep({
 
   return (
     <div className="intake-step summary-step">
-      <div className="step-header">
-        <span className="eyebrow">
-          <Sparkles size={14} className="sparkle-icon" /> ORGANIZAMOS TU INFORMACIÓN
-        </span>
-        <h1 className="editorial-headline">Esto es lo que entendimos.</h1>
-        <p className="step-sub">
-          Organizamos los puntos clave de tu relato para que ningún detalle se pierda. Revisa si todo es correcto o corrígelo con tranquilidad.
+      <div className="step-header summary-step-header">
+        <h1 className="editorial-headline summary-compact-title">Esto es lo que entendimos.</h1>
+        <p className="step-sub summary-compact-sub">
+          Revisa si los puntos clave son correctos o edita cualquier detalle antes de continuar.
         </p>
       </div>
 

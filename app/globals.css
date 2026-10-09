@@ -8319,37 +8319,23 @@ input.auth-input-control.with-trailing {
   margin: 0;
 }
 
-@keyframes folder-float-gentle {
-  0%, 100% {
-    transform: translateY(0) rotate(-1.5deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(0.5deg);
-  }
-}
-
 .aside-visual-wrapper {
   position: relative;
-  margin: 18px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-  pointer-events: none;
-  z-index: 10;
+  margin: 16px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  height: 140px;
+  box-shadow: 0 4px 16px rgba(44, 37, 38, 0.07);
+  border: 1px solid rgba(107, 45, 62, 0.09);
+  flex-shrink: 0;
 }
 
 .aside-atmospheric-img {
-  max-width: 195px;
-  max-height: 230px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 14px 28px rgba(60, 35, 45, 0.16));
-  animation: folder-float-gentle 5s ease-in-out infinite;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 65%;
   display: block;
-  position: relative;
-  z-index: 10;
 }
 
 .aside-bottom {
@@ -8370,7 +8356,7 @@ input.auth-input-control.with-trailing {
 }
 
 .intake-private-notice .lock-icon {
-  color: var(--purple);
+  color: #6b2d3e;
   flex-shrink: 0;
 }
 
@@ -8386,7 +8372,7 @@ input.auth-input-control.with-trailing {
 .intake-scroll-content {
   flex: 1;
   overflow-y: auto;
-  padding: 32px 40px 40px;
+  padding: 24px 36px 36px;
   overscroll-behavior: contain;
 }
 
@@ -8780,10 +8766,30 @@ input.auth-input-control.with-trailing {
 /* =========================================================================
    STAGE 2: AI SUMMARY & CORRECTION
    ========================================================================= */
+.summary-step-header {
+  margin-bottom: 14px;
+}
+
+.summary-compact-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 25px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.summary-compact-sub {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #635764;
+  margin: 0;
+}
+
 .extracted-overview-card {
   background: white;
   border: 1px solid #e5dbcd;
-  border-radius: 22px;
+  border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 6px 26px rgba(44, 37, 38, 0.04);
 }
@@ -8791,7 +8797,7 @@ input.auth-input-control.with-trailing {
 .summary-category-bar.compact-view {
   background: #fdfaf6;
   border-bottom: 1px solid #ebdcef;
-  padding: 20px 26px;
+  padding: 14px 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -9053,17 +9059,17 @@ input.auth-input-control.with-trailing {
 }
 
 .summary-details-list {
-  padding: 24px 26px;
+  padding: 16px 22px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 13px;
 }
 
 .summary-field-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 18px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #f0e6d8;
   gap: 16px;
 }
@@ -9074,25 +9080,25 @@ input.auth-input-control.with-trailing {
 }
 
 .field-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .field-value {
-  font-size: 14.5px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--ink);
   margin: 0;
 }
 
 .small-edit {
   font-size: 12px;
-  color: var(--purple);
+  color: #6b2d3e;
   padding: 4px 8px;
   border-radius: 6px;
   white-space: nowrap;
@@ -9125,16 +9131,16 @@ input.auth-input-control.with-trailing {
 .summary-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding-bottom: 18px;
+  gap: 12px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #f0e6d8;
 }
 
 .summary-field-box {
   background: #fbf8f3;
   border: 1px solid #ede1d0;
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 10px 14px;
 }
 
 .box-header {
@@ -9216,6 +9222,11 @@ input.auth-input-control.with-trailing {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.intake-step-nav.summary-nav {
+  margin-top: 18px;
+  padding-top: 16px;
 }
 
 /* Category Selection Modal */
