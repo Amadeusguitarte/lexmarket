@@ -8319,6 +8319,15 @@ input.auth-input-control.with-trailing {
   margin: 0;
 }
 
+@keyframes folder-float-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(-1.2deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(0.8deg);
+  }
+}
+
 .intake-aside.redesign-aside .aside-visual-wrapper,
 .aside-visual-wrapper {
   position: relative;
@@ -8343,7 +8352,7 @@ input.auth-input-control.with-trailing {
   width: auto !important;
   max-width: 250px !important;
   height: auto !important;
-  max-height: 310px !important;
+  max-height: 305px !important;
   margin: 0 auto !important;
   aspect-ratio: auto !important;
   object-fit: contain !important;
@@ -8353,6 +8362,8 @@ input.auth-input-control.with-trailing {
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  animation: folder-float-gentle 5.5s ease-in-out infinite !important;
+  will-change: transform !important;
 }
 
 .aside-bottom {
