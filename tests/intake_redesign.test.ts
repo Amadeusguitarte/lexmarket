@@ -25,6 +25,7 @@ import CasePermissionsManager from '../components/intake/CasePermissionsManager'
 import AccessRequestModal from '../components/intake/AccessRequestModal';
 import IntakeProgress from '../components/intake/IntakeProgress';
 import MicActivationModal from '../components/intake/MicActivationModal';
+import PublishAuthModal from '../components/intake/PublishAuthModal';
 
 // 1. Engine & NLP Heuristics Tests
 test('NLP engine correctly categorizes a labor case', () => {
@@ -442,5 +443,57 @@ test('MicActivationModal renders step-by-step guidance for browser microphone pe
   assert.ok(html.includes('Celular (Android / iPhone)'));
   assert.ok(html.includes('Probar micrófono ahora'));
   assert.ok(html.includes('Entendido, prefiero escribir'));
+});
+
+test('PublishAuthModal renders custom case publishing account creation modal matching design', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(PublishAuthModal, {
+      isOpen: true,
+      onClose: () => {},
+      onSuccess: () => {},
+      initialEmail: 'cliente@ejemplo.com',
+      publicationData: {
+        title: 'Caso de prueba',
+        category: 'Laboral'
+      }
+    })
+  );
+
+  // Left column copy matching user mockup
+  assert.ok(html.includes('TU CASO ESTÁ LISTO —'));
+  assert.ok(html.includes('Crea tu cuenta'));
+  assert.ok(html.includes('para publicar'));
+  assert.ok(html.includes('tu caso.'));
+  assert.ok(html.includes('Tu información ya está guardada.'));
+
+  // 3 trust cards matching user mockup
+  assert.ok(html.includes('No perderás lo que ya completaste'));
+  assert.ok(html.includes('Tu caso está guardado de forma segura.'));
+  assert.ok(html.includes('Tu caso seguirá privado'));
+  assert.ok(html.includes('Solo se compartirá cuando confirmes la publicación.'));
+  assert.ok(html.includes('Podrás editarlo después'));
+  assert.ok(html.includes('Podrás hacer cambios en cualquier momento.'));
+
+  // Right column form & actions
+  assert.ok(html.includes('Continuar con Google'));
+  assert.ok(html.includes('o crea tu cuenta con tu correo'));
+  assert.ok(html.includes('Correo electrónico'));
+  assert.ok(html.includes('cliente@ejemplo.com'));
+  assert.ok(html.includes('Contraseña'));
+  assert.ok(html.includes('Crear cuenta y publicar'));
+  assert.ok(html.includes('¿Ya tienes cuenta?'));
+  assert.ok(html.includes('Inicia sesión'));
+});
+
+test('PublishAuthModal does not render when isOpen is false', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(PublishAuthModal, {
+      isOpen: false,
+      onClose: () => {},
+      onSuccess: () => {}
+    })
+  );
+
+  assert.equal(html, '');
 });
 

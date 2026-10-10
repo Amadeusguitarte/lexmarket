@@ -23,6 +23,7 @@ import DocumentsStep from './intake/DocumentsStep';
 import PrivatePartiesStep from './intake/PrivatePartiesStep';
 import PublishReviewStep from './intake/PublishReviewStep';
 import SuccessStep from './intake/SuccessStep';
+import PublishAuthModal from './intake/PublishAuthModal';
 
 interface CaseIntakeProps {
   onClose: () => void;
@@ -123,6 +124,8 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   const [urgency, setUrgency] = useState<'normal' | 'soon' | 'urgent'>('normal');
   const [caseId, setCaseId] = useState<string | undefined>(undefined);
   const [completedStages, setCompletedStages] = useState<Set<IntakeStage>>(new Set());
+  const [showPublishAuthModal, setShowPublishAuthModal] = useState(false);
+  const [pendingPublicationData, setPendingPublicationData] = useState<Record<string, string> | null>(null);
 
   // Intelligent check whether a given stage has actually been completed
   const isStageCompleted = (stg: IntakeStage): boolean => {
@@ -432,10 +435,36 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
 
       // Persist to IndexedDB
       await persistDraft('review');
+      setPendingPublicationData(publicationData);
+
+      // If user is not signed in, show PublishAuthModal right over the case review screen!
+      if (!signedIn) {
+        setShowPublishAuthModal(true);
+        setBusy(false);
+        return;
+      }
 
       // Forward to parent case publisher
       await onReady(publicationData);
 
+      setStage('success');
+    } catch (err: any) {
+      setError(err.message || 'No se pudo publicar el caso. Por favor revisa la información.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handlePublishAuthSuccess = async () => {
+    setShowPublishAuthModal(false);
+    const dataToPublish = pendingPublicationData;
+    if (!dataToPublish) return;
+
+    setBusy(true);
+    setError('');
+    try {
+      await persistDraft('review');
+      await onReady(dataToPublish);
       setStage('success');
     } catch (err: any) {
       setError(err.message || 'No se pudo publicar el caso. Por favor revisa la información.');
@@ -673,6 +702,16 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
             )}
           </div>
         </div>
+      )}
+
+      {showPublishAuthModal && (
+        <PublishAuthModal
+          isOpen={showPublishAuthModal}
+          initialEmail={privateData.email || ''}
+          publicationData={pendingPublicationData}
+          onClose={() => setShowPublishAuthModal(false)}
+          onSuccess={handlePublishAuthSuccess}
+        />
       )}
     </dialog>
   );
