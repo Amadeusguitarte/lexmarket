@@ -41,11 +41,11 @@ test('signed-in welcome renders DashboardSkeleton during initial load to prevent
  assert.equal(doc.querySelector('.stat-grid'),null);
 });
 
-test('ClientAdaptiveDashboard renders State C when loaded and user has no cases',async()=>{
+test('ClientAdaptiveDashboard renders Option 1 (Usuario nuevo sin casos)',async()=>{
  const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
  const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
    loading:false,
-   user:{id:'test',name:'Louis Amadeus'},
+   user:{id:'test',name:'Louis Arteaga'},
    items:[],
    draftCase:null,
    onOpenCase:()=>{},
@@ -55,16 +55,21 @@ test('ClientAdaptiveDashboard renders State C when loaded and user has no cases'
  }));
  const doc=new JSDOM(html).window.document;
  assert.equal(doc.querySelector('.adaptive-state-bar'),null);
- assert.match(doc.querySelector('.empty-hero-headline')!.textContent!,/Todo empieza con tu situación/);
- assert.ok(doc.querySelector('img[src="/intake-situation-desk.webp"]'));
+ assert.match(doc.querySelector('.hero-headline')!.textContent!,/¿En qué podemos ayudarte hoy\?/);
+ assert.match(doc.querySelector('.status-box-headline')!.textContent!,/Todavía no has publicado tu caso/);
+ assert.match(doc.querySelector('.status-empty-box .button-burgundy')!.textContent!,/Empezar mi caso/);
+ assert.ok(doc.querySelector('.empty-activity-box'));
+ assert.match(doc.querySelector('.section-title')!.textContent!,/Abogados destacados/);
+ assert.ok(doc.querySelector('.match-assistant-card'));
+ assert.ok(doc.querySelector('.legal-resources-section'));
 });
 
-test('ClientAdaptiveDashboard automatically recognizes draft state without switcher bar',async()=>{
+test('ClientAdaptiveDashboard renders Option 2 (Borrador en progreso) with 5-step stepper',async()=>{
  const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
  const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
-   user:{id:'test',name:'Louis Amadeus'},
+   user:{id:'test',name:'Louis Arteaga'},
    items:[],
-   draftCase:{title:'Incumplimiento de contrato de arrendamiento',category:'Civil y contractual',city:'Bogotá'},
+   draftCase:{title:'Incumplimiento de contrato de arrendamiento',category:'Arrendamientos',city:'Bogotá',summary:'Detalle de la situación'},
    onOpenCase:()=>{},
    onContinueDraft:()=>{},
    onCreateCase:()=>{},
@@ -72,42 +77,54 @@ test('ClientAdaptiveDashboard automatically recognizes draft state without switc
  }));
  const doc=new JSDOM(html).window.document;
  assert.equal(doc.querySelector('.adaptive-state-bar'),null);
- assert.match(doc.querySelector('.editorial-greeting')!.textContent!,/Buenos días, Louis/);
- assert.ok(doc.querySelector('.card-draft-theme'));
- assert.match(doc.querySelector('.hero-case-title')!.textContent!,/Incumplimiento de contrato/);
- assert.ok(doc.querySelector('.fill-burgundy'));
- assert.equal(doc.querySelectorAll('.metric-box-card').length,4);
+ assert.ok(doc.querySelector('.status-draft-stepper-box'));
+ assert.match(doc.querySelector('.status-badge-inline')!.textContent!,/Tienes un borrador en progreso/);
+ assert.ok(doc.querySelector('.horizontal-stepper-track'));
+ assert.equal(doc.querySelectorAll('.horizontal-stepper-track .stepper-step').length,5);
+ assert.match(doc.querySelector('.button-burgundy')!.textContent!,/Continuar mi caso/);
+ assert.match(doc.querySelector('.section-title')!.textContent!,/Abogados recomendados para tu caso/);
 });
 
-test('ClientAdaptiveDashboard automatically recognizes published and engaged states',async()=>{
+test('ClientAdaptiveDashboard renders Option 3 (Caso publicado recibiendo propuestas)',async()=>{
  const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
- // Published case
- const pubHtml=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
-   user:{id:'test',name:'Louis Amadeus'},
-   items:[{id:'pub-1',status:'published',title:'Caso laboral publicado',category:'Laboral',city:'Medellín'} as any],
+ const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   user:{id:'test',name:'Louis Arteaga'},
+   items:[{id:'pub-1',status:'published',title:'Incumplimiento de contrato de arrendamiento',category:'Arrendamientos',city:'Bogotá'} as any],
    onOpenCase:()=>{},
    onContinueDraft:()=>{},
    onCreateCase:()=>{},
    onNavigate:()=>{}
  }));
- const pubDoc=new JSDOM(pubHtml).window.document;
- assert.equal(pubDoc.querySelector('.adaptive-state-bar'),null);
- assert.ok(pubDoc.querySelector('.card-published-theme'));
- assert.match(pubDoc.querySelector('.hero-case-title')!.textContent!,/Caso laboral publicado/);
+ const doc=new JSDOM(html).window.document;
+ assert.equal(doc.querySelector('.adaptive-state-bar'),null);
+ assert.ok(doc.querySelector('.status-published-stepper-box'));
+ assert.match(doc.querySelector('.status-pill-green')!.textContent!,/Publicado/);
+ assert.ok(doc.querySelector('.stepper-dot-badge'));
+ assert.equal(doc.querySelector('.stepper-dot-badge')!.textContent!,'3');
+ assert.match(doc.querySelector('.status-published-stepper-box .button-burgundy')!.textContent!,/Ver mi caso/);
+ assert.ok(doc.querySelector('.lawyer-actions-btns'));
+});
 
- // Engaged case
- const engHtml=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
-   user:{id:'test',name:'Louis Amadeus'},
-   items:[{id:'eng-1',status:'engaged',title:'Caso en acompañamiento',category:'Civil',city:'Bogotá'} as any],
+test('ClientAdaptiveDashboard renders Option 4 (Caso en curso con abogado elegido)',async()=>{
+ const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
+ const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   user:{id:'test',name:'Louis Arteaga'},
+   items:[{id:'eng-1',status:'engaged',title:'Incumplimiento de contrato de arrendamiento',category:'Arrendamientos',city:'Bogotá'} as any],
    onOpenCase:()=>{},
    onContinueDraft:()=>{},
    onCreateCase:()=>{},
    onNavigate:()=>{}
  }));
- const engDoc=new JSDOM(engHtml).window.document;
- assert.equal(engDoc.querySelector('.adaptive-state-bar'),null);
- assert.ok(engDoc.querySelector('.card-advising-theme'));
- assert.match(engDoc.querySelector('.hero-case-title')!.textContent!,/Caso en acompañamiento/);
+ const doc=new JSDOM(html).window.document;
+ assert.equal(doc.querySelector('.adaptive-state-bar'),null);
+ assert.ok(doc.querySelector('.in-progress-full-card'));
+ assert.match(doc.querySelector('.status-case-name')!.textContent!,/Incumplimiento de contrato/);
+ assert.match(doc.querySelector('.status-assigned-sub')!.textContent!,/Abogado asignado: Andrea Gómez/);
+ assert.ok(doc.querySelector('.in-progress-details-grid'));
+ assert.ok(doc.querySelector('.lawyer-assigned-panel'));
+ assert.ok(doc.querySelector('.pill-en-curso'));
+ assert.ok(doc.querySelector('.next-steps-panel'));
+ assert.ok(doc.querySelector('.case-documents-panel'));
 });
 
 test('profile view allows changing photo or leaving anonymous without hardcoded google phrase',async()=>{

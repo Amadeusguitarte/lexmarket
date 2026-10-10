@@ -1,24 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
+  Search,
+  ArrowRight,
   FileText,
+  Check,
   Users,
   MessageCircle,
   FolderOpen,
-  ArrowRight,
-  ListChecks,
-  Check,
-  Scale,
   Calendar,
   Clock,
-  MoreVertical,
-  Eye,
-  CheckSquare,
+  Sparkles,
+  Star,
   ShieldCheck,
-  UserCheck,
-  ChevronRight,
-  Sparkles
+  CheckCircle2,
+  Send,
+  Compass,
+  Lock,
+  Plus,
+  Eye,
+  AlertCircle
 } from 'lucide-react';
 import type { Row } from './Forms';
 
@@ -87,773 +89,1051 @@ export default function ClientAdaptiveDashboard({
     activeMode = 'empty';
   }
 
-  const firstName = user.name ? user.name.split(' ')[0] : 'Louis';
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      onNavigate('cases');
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    onNavigate('cases');
+  };
 
   return (
-    <div className="adaptive-dashboard-root">
-      {/* RENDER DYNAMIC DASHBOARD MATCHING USER REAL STATUS */}
+    <div className="client-landing-root">
+      {/* 1. HERO SEARCH BANNER (COMMON TO ALL 4 STATES) */}
+      <section className="client-hero-split-banner" aria-label="Búsqueda y bienvenida">
+        <div className="hero-banner-left">
+          <span className="hero-overline">TU PLATAFORMA LEGAL</span>
+          <h1 className="hero-headline">¿En qué podemos ayudarte hoy?</h1>
+          <p className="hero-subtext">
+            Encuentra abogados, resuelve tus dudas y avanza tu caso, todo en un mismo lugar.
+          </p>
+
+          <form className="hero-search-wrapper" onSubmit={handleSearch}>
+            <Search size={18} className="hero-search-icon" />
+            <input
+              type="text"
+              className="hero-search-input"
+              placeholder="Busca abogados, especialidades o temas legales..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Buscar abogados, especialidades o temas legales"
+            />
+            <button type="submit" className="hero-search-submit" aria-label="Buscar">
+              <ArrowRight size={17} />
+            </button>
+          </form>
+
+          <div className="hero-category-chips">
+            {[
+              'Derecho civil',
+              'Arrendamientos',
+              'Derecho laboral',
+              'Familia',
+              'Contratos',
+              'Vivienda',
+              'Herencias'
+            ].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className="hero-cat-chip"
+                onClick={() => handleCategoryClick(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="hero-cat-chip view-all-chip"
+              onClick={() => onNavigate('cases')}
+            >
+              Ver todas →
+            </button>
+          </div>
+        </div>
+
+        <div className="hero-banner-right">
+          <div className="hero-right-overlay">
+            <h2 className="hero-right-title">
+              Personas reales.<br />
+              Soluciones reales.
+            </h2>
+            <p className="hero-right-sub">
+              Conecta con abogados especializados en todo Colombia.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. CENTRAL STATUS SECTION (ADAPTS ACCORDING TO USER STATE) */}
+      {activeMode === 'empty' && (
+        <EmptyStateLandingArea
+          onCreateCase={onCreateCase}
+          onNavigate={onNavigate}
+          onOpenChat={onOpenChat}
+        />
+      )}
+
       {activeMode === 'draft' && (
-        <DraftDashboardView
-          firstName={firstName}
-          draftCase={activeDraft}
-          itemsCount={items.length}
+        <DraftStateLandingArea
+          activeDraft={activeDraft}
           onContinueDraft={draftItem ? () => onOpenCase(draftItem.id) : onContinueDraft}
           onNavigate={onNavigate}
+          onOpenChat={onOpenChat}
         />
       )}
 
       {activeMode === 'published' && (
-        <PublishedDashboardView
-          activeCase={publishedCase || items[0] || null}
+        <PublishedStateLandingArea
+          publishedCase={publishedCase || items[0] || null}
           onOpenCase={onOpenCase}
           onNavigate={onNavigate}
           onOpenChat={onOpenChat}
         />
       )}
 
-      {activeMode === 'empty' && (
-        <EmptyDashboardView
-          onCreateCase={onCreateCase}
+      {activeMode === 'in_progress' && (
+        <InProgressStateLandingArea
+          inProgressCase={inProgressCase || items[0] || null}
+          onOpenCase={onOpenCase}
           onNavigate={onNavigate}
+          onOpenChat={onOpenChat}
         />
       )}
 
-      {activeMode === 'in_progress' && (
-        <InProgressDashboardView
-          activeCase={inProgressCase || items[0] || null}
-          onOpenCase={onOpenCase}
-          onNavigate={onNavigate}
-        />
-      )}
+      {/* 3. RECURSOS PARA TI (COMMON ARTICLE CARDS ROW) */}
+      <section className="legal-resources-section" aria-labelledby="resources-heading">
+        <div className="section-header-row">
+          <h3 id="resources-heading" className="section-title">Recursos para ti</h3>
+          <button type="button" className="section-link-button" onClick={() => onNavigate('cases')}>
+            Ver todos los artículos →
+          </button>
+        </div>
+
+        <div className="resources-cards-grid">
+          <article className="resource-card" onClick={() => onNavigate('cases')}>
+            <div className="resource-thumb-box thumb-deposito">
+              <span className="resource-tag">ARRENDAMIENTOS</span>
+            </div>
+            <div className="resource-info">
+              <h4>¿Qué hacer si el arrendador no devuelve el depósito?</h4>
+              <span className="resource-reading-time">6 min de lectura</span>
+            </div>
+          </article>
+
+          <article className="resource-card" onClick={() => onNavigate('cases')}>
+            <div className="resource-thumb-box thumb-contrato">
+              <span className="resource-tag">CONTRATOS</span>
+            </div>
+            <div className="resource-info">
+              <h4>Cómo revisar un contrato antes de firmarlo</h4>
+              <span className="resource-reading-time">4 min de lectura</span>
+            </div>
+          </article>
+
+          <article className="resource-card" onClick={() => onNavigate('cases')}>
+            <div className="resource-thumb-box thumb-proceso">
+              <span className="resource-tag">PROCESOS</span>
+            </div>
+            <div className="resource-info">
+              <h4>¿Cuánto dura un proceso civil en Colombia?</h4>
+              <span className="resource-reading-time">5 min de lectura</span>
+            </div>
+          </article>
+
+          <article className="resource-card" onClick={() => onNavigate('cases')}>
+            <div className="resource-thumb-box thumb-derechos">
+              <span className="resource-tag">VIVIENDA</span>
+            </div>
+            <div className="resource-info">
+              <h4>Derechos del arrendatario en Colombia</h4>
+              <span className="resource-reading-time">7 min de lectura</span>
+            </div>
+          </article>
+        </div>
+      </section>
     </div>
   );
 }
 
 /* =========================================================================================
- * VARIANT A: Usuario con borrador (como tu caso)
+ * OPTION 1: Usuario nuevo (sin casos)
  * ========================================================================================= */
-function DraftDashboardView({
-  firstName,
-  draftCase,
-  itemsCount = 1,
-  onContinueDraft,
-  onNavigate
+function EmptyStateLandingArea({
+  onCreateCase,
+  onNavigate,
+  onOpenChat
 }: {
-  firstName: string;
-  draftCase?: { title?: string; category?: string; city?: string; summary?: string } | null;
-  itemsCount?: number;
-  onContinueDraft: () => void;
+  onCreateCase: () => void;
   onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
+  onOpenChat?: (caseId: string, lawyerId: string) => void;
 }) {
-  const caseTitle = draftCase?.title || 'Incumplimiento de contrato de arrendamiento';
-  const categoryAndCity = `${draftCase?.category || 'Civil y contractual'} · ${draftCase?.city || 'Bogotá'}`;
-
   return (
-    <div className="dashboard-content-flow state-draft-layout">
-      {/* Greeting Header */}
-      <header className="dashboard-view-header">
-        <h1 className="editorial-greeting">Buenos días, {firstName}.</h1>
-        <p className="editorial-sub">Continúa donde lo dejaste.</p>
-      </header>
-
-      {/* Hero Banner: Caso en preparación */}
-      <section className="hero-status-card card-draft-theme" aria-label="Caso en preparación">
-        <div className="hero-status-main">
-          <div className="hero-status-icon-wrap">
-            <div className="icon-rounded-box coral-tint">
-              <FileText size={22} className="coral-icon" />
+    <>
+      <div className="landing-status-split-row">
+        {/* Left Status Banner */}
+        <div className="landing-status-box status-empty-box">
+          <div className="status-box-main">
+            <div className="status-icon-circle coral-tint">
+              <FileText size={20} className="coral-icon" />
+            </div>
+            <div className="status-box-copy">
+              <h2 className="status-box-headline">Todavía no has publicado tu caso</h2>
+              <p className="status-box-desc">
+                Cuéntanos tu situación y te ayudamos a conectarte con los abogados más adecuados.
+              </p>
+              <button type="button" className="button button-burgundy" onClick={onCreateCase}>
+                Empezar mi caso →
+              </button>
             </div>
           </div>
+          <div className="status-box-art">
+            <img src="/intake-situation-desk.webp" alt="Expediente" className="status-art-img" />
+          </div>
+        </div>
 
-          <div className="hero-status-details">
-            <span className="status-badge-overline coral-overline">
-              CASO EN PREPARACIÓN
-            </span>
-            <h2 className="hero-case-title">{caseTitle}</h2>
-            <p className="hero-case-meta">{categoryAndCity}</p>
-
-            <div className="progress-section-block">
-              <div className="progress-label-row">
-                <span className="steps-count-label">4 de 5 pasos completados</span>
-              </div>
-              <div className="progress-bar-track">
-                <div className="progress-bar-fill fill-burgundy" style={{ width: '80%' }} />
-              </div>
-              <p className="progress-helper-text">Te falta revisar el resumen antes de publicarlo.</p>
+        {/* Right Activity Banner */}
+        <div className="landing-activity-box empty-activity-box">
+          <div className="activity-box-header">
+            <h3>Actividad reciente</h3>
+          </div>
+          <div className="empty-activity-content">
+            <div className="empty-activity-icon-sq">
+              <Clock size={20} />
             </div>
+            <h4>Aún no tienes actividad</h4>
+            <p>Tu actividad aparecerá aquí cuando comiences un caso.</p>
           </div>
         </div>
+      </div>
 
-        <div className="hero-status-actions">
-          <button type="button" className="button button-burgundy" onClick={onContinueDraft}>
-            Continuar mi caso <ArrowRight size={17} />
-          </button>
-          <button type="button" className="text-button quiet-resume-link" onClick={onContinueDraft}>
-            Ver resumen
-          </button>
-          <button type="button" className="icon-button options-dots-btn" aria-label="Opciones del caso">
-            <MoreVertical size={18} />
-          </button>
-        </div>
-      </section>
-
-      {/* Metric Cards Row */}
-      <section className="dashboard-metrics-grid" aria-label="Métricas del espacio">
-        <div className="metric-box-card" onClick={() => onNavigate('cases')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FolderOpen size={18} /></div>
-            <span className="metric-card-title">Tus casos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">{itemsCount}</span>
-            <span className="metric-unit-label">{itemsCount === 1 ? 'borrador' : 'borradores'}</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card">
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><Users size={18} /></div>
-            <span className="metric-card-title">Propuestas</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">0</span>
-            <span className="metric-unit-label">aún</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={() => onNavigate('messages')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq red-sq"><MessageCircle size={18} /></div>
-            <span className="metric-card-title">Mensajes</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value text-red">2</span>
-            <span className="metric-unit-label">sin leer</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card" onClick={() => onNavigate('cases')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FileText size={18} /></div>
-            <span className="metric-card-title">Documentos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">5</span>
-            <span className="metric-unit-label">guardados</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom 2-Column Split */}
-      <div className="dashboard-bottom-columns">
-        {/* Left Column: Actividad reciente */}
-        <section className="dashboard-panel-card activity-panel" aria-labelledby="activity-heading">
-          <div className="panel-card-header">
-            <h3 id="activity-heading">Actividad reciente</h3>
-            <button type="button" className="text-button header-inline-link" onClick={() => onNavigate('cases')}>
-              Ver toda la actividad <ArrowRight size={14} />
+      {/* Lawyers & Assistant Row */}
+      <div className="lawyers-assistant-split-row">
+        <div className="lawyers-column-content">
+          <div className="section-header-row">
+            <div>
+              <h3 className="section-title">Abogados destacados</h3>
+              <p className="section-subtitle">
+                Profesionales verificados, con experiencia real en diferentes áreas del derecho.
+              </p>
+            </div>
+            <button type="button" className="section-link-button" onClick={() => onNavigate('cases')}>
+              Ver todos los abogados →
             </button>
           </div>
 
-          <div className="activity-timeline-list">
-            <div className="activity-item-row">
-              <span className="activity-bullet orange-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p><strong>Contrato_arrendamiento.pdf</strong> fue añadido a tu expediente</p>
-              </div>
-              <time className="activity-row-time">5:12 p. m.</time>
-            </div>
-
-            <div className="activity-item-row">
-              <span className="activity-bullet orange-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p>Tú editaste el caso</p>
-              </div>
-              <time className="activity-row-time">4:30 p. m.</time>
-            </div>
-
-            <div className="activity-item-row">
-              <span className="activity-bullet orange-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p>Borrador guardado automáticamente</p>
-              </div>
-              <time className="activity-row-time">2:18 p. m.</time>
-            </div>
+          <div className="lawyer-cards-grid">
+            <LawyerCard
+              name="Andrea Gómez"
+              photo="/lawyers/valentina.png"
+              rating="4.9 (27 reseñas)"
+              tags={['Civil', 'Arrendamientos', 'Contratos']}
+              location="Bogotá"
+              price="Desde $150,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
+            <LawyerCard
+              name="Carlos Restrepo"
+              photo="/lawyers/camilo-restrepo.jpg"
+              rating="4.8 (19 reseñas)"
+              tags={['Contratos', 'Civil', 'Solución de conflictos']}
+              location="Bogotá"
+              price="Desde $120,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
+            <LawyerCard
+              name="María Fernanda Díaz"
+              photo="/lawyers/maria-fernanda.png"
+              rating="4.9 (34 reseñas)"
+              tags={['Vivienda', 'Arrendamientos', 'Inmobiliario']}
+              location="Bogotá"
+              price="Desde $180,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
           </div>
-        </section>
+        </div>
 
-        {/* Right Column: Próximo paso */}
-        <section className="dashboard-panel-card next-step-panel warm-cream-panel" aria-labelledby="next-step-heading">
-          <div className="next-step-top">
-            <div className="next-step-icon-box">
-              <ListChecks size={22} className="next-step-icon" />
-            </div>
-            <div>
-              <span className="next-step-eyebrow">Próximo paso</span>
-              <h3 id="next-step-heading" className="next-step-title">Revisa el resumen de tu caso.</h3>
-            </div>
-          </div>
-
-          <p className="next-step-desc">
-            Verifica la información y los documentos antes de publicarlo.
-          </p>
-
-          <button type="button" className="button button-burgundy full-width-btn" onClick={onContinueDraft}>
-            Revisar y publicar <ArrowRight size={17} />
-          </button>
-        </section>
+        <div className="assistant-column-content">
+          <MatchAssistantWidget
+            title="¿En qué necesitas ayuda?"
+            chips={[
+              '¿Cómo empiezo un caso?',
+              '¿Qué documentos necesito?',
+              '¿Cuánto puede costar?',
+              '¿Qué abogado es mejor para mi caso?'
+            ]}
+            onNavigate={onNavigate}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 /* =========================================================================================
- * VARIANT B: Usuario con caso publicado y propuestas
+ * OPTION 2: Borrador en progreso
  * ========================================================================================= */
-function PublishedDashboardView({
-  activeCase,
+function DraftStateLandingArea({
+  activeDraft,
+  onContinueDraft,
+  onNavigate,
+  onOpenChat
+}: {
+  activeDraft?: { title?: string; category?: string; city?: string; summary?: string } | null;
+  onContinueDraft: () => void;
+  onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
+  onOpenChat?: (caseId: string, lawyerId: string) => void;
+}) {
+  return (
+    <>
+      <div className="landing-status-split-row">
+        {/* Left Status Banner with 5-Step Stepper */}
+        <div className="landing-status-box status-draft-stepper-box">
+          <div className="status-box-main-col">
+            <div className="status-badge-inline">
+              <FileText size={16} className="coral-icon" />
+              <span>Tienes un borrador en progreso</span>
+            </div>
+            <p className="status-box-desc">
+              Retoma la información de tu caso y complétalo cuando quieras. Te guardamos tu avance.
+            </p>
+
+            {/* Horizontal Stepper: Situación, Detalles, Documentos, Revisión, Publicación */}
+            <div className="horizontal-stepper-track">
+              <div className="stepper-step completed">
+                <div className="stepper-dot"><Check size={12} /></div>
+                <span className="stepper-label">Situación</span>
+              </div>
+              <div className="stepper-line completed" />
+              <div className="stepper-step completed">
+                <div className="stepper-dot"><Check size={12} /></div>
+                <span className="stepper-label">Detalles</span>
+              </div>
+              <div className="stepper-line completed" />
+              <div className="stepper-step active">
+                <div className="stepper-dot"><span className="inner-dot" /></div>
+                <span className="stepper-label">Documentos</span>
+              </div>
+              <div className="stepper-line" />
+              <div className="stepper-step">
+                <div className="stepper-dot" />
+                <span className="stepper-label">Revisión</span>
+              </div>
+              <div className="stepper-line" />
+              <div className="stepper-step">
+                <div className="stepper-dot" />
+                <span className="stepper-label">Publicación</span>
+              </div>
+            </div>
+
+            <div className="status-action-btns-row">
+              <button type="button" className="button button-burgundy" onClick={onContinueDraft}>
+                Continuar mi caso →
+              </button>
+              <button type="button" className="text-button text-link-quiet" onClick={onContinueDraft}>
+                Ver borrador
+              </button>
+            </div>
+          </div>
+          <div className="status-box-art">
+            <img src="/intake-situation-desk.webp" alt="Borrador" className="status-art-img" />
+          </div>
+        </div>
+
+        {/* Right Activity Banner */}
+        <div className="landing-activity-box">
+          <div className="activity-box-header">
+            <h3>Actividad reciente</h3>
+          </div>
+          <div className="activity-list-stack">
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq"><FolderOpen size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Borrador guardado</strong>
+                <p>Guardaste cambios en tu caso.</p>
+              </div>
+              <span className="activity-row-time">Hace 1 h</span>
+            </div>
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq"><FileText size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Documento adjuntado</strong>
+                <p>Contrato_arrendamiento.pdf</p>
+              </div>
+              <span className="activity-row-time">Hace 3 h</span>
+            </div>
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq"><CheckCircle2 size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Información completada</strong>
+                <p>Detalle de la situación</p>
+              </div>
+              <span className="activity-row-time">Hace 5 h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommended Lawyers & Assistant */}
+      <div className="lawyers-assistant-split-row">
+        <div className="lawyers-column-content">
+          <div className="section-header-row">
+            <div>
+              <h3 className="section-title">Abogados recomendados para tu caso</h3>
+              <p className="section-subtitle">
+                Según la información de tu borrador, estos abogados pueden ayudarte.
+              </p>
+            </div>
+            <button type="button" className="section-link-button" onClick={() => onNavigate('cases')}>
+              Ver todos los abogados →
+            </button>
+          </div>
+
+          <div className="lawyer-cards-grid">
+            <LawyerCard
+              name="Andrea Gómez"
+              photo="/lawyers/valentina.png"
+              rating="4.9 (27 reseñas)"
+              tags={['Civil', 'Arrendamientos', 'Contratos']}
+              location="Bogotá"
+              price="Desde $150,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
+            <LawyerCard
+              name="Carlos Restrepo"
+              photo="/lawyers/camilo-restrepo.jpg"
+              rating="4.8 (19 reseñas)"
+              tags={['Contratos', 'Civil', 'Solución de conflictos']}
+              location="Bogotá"
+              price="Desde $120,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
+            <LawyerCard
+              name="María Fernanda Díaz"
+              photo="/lawyers/maria-fernanda.png"
+              rating="4.9 (34 reseñas)"
+              tags={['Vivienda', 'Arrendamientos', 'Inmobiliario']}
+              location="Bogotá"
+              price="Desde $180,000 COP"
+              onAction={() => onNavigate('cases')}
+            />
+          </div>
+        </div>
+
+        <div className="assistant-column-content">
+          <MatchAssistantWidget
+            title="¿Necesitas ayuda para continuar?"
+            chips={[
+              '¿Qué información falta?',
+              '¿Cómo describo mi caso?',
+              '¿Qué documentos debo adjuntar?',
+              '¿Cuándo estará listo para publicar?'
+            ]}
+            onNavigate={onNavigate}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* =========================================================================================
+ * OPTION 3: Caso publicado (recibiendo propuestas)
+ * ========================================================================================= */
+function PublishedStateLandingArea({
+  publishedCase,
   onOpenCase,
   onNavigate,
   onOpenChat
 }: {
-  activeCase: Row | null;
+  publishedCase: Row | null;
   onOpenCase: (caseId: string) => void;
   onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
   onOpenChat?: (caseId: string, lawyerId: string) => void;
 }) {
-  const caseTitle = activeCase?.title || 'Terminación de contrato con pagos pendientes';
-  const categoryAndCity = `${activeCase?.category || 'Laboral'} · ${activeCase?.city || 'Medellín'} · Publicado el 7 de octubre de 2026`;
-  const caseId = activeCase?.id || 'case-sample';
+  const caseTitle = publishedCase?.title || 'Incumplimiento de contrato de arrendamiento';
+  const caseId = publishedCase?.id || 'case-1';
 
   return (
-    <div className="dashboard-content-flow state-published-layout">
-      {/* Greeting Header */}
-      <header className="dashboard-view-header">
-        <h1 className="editorial-greeting">Tu caso ya está publicado.</h1>
-        <p className="editorial-sub">3 abogados han mostrado interés.</p>
-      </header>
+    <>
+      <div className="landing-status-split-row">
+        {/* Left Status Banner */}
+        <div className="landing-status-box status-published-stepper-box">
+          <div className="status-box-main-col">
+            <span className="status-eyebrow-text">Tu caso más reciente</span>
+            <div className="status-title-badge-row">
+              <h2 className="status-case-name">{caseTitle}</h2>
+              <span className="status-pill-green">● Publicado</span>
+              <span className="status-pill-muted">3 abogados interesados</span>
+            </div>
 
-      {/* Hero Banner: Caso publicado (Sage green theme) */}
-      <section className="hero-status-card card-published-theme" aria-label="Caso publicado">
-        <div className="hero-status-main">
-          <div className="hero-status-icon-wrap">
-            <div className="icon-rounded-box green-tint">
-              <FileText size={22} className="green-icon" />
+            {/* Stepper: Preparado, Publicado, Propuestas (3), Abogado elegido, En curso */}
+            <div className="horizontal-stepper-track published-track">
+              <div className="stepper-step completed">
+                <div className="stepper-dot"><Check size={12} /></div>
+                <span className="stepper-label">Preparado</span>
+              </div>
+              <div className="stepper-line completed" />
+              <div className="stepper-step completed">
+                <div className="stepper-dot"><Check size={12} /></div>
+                <span className="stepper-label">Publicado</span>
+              </div>
+              <div className="stepper-line completed" />
+              <div className="stepper-step active">
+                <div className="stepper-dot-badge">3</div>
+                <span className="stepper-label">Propuestas</span>
+              </div>
+              <div className="stepper-line" />
+              <div className="stepper-step">
+                <div className="stepper-dot" />
+                <span className="stepper-label">Abogado elegido</span>
+              </div>
+              <div className="stepper-line" />
+              <div className="stepper-step">
+                <div className="stepper-dot" />
+                <span className="stepper-label">En curso</span>
+              </div>
+            </div>
+
+            <button type="button" className="button button-burgundy" onClick={() => onOpenCase(caseId)}>
+              Ver mi caso →
+            </button>
+          </div>
+        </div>
+
+        {/* Right Activity Banner */}
+        <div className="landing-activity-box">
+          <div className="activity-box-header">
+            <h3>Actividad reciente</h3>
+          </div>
+          <div className="activity-list-stack">
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq green-tint"><Users size={16} /></div>
+              <div className="activity-row-text">
+                <strong>1 propuesta nueva</strong>
+                <p>Andrea Gómez envió una propuesta. Conócela y revísala.</p>
+              </div>
+              <span className="activity-row-time">Hace 2 h</span>
+            </div>
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq"><FileText size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Solicitud de documentos</strong>
+                <p>Carlos Restrepo solicitó acceso a Contrato.pdf</p>
+              </div>
+              <span className="activity-row-time">Hace 4 h</span>
+            </div>
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq"><Eye size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Tu caso fue revisado</strong>
+                <p>2 abogados más revisaron tu caso.</p>
+              </div>
+              <span className="activity-row-time">Hace 6 h</span>
+            </div>
+            <div className="activity-row-item">
+              <div className="activity-row-icon-sq red-tint"><MessageCircle size={16} /></div>
+              <div className="activity-row-text">
+                <strong>Mensaje nuevo</strong>
+                <p>María Fernanda te envió un mensaje.</p>
+              </div>
+              <span className="activity-row-time">Hace 15 h</span>
             </div>
           </div>
-
-          <div className="hero-status-details">
-            <span className="status-badge-overline green-overline">
-              CASO PUBLICADO
-            </span>
-            <h2 className="hero-case-title">{caseTitle}</h2>
-            <p className="hero-case-meta">{categoryAndCity}</p>
-          </div>
         </div>
+      </div>
 
-        <div className="hero-status-actions">
-          <button type="button" className="button button-burgundy" onClick={() => onOpenCase(caseId)}>
-            Ver mi caso <ArrowRight size={17} />
-          </button>
-          <button type="button" className="icon-button options-dots-btn" aria-label="Opciones del caso">
-            <MoreVertical size={18} />
-          </button>
-        </div>
-      </section>
-
-      {/* Metric Cards Row */}
-      <section className="dashboard-metrics-grid" aria-label="Métricas de propuestas y estado">
-        <div className="metric-box-card clickable" onClick={() => onNavigate('cases')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq green-sq"><Users size={18} /></div>
-            <span className="metric-card-title">Propuestas</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value text-green">3</span>
-            <span className="metric-unit-label">nuevas</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={() => onNavigate('messages')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq red-sq"><MessageCircle size={18} /></div>
-            <span className="metric-card-title">Mensajes</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value text-red">4</span>
-            <span className="metric-unit-label">sin leer</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={() => onNavigate('cases')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FileText size={18} /></div>
-            <span className="metric-card-title">Documentos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">8</span>
-            <span className="metric-unit-label">en tu expediente</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card">
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><Eye size={18} /></div>
-            <span className="metric-card-title">Estado</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value font-medium">En revisión</span>
-            <span className="metric-unit-label">Abogados viendo tu caso</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom 2-Column Split: Propuestas recientes + Actividad */}
-      <div className="dashboard-bottom-columns">
-        {/* Left Column: Propuestas recientes */}
-        <section className="dashboard-panel-card proposals-panel" aria-labelledby="proposals-heading">
-          <div className="panel-card-header">
-            <h3 id="proposals-heading">Propuestas recientes</h3>
-            <button type="button" className="text-button header-inline-link" onClick={() => onNavigate('cases')}>
-              Ver todas <ArrowRight size={14} />
+      {/* Recommended Lawyers & Assistant */}
+      <div className="lawyers-assistant-split-row">
+        <div className="lawyers-column-content">
+          <div className="section-header-row">
+            <div>
+              <h3 className="section-title">Abogados recomendados para tu caso</h3>
+            </div>
+            <button type="button" className="section-link-button" onClick={() => onNavigate('cases')}>
+              Ver todos los abogados →
             </button>
           </div>
 
-          <div className="proposals-list-stack">
-            {/* Proposal 1 */}
-            <div
-              className="proposal-client-row clickable"
-              onClick={() => onOpenChat ? onOpenChat(caseId, 'andrea') : onOpenCase(caseId)}
-            >
-              <div className="proposal-avatar-initials coral-avatar">AG</div>
-              <div className="proposal-lawyer-info">
-                <h4>Andrea Gómez</h4>
-                <p>Abogada laboral · Bogotá</p>
-              </div>
-              <span className="proposal-tag-soft-green">Nueva</span>
-              <time className="proposal-row-time">Hace 18 min</time>
-            </div>
-
-            {/* Proposal 2 */}
-            <div
-              className="proposal-client-row clickable"
-              onClick={() => onOpenChat ? onOpenChat(caseId, 'carlos') : onOpenCase(caseId)}
-            >
-              <div className="proposal-avatar-initials burgundy-avatar">CR</div>
-              <div className="proposal-lawyer-info">
-                <h4>Carlos Restrepo</h4>
-                <p>Derecho laboral · Medellín</p>
-              </div>
-              <span className="proposal-tag-soft-green">Nueva</span>
-              <time className="proposal-row-time">Hace 2 h</time>
-            </div>
-
-            {/* Proposal 3 */}
-            <div
-              className="proposal-client-row clickable"
-              onClick={() => onOpenChat ? onOpenChat(caseId, 'laura') : onOpenCase(caseId)}
-            >
-              <div className="proposal-avatar-initials lavender-avatar">LM</div>
-              <div className="proposal-lawyer-info">
-                <h4>Laura Martínez</h4>
-                <p>Derecho laboral · Bogotá</p>
-              </div>
-              <time className="proposal-row-time">Hace 5 h</time>
-            </div>
+          <div className="lawyer-cards-grid">
+            <LawyerCardWithActions
+              name="Andrea Gómez"
+              photo="/lawyers/valentina.png"
+              rating="4.9 (27 reseñas)"
+              tags={['Civil', 'Arrendamientos', 'Contratos']}
+              location="Bogotá"
+              price="Desde $150,000 COP"
+              onViewProfile={() => onOpenCase(caseId)}
+              onContact={() => onOpenChat ? onOpenChat(caseId, 'andrea') : onOpenCase(caseId)}
+            />
+            <LawyerCardWithActions
+              name="Carlos Restrepo"
+              photo="/lawyers/camilo-restrepo.jpg"
+              rating="4.8 (19 reseñas)"
+              tags={['Contratos', 'Civil', 'Solución de conflictos']}
+              location="Bogotá"
+              price="Desde $120,000 COP"
+              onViewProfile={() => onOpenCase(caseId)}
+              onContact={() => onOpenChat ? onOpenChat(caseId, 'carlos') : onOpenCase(caseId)}
+            />
+            <LawyerCardWithActions
+              name="María Fernanda Díaz"
+              photo="/lawyers/maria-fernanda.png"
+              rating="4.9 (34 reseñas)"
+              tags={['Vivienda', 'Arrendamientos', 'Inmobiliario']}
+              location="Bogotá"
+              price="Desde $180,000 COP"
+              onViewProfile={() => onOpenCase(caseId)}
+              onContact={() => onOpenChat ? onOpenChat(caseId, 'maria') : onOpenCase(caseId)}
+            />
           </div>
-        </section>
-
-        {/* Right Column: Actividad reciente */}
-        <section className="dashboard-panel-card activity-panel" aria-labelledby="activity-heading-b">
-          <div className="panel-card-header">
-            <h3 id="activity-heading-b">Actividad reciente</h3>
-          </div>
-
-          <div className="activity-timeline-list">
-            <div className="activity-item-row">
-              <span className="activity-bullet green-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p><strong>Andrea Gómez</strong> mostró interés en tu caso</p>
-              </div>
-              <time className="activity-row-time">Hace 18 min</time>
-            </div>
-
-            <div className="activity-item-row">
-              <span className="activity-bullet green-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p><strong>Carlos Restrepo</strong> te envió una propuesta</p>
-              </div>
-              <time className="activity-row-time">Hace 2 h</time>
-            </div>
-
-            <div className="activity-item-row">
-              <span className="activity-bullet green-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p>Tu caso fue publicado correctamente</p>
-              </div>
-              <time className="activity-row-time">Ayer, 3:15 p. m.</time>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================================================================
- * VARIANT C: Usuario sin casos (recién registrado)
- * ========================================================================================= */
-function EmptyDashboardView({
-  onCreateCase,
-  onNavigate
-}: {
-  onCreateCase: () => void;
-  onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
-}) {
-  return (
-    <div className="dashboard-content-flow state-empty-layout">
-      {/* Editorial Welcome Card with Split Content & Desk Scene */}
-      <section className="empty-welcome-hero-card" aria-label="Bienvenida a tu espacio">
-        <div className="empty-hero-copy">
-          <h1 className="empty-hero-headline">Todo empieza con tu situación.</h1>
-          <p className="empty-hero-description">
-            Cuéntanos qué está pasando y te ayudaremos a organizar la información para encontrar abogados adecuados.
-          </p>
-
-          <button type="button" className="button button-burgundy large-cta-btn" onClick={onCreateCase}>
-            Crear mi primer caso <ArrowRight size={18} />
-          </button>
         </div>
 
-        <div className="empty-hero-art-wrapper">
-          <img
-            src="/intake-situation-desk.webp"
-            alt="Espacio de trabajo ordenado con carpetas, libreta y laptop"
-            className="empty-hero-art-img"
+        <div className="assistant-column-content">
+          <MatchAssistantWidget
+            title="¿Tienes propuestas por revisar?"
+            subtitle="Te ayudo a comparar propuestas, entender los honorarios y elegir con calma."
+            chips={[
+              '¿Cómo comparo las propuestas?',
+              '¿Qué debo tener en cuenta?',
+              '¿Puedo negociar el precio?',
+              '¿Qué sigue después de elegir?'
+            ]}
+            onNavigate={onNavigate}
           />
         </div>
-      </section>
-
-      {/* Metric Cards Row */}
-      <section className="dashboard-metrics-grid" aria-label="Métricas iniciales">
-        <div className="metric-box-card clickable" onClick={() => onNavigate('messages')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><MessageCircle size={18} /></div>
-            <span className="metric-card-title">Mensajes</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">0</span>
-            <span className="metric-unit-label">aún</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={onCreateCase}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FolderOpen size={18} /></div>
-            <span className="metric-card-title">Mis casos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">0</span>
-            <span className="metric-unit-label">aún</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={onCreateCase}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FileText size={18} /></div>
-            <span className="metric-card-title">Documentos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">0</span>
-            <span className="metric-unit-label">aún</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card clickable" onClick={() => onNavigate('profile')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><UserCheck size={18} /></div>
-            <span className="metric-card-title">Mi perfil</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">40%</span>
-            <span className="metric-unit-label">completo</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom Educational Block: ¿Cómo funciona? */}
-      <section className="dashboard-panel-card how-it-works-panel" aria-labelledby="how-it-works-heading">
-        <h3 id="how-it-works-heading" className="how-panel-title">¿Cómo funciona?</h3>
-
-        <div className="how-steps-row-grid">
-          {/* Step 1 */}
-          <div className="how-step-card-col">
-            <div className="how-step-num-badge">1</div>
-            <div className="how-step-info">
-              <h4>Cuéntanos tu situación</h4>
-              <p>Responde algunas preguntas y adjunta documentos (si tienes).</p>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="how-step-card-col">
-            <div className="how-step-num-badge">2</div>
-            <div className="how-step-info">
-              <h4>Recibe propuestas</h4>
-              <p>Abogados verificados revisan tu caso y te envían propuestas.</p>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="how-step-card-col">
-            <div className="how-step-num-badge">3</div>
-            <div className="how-step-info">
-              <h4>Elige con confianza</h4>
-              <p>Compara perfiles, conversa y decide quién te acompaña.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </>
   );
 }
 
 /* =========================================================================================
- * VARIANT D: Usuario con abogado asignado / caso en curso
+ * OPTION 4: Caso en curso (abogado elegido)
  * ========================================================================================= */
-function InProgressDashboardView({
-  activeCase,
+function InProgressStateLandingArea({
+  inProgressCase,
   onOpenCase,
-  onNavigate
+  onNavigate,
+  onOpenChat
 }: {
-  activeCase: Row | null;
+  inProgressCase: Row | null;
   onOpenCase: (caseId: string) => void;
   onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
+  onOpenChat?: (caseId: string, lawyerId: string) => void;
 }) {
-  const caseTitle = activeCase?.title || 'Revisión del contrato y estrategia';
-  const categoryAndCity = `${activeCase?.category || 'Civil y contractual'} · ${activeCase?.city || 'Bogotá'}`;
-  const caseId = activeCase?.id || 'case-active';
+  const caseTitle = inProgressCase?.title || 'Incumplimiento de contrato de arrendamiento';
+  const caseId = inProgressCase?.id || 'case-active';
 
   return (
-    <div className="dashboard-content-flow state-progress-layout">
-      {/* Greeting Header */}
-      <header className="dashboard-view-header">
-        <h1 className="editorial-greeting">Tu caso está en curso.</h1>
-        <p className="editorial-sub">Tienes próximas actividades con tu abogado.</p>
-      </header>
-
-      {/* Hero Status Card: En Asesoría (Calm Slate Blue theme) */}
-      <section className="hero-status-card card-advising-theme" aria-label="Caso en curso">
-        <div className="hero-status-main">
-          <div className="hero-status-icon-wrap">
-            <div className="icon-rounded-box blue-tint">
-              <Scale size={22} className="blue-icon" />
-            </div>
+    <>
+      {/* Top Banner: Tu caso en curso with full-width Stepper */}
+      <div className="landing-status-box in-progress-full-card">
+        <div className="in-progress-header-row">
+          <div>
+            <span className="status-eyebrow-text">Tu caso en curso</span>
+            <h2 className="status-case-name">{caseTitle}</h2>
+            <p className="status-assigned-sub">Abogado asignado: Andrea Gómez</p>
           </div>
-
-          <div className="hero-status-details">
-            <span className="status-badge-overline blue-overline">
-              EN ASESORÍA
-            </span>
-            <h2 className="hero-case-title">{caseTitle}</h2>
-            <p className="hero-case-meta">{categoryAndCity}</p>
-
-            <div className="assigned-lawyer-pill">
-              <span className="mini-lawyer-avatar">AG</span>
-              <span>Con Andrea Gómez</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Half: Próxima actividad card */}
-        <div className="upcoming-activity-card">
-          <div className="upcoming-activity-header">
-            <span className="upcoming-activity-label">Próxima actividad</span>
-            <button type="button" className="icon-button options-dots-btn" aria-label="Opciones">
-              <MoreVertical size={16} />
-            </button>
-          </div>
-
-          <div className="upcoming-activity-body">
-            <Calendar size={18} className="activity-calendar-icon" />
-            <div>
-              <strong>Reunión virtual</strong>
-              <p>Mañana, 10 de octubre · 10:00 a. m.</p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="button outline small details-link-btn"
-            onClick={() => onOpenCase(caseId)}
-          >
-            Ver detalles <ArrowRight size={14} />
+          <button type="button" className="button button-burgundy" onClick={() => onOpenCase(caseId)}>
+            Ver avance del caso →
           </button>
         </div>
-      </section>
 
-      {/* Metric Cards Row */}
-      <section className="dashboard-metrics-grid" aria-label="Métricas de la asesoría">
-        <div className="metric-box-card clickable" onClick={() => onNavigate('messages')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq red-sq"><MessageCircle size={18} /></div>
-            <span className="metric-card-title">Mensajes</span>
+        {/* Stepper to En curso */}
+        <div className="horizontal-stepper-track in-progress-track">
+          <div className="stepper-step completed">
+            <div className="stepper-dot"><Check size={12} /></div>
+            <span className="stepper-label">Preparado</span>
           </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value text-red">2</span>
-            <span className="metric-unit-label">sin leer</span>
+          <div className="stepper-line completed" />
+          <div className="stepper-step completed">
+            <div className="stepper-dot"><Check size={12} /></div>
+            <span className="stepper-label">Publicado</span>
+          </div>
+          <div className="stepper-line completed" />
+          <div className="stepper-step completed">
+            <div className="stepper-dot"><Check size={12} /></div>
+            <span className="stepper-label">Propuestas</span>
+          </div>
+          <div className="stepper-line completed" />
+          <div className="stepper-step completed">
+            <div className="stepper-dot"><Check size={12} /></div>
+            <span className="stepper-label">Abogado elegido</span>
+          </div>
+          <div className="stepper-line completed" />
+          <div className="stepper-step active in-progress-node">
+            <div className="stepper-dot"><span className="inner-dot" /></div>
+            <span className="stepper-label">En curso</span>
           </div>
         </div>
+      </div>
 
-        <div className="metric-box-card clickable" onClick={() => onNavigate('cases')}>
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><FileText size={18} /></div>
-            <span className="metric-card-title">Documentos</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value">12</span>
-            <span className="metric-unit-label">en tu caso</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card">
-          <div className="metric-card-header">
-            <div className="metric-icon-sq orange-sq"><CheckSquare size={18} /></div>
-            <span className="metric-card-title">Tareas</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value text-orange">1</span>
-            <span className="metric-unit-label">pendiente</span>
-          </div>
-        </div>
-
-        <div className="metric-box-card">
-          <div className="metric-card-header">
-            <div className="metric-icon-sq"><ShieldCheck size={18} /></div>
-            <span className="metric-card-title">Estado</span>
-          </div>
-          <div className="metric-card-body">
-            <span className="metric-primary-value font-medium">En asesoría</span>
-            <span className="metric-unit-label">Desde el 3 de octubre</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom 2-Column Split: Actividad + Próximo paso */}
-      <div className="dashboard-bottom-columns">
-        {/* Left Column: Actividad reciente */}
-        <section className="dashboard-panel-card activity-panel" aria-labelledby="activity-heading-d">
-          <div className="panel-card-header">
-            <h3 id="activity-heading-d">Actividad reciente</h3>
-            <button type="button" className="text-button header-inline-link" onClick={() => onNavigate('cases')}>
-              Ver toda <ArrowRight size={14} />
-            </button>
-          </div>
-
-          <div className="activity-timeline-list">
-            <div className="activity-item-row">
-              <span className="activity-bullet blue-bullet" />
-              <div className="activity-row-icon"><Users size={16} /></div>
-              <div className="activity-row-text">
-                <p><strong>Andrea Gómez</strong> te envió un mensaje</p>
+      {/* 3-Column Split: Lawyer & Checklist | Documents | Activity & Assistant */}
+      <div className="in-progress-details-grid">
+        {/* Left Column: Assigned Lawyer + Próximos Pasos */}
+        <div className="details-col left-details-col">
+          <div className="dashboard-panel-card lawyer-assigned-panel">
+            <h3 className="panel-title">Tu abogado asignado</h3>
+            <div className="assigned-lawyer-card-box">
+              <img src="/lawyers/valentina.png" alt="Andrea Gómez" className="lawyer-avatar-img" />
+              <div className="assigned-lawyer-text">
+                <div className="lawyer-name-row">
+                  <h4>Andrea Gómez</h4>
+                  <span className="pill-en-curso">✓ En curso</span>
+                </div>
+                <div className="lawyer-rating-row">
+                  <Star size={13} className="star-gold" />
+                  <span>4.9 (27 reseñas)</span>
+                </div>
+                <p className="lawyer-specialties-txt">Civil · Arrendamientos · Contratos</p>
               </div>
-              <time className="activity-row-time">Hace 1 h</time>
             </div>
 
-            <div className="activity-item-row">
-              <span className="activity-bullet blue-bullet" />
-              <div className="activity-row-icon"><FileText size={16} /></div>
-              <div className="activity-row-text">
-                <p>Se agregó un nuevo documento</p>
-              </div>
-              <time className="activity-row-time">Ayer, 4:20 p. m.</time>
-            </div>
-
-            <div className="activity-item-row">
-              <span className="activity-bullet blue-bullet" />
-              <div className="activity-row-icon"><Check size={16} /></div>
-              <div className="activity-row-text">
-                <p>Se completó la fase de diagnóstico</p>
-              </div>
-              <time className="activity-row-time">Ayer, 11:15 a. m.</time>
-            </div>
-          </div>
-        </section>
-
-        {/* Right Column: Próximo paso */}
-        <section className="dashboard-panel-card next-step-panel warm-cream-panel" aria-labelledby="next-step-heading-d">
-          <div className="next-step-top">
-            <div className="next-step-icon-box">
-              <ListChecks size={22} className="next-step-icon" />
-            </div>
-            <div>
-              <span className="next-step-eyebrow">Próximo paso</span>
-              <h3 id="next-step-heading-d" className="next-step-title">Revisar observaciones del contrato.</h3>
+            <div className="assigned-actions-row">
+              <button
+                type="button"
+                className="button outline small"
+                onClick={() => onOpenChat ? onOpenChat(caseId, 'andrea') : onNavigate('messages')}
+              >
+                Enviar mensaje
+              </button>
+              <button type="button" className="button outline small" onClick={() => onOpenCase(caseId)}>
+                Ver perfil
+              </button>
+              <button type="button" className="button outline small" onClick={() => onOpenCase(caseId)}>
+                Agendar reunión
+              </button>
             </div>
           </div>
 
-          <p className="next-step-desc">
-            Tu abogado ha compartido comentarios sobre la cláusula de terminación.
-          </p>
+          <div className="dashboard-panel-card next-steps-panel">
+            <h3 className="panel-title">Próximos pasos</h3>
+            <div className="checklist-stack">
+              <div className="checklist-row">
+                <div className="check-bullet red-bullet" />
+                <span className="checklist-item-title">Enviar comprobante de pago</span>
+                <span className="badge-status-coral">Pendiente</span>
+                <span className="checklist-date">Antes del 15 oct</span>
+              </div>
+              <div className="checklist-row">
+                <div className="check-bullet gray-bullet" />
+                <span className="checklist-item-title">Revisar y aprobar demanda</span>
+                <span className="badge-status-gray">En revisión</span>
+                <span className="checklist-date">Estimado: 15 oct</span>
+              </div>
+              <div className="checklist-row">
+                <div className="check-bullet blue-bullet" />
+                <span className="checklist-item-title">Reunión de seguimiento</span>
+                <span className="badge-status-blue">Programada</span>
+                <span className="checklist-date">10 oct, 3:00 p.m.</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <button
-            type="button"
-            className="button button-burgundy full-width-btn"
-            onClick={() => onOpenCase(caseId)}
-          >
-            Ver documento <ArrowRight size={17} />
-          </button>
-        </section>
+        {/* Middle Column: Documentos del caso */}
+        <div className="details-col middle-details-col">
+          <div className="dashboard-panel-card case-documents-panel">
+            <div className="panel-header-with-link">
+              <h3 className="panel-title">Documentos del caso</h3>
+              <button type="button" className="text-button" onClick={() => onOpenCase(caseId)}>
+                Ver todos →
+              </button>
+            </div>
+
+            <div className="documents-list-stack">
+              <div className="document-entry-row">
+                <FileText size={16} className="doc-icon" />
+                <span className="doc-filename">Contrato de arrendamiento.pdf</span>
+                <span className="badge-status-green">Aprobado</span>
+              </div>
+              <div className="document-entry-row">
+                <FileText size={16} className="doc-icon" />
+                <span className="doc-filename">Comprobante de pago.pdf</span>
+                <span className="badge-status-orange">Pendiente</span>
+              </div>
+              <div className="document-entry-row">
+                <FileText size={16} className="doc-icon" />
+                <span className="doc-filename">Poder firmado.pdf</span>
+                <span className="badge-status-orange">Pendiente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Actividad reciente + MatchAsistente */}
+        <div className="details-col right-details-col">
+          <div className="landing-activity-box in-progress-activity">
+            <div className="activity-box-header">
+              <h3>Actividad reciente</h3>
+            </div>
+            <div className="activity-list-stack">
+              <div className="activity-row-item">
+                <div className="activity-row-icon-sq red-tint"><MessageCircle size={16} /></div>
+                <div className="activity-row-text">
+                  <strong>Nuevo mensaje</strong>
+                  <p>Andrea Gómez te envió un mensaje.</p>
+                </div>
+                <span className="activity-row-time">Hace 1 h</span>
+              </div>
+              <div className="activity-row-item">
+                <div className="activity-row-icon-sq"><FileText size={16} /></div>
+                <div className="activity-row-text">
+                  <strong>Documento solicitado</strong>
+                  <p>Lista de documentos requeridos</p>
+                </div>
+                <span className="activity-row-time">Hace 3 h</span>
+              </div>
+              <div className="activity-row-item">
+                <div className="activity-row-icon-sq"><CheckCircle2 size={16} /></div>
+                <div className="activity-row-text">
+                  <strong>Documento enviado</strong>
+                  <p>Comprobante de pago.pdf</p>
+                </div>
+                <span className="activity-row-time">Hace 1 día</span>
+              </div>
+              <div className="activity-row-item">
+                <div className="activity-row-icon-sq"><Calendar size={16} /></div>
+                <div className="activity-row-text">
+                  <strong>Próxima cita</strong>
+                  <p>Reunión virtual · 10 oct, 3:00 p.m.</p>
+                </div>
+                <span className="activity-row-time">Hace 1 día</span>
+              </div>
+            </div>
+          </div>
+
+          <MatchAssistantWidget
+            title="¿En qué te puedo apoyar hoy?"
+            chips={[
+              '¿Qué sigue en mi caso?',
+              '¿Qué documentos faltan?',
+              '¿Cómo va el proceso?',
+              '¿Puedo solicitar algo más al abogado?'
+            ]}
+            onNavigate={onNavigate}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* =========================================================================================
+ * HELPER COMPONENTS: LawyerCard, MatchAssistantWidget, DashboardSkeleton
+ * ========================================================================================= */
+function LawyerCard({
+  name,
+  photo,
+  rating,
+  tags,
+  location,
+  price,
+  onAction
+}: {
+  name: string;
+  photo: string;
+  rating: string;
+  tags: string[];
+  location: string;
+  price: string;
+  onAction: () => void;
+}) {
+  return (
+    <div className="lawyer-profile-card">
+      <div className="lawyer-card-top">
+        <img src={photo} alt={name} className="lawyer-photo-circle" />
+        <div className="lawyer-title-info">
+          <div className="lawyer-name-verified">
+            <h4>{name}</h4>
+            <span className="verified-pill">✓ Verificado</span>
+          </div>
+          <div className="rating-row">
+            <Star size={13} className="star-gold" />
+            <span>{rating}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="lawyer-tags-row">
+        {tags.map((t) => (
+          <span key={t} className="lawyer-spec-tag">{t}</span>
+        ))}
+      </div>
+
+      <div className="lawyer-footer-row">
+        <span className="lawyer-city">📍 {location}</span>
+        <span className="lawyer-price">{price}</span>
       </div>
     </div>
   );
 }
 
+function LawyerCardWithActions({
+  name,
+  photo,
+  rating,
+  tags,
+  location,
+  price,
+  onViewProfile,
+  onContact
+}: {
+  name: string;
+  photo: string;
+  rating: string;
+  tags: string[];
+  location: string;
+  price: string;
+  onViewProfile: () => void;
+  onContact: () => void;
+}) {
+  return (
+    <div className="lawyer-profile-card has-actions">
+      <div className="lawyer-card-top">
+        <img src={photo} alt={name} className="lawyer-photo-circle" />
+        <div className="lawyer-title-info">
+          <div className="lawyer-name-verified">
+            <h4>{name}</h4>
+            <span className="verified-pill">✓ Verificado</span>
+          </div>
+          <div className="rating-row">
+            <Star size={13} className="star-gold" />
+            <span>{rating}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="lawyer-tags-row">
+        {tags.map((t) => (
+          <span key={t} className="lawyer-spec-tag">{t}</span>
+        ))}
+      </div>
+
+      <div className="lawyer-footer-row">
+        <span className="lawyer-city">📍 {location}</span>
+        <span className="lawyer-price">{price}</span>
+      </div>
+
+      <div className="lawyer-actions-btns">
+        <button type="button" className="button button-burgundy small full-width-btn" onClick={onViewProfile}>
+          Ver perfil
+        </button>
+        <button type="button" className="button outline small full-width-btn" onClick={onContact}>
+          Contactar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MatchAssistantWidget({
+  title,
+  subtitle,
+  chips,
+  onNavigate
+}: {
+  title: string;
+  subtitle?: string;
+  chips: string[];
+  onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
+}) {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+
+  const handleChipClick = (c: string) => {
+    setQuestion(c);
+    if (c.includes('empiezo') || c.includes('falta')) {
+      setAnswer('Para iniciar o continuar, solo ingresa a tu caso y responde las preguntas guía.');
+    } else if (c.includes('documentos')) {
+      setAnswer('Adjuntar documentos es opcional, pero puedes incluir contratos o comunicaciones clave.');
+    } else if (c.includes('costar') || c.includes('precio')) {
+      setAnswer('Los honorarios se pactan libremente con el abogado según el alcance acordado.');
+    } else {
+      setAnswer('Puedes comparar los perfiles de los abogados y agendar una llamada inicial.');
+    }
+  };
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (question.trim()) {
+      setAnswer('Gracias por tu consulta. Puedes conversar directamente con los abogados o en tu caso.');
+    }
+  };
+
+  return (
+    <div className="match-assistant-card" aria-label="Asistente de MatchJurídico">
+      <div className="assistant-header-row">
+        <div className="assistant-brand-badge">
+          <Sparkles size={16} className="coral-icon" />
+          <span className="assistant-name">MatchAsistente</span>
+          <span className="beta-badge">Beta</span>
+        </div>
+      </div>
+
+      <h4 className="assistant-title">{title}</h4>
+      {subtitle && <p className="assistant-sub">{subtitle}</p>}
+
+      <div className="assistant-chips-stack">
+        {chips.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className="assistant-prompt-pill"
+            onClick={() => handleChipClick(c)}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {answer && (
+        <div className="assistant-answer-bubble">
+          <p>{answer}</p>
+        </div>
+      )}
+
+      <form className="assistant-input-form" onSubmit={handleSend}>
+        <input
+          type="text"
+          className="assistant-text-input"
+          placeholder="Escribe tu pregunta..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+        <button type="submit" className="assistant-send-btn" aria-label="Enviar pregunta">
+          <Send size={15} />
+        </button>
+      </form>
+    </div>
+  );
+}
+
 /* =========================================================================================
- * SKELETON: Displayed during initial data loading to completely prevent layout jump & flicker
+ * SKELETON: Anti-Flicker Skeleton matching Hero & Layout
  * ========================================================================================= */
 export function DashboardSkeleton() {
   return (
-    <div className="adaptive-dashboard-root dashboard-skeleton-root" aria-busy="true" aria-label="Cargando panel">
-      {/* Header Skeleton */}
-      <div className="skeleton-header-box">
-        <div className="skeleton-line skeleton-title" />
-        <div className="skeleton-line skeleton-sub" />
+    <div className="client-landing-root dashboard-skeleton-root" aria-busy="true" aria-label="Cargando espacio">
+      {/* Skeleton Hero Banner */}
+      <div className="skeleton-hero-banner" />
+
+      {/* Skeleton Status Split */}
+      <div className="landing-status-split-row">
+        <div className="skeleton-status-box" />
+        <div className="skeleton-activity-box" />
       </div>
 
-      {/* Hero Card Skeleton */}
-      <div className="skeleton-hero-card">
-        <div className="skeleton-hero-left">
-          <div className="skeleton-sq" />
-          <div className="skeleton-hero-text">
-            <div className="skeleton-line skeleton-badge" />
-            <div className="skeleton-line skeleton-case-title" />
-            <div className="skeleton-line skeleton-meta" />
-          </div>
-        </div>
-        <div className="skeleton-btn" />
-      </div>
-
-      {/* Metric Cards Skeleton */}
-      <div className="dashboard-metrics-grid">
-        <div className="skeleton-metric-card" />
-        <div className="skeleton-metric-card" />
-        <div className="skeleton-metric-card" />
-        <div className="skeleton-metric-card" />
-      </div>
-
-      {/* Bottom Columns Skeleton */}
-      <div className="dashboard-bottom-columns">
-        <div className="skeleton-panel-card" />
-        <div className="skeleton-panel-card" />
+      {/* Skeleton Lawyers & Assistant */}
+      <div className="lawyers-assistant-split-row">
+        <div className="skeleton-lawyers-col" />
+        <div className="skeleton-assistant-box" />
       </div>
     </div>
   );
 }
-
