@@ -29,14 +29,35 @@ test('lawyer onboarding requests license and specialties but offers no self-veri
  assert.ok(doc.querySelector('input[name=specialties]'));
  assert.equal(doc.querySelector('[name=verification]'),null);
 });
-test('signed-in welcome uses the Google avatar and offers cases and messages before the dashboard',async()=>{
+test('signed-in welcome renders ClientAdaptiveDashboard with state switcher and user avatar',async()=>{
  const {default:Workspace}=await import('../components/Workspace');
  const html=renderToStaticMarkup(React.createElement(Workspace,{me:{profile:{id:'test',name:'Louis Amadeus',role:'client',avatar_url:'https://lh3.googleusercontent.com/a/example'}},session:{user:{id:'test',user_metadata:{}}} as any,busy:false,run:async f=>{await f();},onNotice:()=>{},onInfo:()=>{},onRefreshMe:async()=>{},onLogout:()=>{}}));
  const doc=new JSDOM(html).window.document;
- assert.match(doc.querySelector('h1')!.textContent!,/Qué bueno verte,Louis/);
- assert.ok(doc.querySelector('.welcome-card img[src="https://lh3.googleusercontent.com/a/example"]'));
+ assert.ok(doc.querySelector('.adaptive-state-bar'));
+ assert.equal(doc.querySelectorAll('.state-bar-pill').length,4);
+ assert.match(doc.querySelector('.empty-hero-headline')!.textContent!,/Todo empieza con tu situación/);
+ assert.ok(doc.querySelector('.account img[src="https://lh3.googleusercontent.com/a/example"]'));
  assert.ok(doc.querySelector('.chat-launcher'));
  assert.equal(doc.querySelector('.stat-grid'),null);
+});
+
+test('ClientAdaptiveDashboard renders draft mode with correct metrics and actions',async()=>{
+ const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
+ const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   user:{id:'test',name:'Louis Amadeus'},
+   items:[],
+   draftCase:{title:'Incumplimiento de contrato de arrendamiento',category:'Civil y contractual',city:'Bogotá'},
+   onOpenCase:()=>{},
+   onContinueDraft:()=>{},
+   onCreateCase:()=>{},
+   onNavigate:()=>{}
+ }));
+ const doc=new JSDOM(html).window.document;
+ assert.match(doc.querySelector('.editorial-greeting')!.textContent!,/Buenos días, Louis/);
+ assert.ok(doc.querySelector('.card-draft-theme'));
+ assert.match(doc.querySelector('.hero-case-title')!.textContent!,/Incumplimiento de contrato/);
+ assert.ok(doc.querySelector('.fill-burgundy'));
+ assert.equal(doc.querySelectorAll('.metric-box-card').length,4);
 });
 
 test('profile view allows changing photo or leaving anonymous without hardcoded google phrase',async()=>{
