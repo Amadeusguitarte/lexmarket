@@ -10,7 +10,8 @@ import {
   ArrowRight,
   ArrowLeft,
   HelpCircle,
-  X
+  X,
+  ChevronDown
 } from 'lucide-react';
 import type { ExtractedFacts, LegalCategoryKey } from '@/lib/intake-engine';
 import { INTAKE_CATEGORIES } from '@/lib/intake-engine';
@@ -21,6 +22,44 @@ interface SummaryReviewStepProps {
   onBackToNarrative: () => void;
   onSaveAndExit: () => void;
 }
+
+const COLOMBIAN_CITIES_LIST = [
+  'Bogotá',
+  'Medellín',
+  'Cali',
+  'Barranquilla',
+  'Cartagena',
+  'Bucaramanga',
+  'Pereira',
+  'Santa Marta',
+  'Ibagué',
+  'Cúcuta',
+  'Manizales',
+  'Pasto',
+  'Neiva',
+  'Villavicencio',
+  'Armenia',
+  'Valledupar',
+  'Montería',
+  'Popayán',
+  'Sincelejo',
+  'Tunja',
+  'Riohacha',
+  'Florencia',
+  'Yopal',
+  'Quibdó'
+];
+
+const COMMON_DATE_OPTIONS = [
+  'Hoy o ayer',
+  'Esta semana',
+  'La semana pasada',
+  'Hace 2 a 4 semanas',
+  'Hace 1 a 3 meses',
+  'Hace 3 a 6 meses',
+  'Hace 6 a 12 meses',
+  'Hace más de 1 año'
+];
 
 const CATEGORY_ORDER: LegalCategoryKey[] = [
   'laboral',
@@ -50,20 +89,52 @@ export default function SummaryReviewStep({
   // Field edit states
   const [editSummary, setEditSummary] = useState(data.summary);
   const [editGoal, setEditGoal] = useState(data.desiredOutcome);
-  const [editCity, setEditCity] = useState(data.detectedCity || '');
-  const [editDates, setEditDates] = useState(data.importantDates.join(', '));
+
+  // Date direct selection state
+  const initialDateStr = data.importantDates?.[0] || '';
+  const matchedCommonDate = COMMON_DATE_OPTIONS.find(
+    (opt) => opt.toLowerCase() === initialDateStr.toLowerCase()
+  );
+  const isCustomDetectedDate = Boolean(
+    initialDateStr &&
+      initialDateStr !== 'No especificadas' &&
+      !matchedCommonDate
+  );
+  const [selectedDateOption, setSelectedDateOption] = useState<string>(() => {
+    if (matchedCommonDate) return matchedCommonDate;
+    if (initialDateStr && initialDateStr !== 'No especificadas') return initialDateStr;
+    return '';
+  });
+  const [isExactDateMode, setIsExactDateMode] = useState(false);
+  const [exactDateValue, setExactDateValue] = useState('');
+
+  const handleDateSelect = (val: string) => {
+    if (val === 'exact_date') {
+      setIsExactDateMode(true);
+      setSelectedDateOption('exact_date');
+    } else {
+      setIsExactDateMode(false);
+      setSelectedDateOption(val);
+      setData((d) => ({
+        ...d,
+        importantDates: val ? [val] : []
+      }));
+    }
+  };
+
+  const handleExactDateChange = (val: string) => {
+    setExactDateValue(val);
+    if (val) {
+      setData((d) => ({
+        ...d,
+        importantDates: [val]
+      }));
+    }
+  };
 
   const handleSaveField = (field: string) => {
     if (field === 'summary') setData((d) => ({ ...d, summary: editSummary }));
     if (field === 'goal') setData((d) => ({ ...d, desiredOutcome: editGoal }));
-    if (field === 'city') setData((d) => ({ ...d, detectedCity: editCity }));
-    if (field === 'dates') {
-      const parsed = editDates
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setData((d) => ({ ...d, importantDates: parsed.length ? parsed : ['No especificadas'] }));
-    }
     setEditingField(null);
   };
 
@@ -206,110 +277,99 @@ export default function SummaryReviewStep({
             )}
           </article>
 
-          {/* Two-column facts: Dates & City */}
+          {/* Two-column facts: Dates & City as DIRECT SELECTORS */}
           <div className="summary-two-col">
-            <article className="summary-field-box">
+            <article className="summary-field-box direct-selector-box">
               <div className="box-header">
                 <span className="box-title">
                   <Calendar size={14} /> Fechas importantes
                 </span>
-                {editingField !== 'dates' && (
-                  <button
-                    type="button"
-                    className="text-button small-edit"
-                    onClick={() => {
-                      setEditDates(data.importantDates.join(', '));
-                      setEditingField('dates');
-                    }}
-                  >
-                    <Edit2 size={12} /> Editar
-                  </button>
+                {data.importantDates.length > 0 && data.importantDates[0] && (
+                  <span className="direct-selected-badge">
+                    <Check size={11} strokeWidth={2.5} /> Definida
+                  </span>
                 )}
               </div>
-              {editingField === 'dates' ? (
-                <div className="inline-edit-box">
-                  <input
-                    type="text"
-                    placeholder="Fechas separadas por comas"
-                    value={editDates}
-                    onChange={(e) => setEditDates(e.target.value)}
-                  />
-                  <div className="inline-edit-actions">
-                    <button
-                      type="button"
-                      className="button small"
-                      onClick={() => handleSaveField('dates')}
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={() => setEditingField(null)}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
+
+              <div className="direct-picker-container">
+                <div className="direct-picker-wrap">
+                  <select
+                    className="direct-picker-select"
+                    value={selectedDateOption}
+                    onChange={(e) => handleDateSelect(e.target.value)}
+                    aria-label="Seleccionar fecha importante"
+                  >
+                    <option value="">Seleccionar cuándo ocurrió...</option>
+                    {isCustomDetectedDate && (
+                      <option value={initialDateStr}>
+                        {initialDateStr} (detectada del relato)
+                      </option>
+                    )}
+                    {COMMON_DATE_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                    <option value="exact_date">Elegir fecha exacta en calendario...</option>
+                  </select>
+                  <ChevronDown size={15} className="direct-picker-arrow" />
                 </div>
-              ) : (
-                <ul className="dates-pill-list">
-                  {data.importantDates.map((dateStr, idx) => (
-                    <li key={idx} className="date-pill">
-                      {dateStr}
-                    </li>
-                  ))}
-                </ul>
-              )}
+
+                {isExactDateMode && (
+                  <div className="direct-date-calendar-wrap">
+                    <input
+                      type="date"
+                      className="direct-date-input"
+                      value={exactDateValue}
+                      onChange={(e) => handleExactDateChange(e.target.value)}
+                      aria-label="Fecha exacta en calendario"
+                    />
+                  </div>
+                )}
+              </div>
             </article>
 
-            <article className="summary-field-box">
+            <article className="summary-field-box direct-selector-box">
               <div className="box-header">
                 <span className="box-title">
                   <MapPin size={14} /> Ciudad / Ubicación
                 </span>
-                {editingField !== 'city' && (
-                  <button
-                    type="button"
-                    className="text-button small-edit"
-                    onClick={() => {
-                      setEditCity(data.detectedCity || '');
-                      setEditingField('city');
-                    }}
-                  >
-                    <Edit2 size={12} /> Editar
-                  </button>
+                {data.detectedCity && (
+                  <span className="direct-selected-badge">
+                    <Check size={11} strokeWidth={2.5} /> Definida
+                  </span>
                 )}
               </div>
-              {editingField === 'city' ? (
-                <div className="inline-edit-box">
-                  <input
-                    type="text"
-                    placeholder="Ejemplo: Bogotá, Medellín, Cali..."
-                    value={editCity}
-                    onChange={(e) => setEditCity(e.target.value)}
-                  />
-                  <div className="inline-edit-actions">
-                    <button
-                      type="button"
-                      className="button small"
-                      onClick={() => handleSaveField('city')}
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={() => setEditingField(null)}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
+
+              <div className="direct-picker-container">
+                <div className="direct-picker-wrap">
+                  <select
+                    className="direct-picker-select"
+                    value={data.detectedCity || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setData((d) => ({ ...d, detectedCity: val }));
+                    }}
+                    aria-label="Seleccionar ciudad o ubicación"
+                  >
+                    <option value="">Seleccionar ciudad...</option>
+                    {data.detectedCity &&
+                      !COLOMBIAN_CITIES_LIST.includes(data.detectedCity) &&
+                      data.detectedCity !== 'Otra ciudad / En todo el país' && (
+                        <option value={data.detectedCity}>
+                          {data.detectedCity} (detectada del relato)
+                        </option>
+                      )}
+                    {COLOMBIAN_CITIES_LIST.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                    <option value="Otra ciudad / En todo el país">Otra ciudad / En todo el país</option>
+                  </select>
+                  <ChevronDown size={15} className="direct-picker-arrow" />
                 </div>
-              ) : (
-                <p className="field-value city-val">
-                  {data.detectedCity || 'No mencionada en el relato (la completaremos en el siguiente paso)'}
-                </p>
-              )}
+              </div>
             </article>
           </div>
 

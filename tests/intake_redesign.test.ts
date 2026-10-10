@@ -167,6 +167,12 @@ test('SummaryReviewStep renders provisional legal area and editable fields', () 
   assert.ok(html.includes('Laboral y seguridad social'));
   assert.ok(html.includes('Seleccionar área legal'));
   assert.ok(html.includes('Editar'));
+  assert.ok(html.includes('Fechas importantes'));
+  assert.ok(html.includes('Seleccionar cuándo ocurrió...'));
+  assert.ok(html.includes('3 de octubre'));
+  assert.ok(html.includes('Ciudad / Ubicación'));
+  assert.ok(html.includes('Seleccionar ciudad...'));
+  assert.ok(html.includes('Bogotá'));
   assert.ok(html.includes('Está bien, continuar'));
 });
 
