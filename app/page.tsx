@@ -15,6 +15,7 @@ import InviteModal from '@/components/InviteModal';
 import type { LawyerData } from '@/components/LawyerCard';
 import AuthModal from '@/components/AuthModal';
 import LawyerOnboardingDashboard from '@/components/LawyerOnboardingDashboard';
+import AppLoadingScreen from '@/components/AppLoadingScreen';
 
 function LinkedinIcon({ size = 18 }: { size?: number }) {
  return (
@@ -25,7 +26,7 @@ function LinkedinIcon({ size = 18 }: { size?: number }) {
 }
 
 export default function Home() {
- const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
+ const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[loadingProfile,setLoadingProfile]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
  const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
 
  const handleInvite = (lawyer: LawyerData) => {
@@ -47,7 +48,7 @@ export default function Home() {
 
  useEffect(()=>{try{const saved=localStorage.getItem('lexmarket.pendingCase');const savedRole=localStorage.getItem('lexmarket.intendedRole');if(saved)setPendingCase(JSON.parse(saved));if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);if(typeof window!=='undefined'){const sp=new URLSearchParams(window.location.search);const qAuth=sp.get('auth');const qRole=sp.get('role');if(qRole==='lawyer'||qRole==='client'){setRole(qRole);try{localStorage.setItem('lexmarket.intendedRole',qRole);}catch{}}if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}}}catch{}const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
  useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});void linkedinAvailable().then(setLinkedinReady).catch(()=>{});},[]);
- useEffect(()=>{if(session)api('me').then(setMe).catch(e=>setError(e.message));else setMe(null);},[session]);
+ useEffect(()=>{if(session){setLoadingProfile(true);api('me').then(setMe).catch(e=>setError(e.message)).finally(()=>setLoadingProfile(false));}else{setMe(null);setLoadingProfile(false);}},[session]);
  async function run(fn:()=>Promise<void>) {setBusy(true);setError('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'No pudimos completar la acción.');}finally{setBusy(false);}}
  function start(r:string){setRole(r);try{localStorage.setItem('lexmarket.intendedRole',r);}catch{}if(r==='client')setComposer(true);else setAuthMode('signup');}
  function keepDraft(data:Row){setPendingCase(data);try{localStorage.setItem('lexmarket.pendingCase',JSON.stringify(data));}catch{}if(session){void importDraft();}else{setComposer(false);setAuthMode('signup');setNotice('Tu borrador está preparado. Entra o crea tu cuenta para guardarlo en privado.');}}
@@ -69,6 +70,15 @@ export default function Home() {
   terms:{title:'Sobre esta beta',paragraphs:['MatchJurídico facilita el encuentro entre clientes y profesionales. Publicar o recibir propuestas no crea una representación automática. El encargo y los poderes que correspondan se acuerdan con el abogado.','Los honorarios se pactan directamente con el profesional. Esta versión no procesa pagos, no radica documentos ante autoridades y no calcula plazos judiciales.','La verificación profesional requiere una revisión del equipo. Las actualizaciones del proceso las registran las personas participantes; no son un reporte oficial de un juzgado.','Las condiciones definitivas de contratación y operación deben ser publicadas por el operador antes del lanzamiento abierto.']},
   help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue preparándose, espera a que termine antes de pedir una organización asistida.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'El canal de soporte se habilitará antes de abrir la beta.']},
  };
+
+ if (!authReady) {
+  return <AppLoadingScreen message="Iniciando MatchJurídico…" />;
+ }
+
+ if (session && (me === null || loadingProfile) && !error) {
+  return <AppLoadingScreen message="Abriendo tu espacio…" />;
+ }
+
  const isLawyerAccount = role === 'lawyer' || 
    session?.user?.user_metadata?.intended_role === 'lawyer' || 
    (typeof window !== 'undefined' && localStorage.getItem('lexmarket.intendedRole') === 'lawyer') || 
