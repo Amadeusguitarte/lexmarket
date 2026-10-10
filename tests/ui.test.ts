@@ -29,19 +29,18 @@ test('lawyer onboarding requests license and specialties but offers no self-veri
  assert.ok(doc.querySelector('input[name=specialties]'));
  assert.equal(doc.querySelector('[name=verification]'),null);
 });
-test('signed-in welcome renders ClientAdaptiveDashboard with state switcher and user avatar',async()=>{
+test('signed-in welcome automatically recognizes empty user and renders State C without switcher bar',async()=>{
  const {default:Workspace}=await import('../components/Workspace');
  const html=renderToStaticMarkup(React.createElement(Workspace,{me:{profile:{id:'test',name:'Louis Amadeus',role:'client',avatar_url:'https://lh3.googleusercontent.com/a/example'}},session:{user:{id:'test',user_metadata:{}}} as any,busy:false,run:async f=>{await f();},onNotice:()=>{},onInfo:()=>{},onRefreshMe:async()=>{},onLogout:()=>{}}));
  const doc=new JSDOM(html).window.document;
- assert.ok(doc.querySelector('.adaptive-state-bar'));
- assert.equal(doc.querySelectorAll('.state-bar-pill').length,4);
+ assert.equal(doc.querySelector('.adaptive-state-bar'),null);
  assert.match(doc.querySelector('.empty-hero-headline')!.textContent!,/Todo empieza con tu situación/);
  assert.ok(doc.querySelector('.account img[src="https://lh3.googleusercontent.com/a/example"]'));
  assert.ok(doc.querySelector('.chat-launcher'));
  assert.equal(doc.querySelector('.stat-grid'),null);
 });
 
-test('ClientAdaptiveDashboard renders draft mode with correct metrics and actions',async()=>{
+test('ClientAdaptiveDashboard automatically recognizes draft state without switcher bar',async()=>{
  const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
  const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
    user:{id:'test',name:'Louis Amadeus'},
@@ -53,11 +52,43 @@ test('ClientAdaptiveDashboard renders draft mode with correct metrics and action
    onNavigate:()=>{}
  }));
  const doc=new JSDOM(html).window.document;
+ assert.equal(doc.querySelector('.adaptive-state-bar'),null);
  assert.match(doc.querySelector('.editorial-greeting')!.textContent!,/Buenos días, Louis/);
  assert.ok(doc.querySelector('.card-draft-theme'));
  assert.match(doc.querySelector('.hero-case-title')!.textContent!,/Incumplimiento de contrato/);
  assert.ok(doc.querySelector('.fill-burgundy'));
  assert.equal(doc.querySelectorAll('.metric-box-card').length,4);
+});
+
+test('ClientAdaptiveDashboard automatically recognizes published and engaged states',async()=>{
+ const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
+ // Published case
+ const pubHtml=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   user:{id:'test',name:'Louis Amadeus'},
+   items:[{id:'pub-1',status:'published',title:'Caso laboral publicado',category:'Laboral',city:'Medellín'} as any],
+   onOpenCase:()=>{},
+   onContinueDraft:()=>{},
+   onCreateCase:()=>{},
+   onNavigate:()=>{}
+ }));
+ const pubDoc=new JSDOM(pubHtml).window.document;
+ assert.equal(pubDoc.querySelector('.adaptive-state-bar'),null);
+ assert.ok(pubDoc.querySelector('.card-published-theme'));
+ assert.match(pubDoc.querySelector('.hero-case-title')!.textContent!,/Caso laboral publicado/);
+
+ // Engaged case
+ const engHtml=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   user:{id:'test',name:'Louis Amadeus'},
+   items:[{id:'eng-1',status:'engaged',title:'Caso en acompañamiento',category:'Civil',city:'Bogotá'} as any],
+   onOpenCase:()=>{},
+   onContinueDraft:()=>{},
+   onCreateCase:()=>{},
+   onNavigate:()=>{}
+ }));
+ const engDoc=new JSDOM(engHtml).window.document;
+ assert.equal(engDoc.querySelector('.adaptive-state-bar'),null);
+ assert.ok(engDoc.querySelector('.card-advising-theme'));
+ assert.match(engDoc.querySelector('.hero-case-title')!.textContent!,/Caso en acompañamiento/);
 });
 
 test('profile view allows changing photo or leaving anonymous without hardcoded google phrase',async()=>{

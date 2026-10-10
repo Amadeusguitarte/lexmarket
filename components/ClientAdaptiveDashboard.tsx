@@ -18,8 +18,7 @@ import {
   ShieldCheck,
   UserCheck,
   ChevronRight,
-  Sparkles,
-  Layers
+  Sparkles
 } from 'lucide-react';
 import type { Row } from './Forms';
 
@@ -57,95 +56,49 @@ export default function ClientAdaptiveDashboard({
   onNavigate,
   onOpenChat
 }: ClientAdaptiveDashboardProps) {
-  // Determine default mode based on user's real cases/draft state
-  const detectDefaultMode = (): DashboardMode => {
-    // 1. Is there an active engaged/in-progress case with a lawyer?
-    const inProgressCase = items.find(
-      (c) => c.status === 'engaged' || c.status === 'in_progress' || c.access_state === 'granted'
-    );
-    if (inProgressCase) return 'in_progress';
+  // 1. D: In-progress case with lawyer
+  const inProgressCase = items.find(
+    (c) => c.status === 'engaged' || c.status === 'in_progress' || c.access_state === 'granted'
+  );
 
-    // 2. Is there a published case?
-    const publishedCase = items.find((c) => c.status === 'published' || c.status === 'under_review');
-    if (publishedCase) return 'published';
+  // 2. B: Published or under review case
+  const publishedCase = items.find((c) => c.status === 'published' || c.status === 'review');
 
-    // 3. Is there a draft case?
-    if (draftCase?.title || draftCase?.summary) return 'draft';
+  // 3. A: Draft case in database or local draft in progress
+  const draftItem = items.find((c) => c.status === 'draft');
+  const hasLocalDraft = !!(draftCase?.title || draftCase?.summary);
+  const activeDraft = draftItem || (hasLocalDraft ? draftCase : null);
 
-    // 4. Default to empty if no cases
-    if (items.length === 0) return 'empty';
-
-    return 'draft';
-  };
-
-  const [activeMode, setActiveMode] = useState<DashboardMode>(detectDefaultMode());
-
-  // Keep synced if real data changes
-  useEffect(() => {
-    setActiveMode(detectDefaultMode());
-  }, [items.length, draftCase?.title]);
+  // Automatic detection based strictly on the user's real situation:
+  let activeMode: DashboardMode = 'empty';
+  if (inProgressCase) {
+    activeMode = 'in_progress';
+  } else if (publishedCase) {
+    activeMode = 'published';
+  } else if (activeDraft) {
+    activeMode = 'draft';
+  } else {
+    activeMode = 'empty';
+  }
 
   const firstName = user.name ? user.name.split(' ')[0] : 'Louis';
 
-  // Find relevant active case if available
-  const activeCase = items[0] || null;
-
   return (
     <div className="adaptive-dashboard-root">
-      {/* Interactive State Switcher for Preview & Verification */}
-      <div className="adaptive-state-bar" role="navigation" aria-label="Selector de estado del panel">
-        <span className="state-bar-label">
-          <Layers size={14} /> Modo de panel:
-        </span>
-        <div className="state-bar-pill-group">
-          <button
-            type="button"
-            className={`state-bar-pill ${activeMode === 'draft' ? 'active pill-draft' : ''}`}
-            onClick={() => setActiveMode('draft')}
-            aria-pressed={activeMode === 'draft'}
-          >
-            <span className="dot dot-draft" /> A. Con borrador
-          </button>
-          <button
-            type="button"
-            className={`state-bar-pill ${activeMode === 'published' ? 'active pill-published' : ''}`}
-            onClick={() => setActiveMode('published')}
-            aria-pressed={activeMode === 'published'}
-          >
-            <span className="dot dot-published" /> B. Publicado y propuestas
-          </button>
-          <button
-            type="button"
-            className={`state-bar-pill ${activeMode === 'empty' ? 'active pill-empty' : ''}`}
-            onClick={() => setActiveMode('empty')}
-            aria-pressed={activeMode === 'empty'}
-          >
-            <span className="dot dot-empty" /> C. Recién registrado (nuevo)
-          </button>
-          <button
-            type="button"
-            className={`state-bar-pill ${activeMode === 'in_progress' ? 'active pill-progress' : ''}`}
-            onClick={() => setActiveMode('in_progress')}
-            aria-pressed={activeMode === 'in_progress'}
-          >
-            <span className="dot dot-progress" /> D. Caso en curso
-          </button>
-        </div>
-      </div>
-
-      {/* RENDER THE SELECTED DASHBOARD VARIANT */}
+      {/* RENDER DYNAMIC DASHBOARD MATCHING USER REAL STATUS */}
       {activeMode === 'draft' && (
         <DraftDashboardView
           firstName={firstName}
-          draftCase={draftCase}
-          onContinueDraft={onContinueDraft}
+          draftCase={activeDraft}
+          itemsCount={items.length}
+          onContinueDraft={draftItem ? () => onOpenCase(draftItem.id) : onContinueDraft}
           onNavigate={onNavigate}
         />
       )}
 
       {activeMode === 'published' && (
         <PublishedDashboardView
-          activeCase={activeCase}
+          activeCase={publishedCase || items[0] || null}
           onOpenCase={onOpenCase}
           onNavigate={onNavigate}
           onOpenChat={onOpenChat}
@@ -161,7 +114,7 @@ export default function ClientAdaptiveDashboard({
 
       {activeMode === 'in_progress' && (
         <InProgressDashboardView
-          activeCase={activeCase}
+          activeCase={inProgressCase || items[0] || null}
           onOpenCase={onOpenCase}
           onNavigate={onNavigate}
         />
@@ -176,11 +129,13 @@ export default function ClientAdaptiveDashboard({
 function DraftDashboardView({
   firstName,
   draftCase,
+  itemsCount = 1,
   onContinueDraft,
   onNavigate
 }: {
   firstName: string;
   draftCase?: { title?: string; category?: string; city?: string; summary?: string } | null;
+  itemsCount?: number;
   onContinueDraft: () => void;
   onNavigate: (view: 'welcome' | 'messages' | 'cases' | 'documents' | 'profile') => void;
 }) {
@@ -244,8 +199,8 @@ function DraftDashboardView({
             <span className="metric-card-title">Tus casos</span>
           </div>
           <div className="metric-card-body">
-            <span className="metric-primary-value">1</span>
-            <span className="metric-unit-label">borrador</span>
+            <span className="metric-primary-value">{itemsCount}</span>
+            <span className="metric-unit-label">{itemsCount === 1 ? 'borrador' : 'borradores'}</span>
           </div>
         </div>
 

@@ -102,7 +102,16 @@ export default function Home() {
  async function continueWithGoogle(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}if(!await googleAvailable()){setGoogleReady(false);throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}});if(error)throw error;});}
  async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:location.origin}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:location.origin}});if(err2)throw error;}});}
  async function saveProfile(data:Row){await api('me','PUT',data);setMe(await api('me'));}
- async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado. Abre el caso para revisar el resumen antes de compartirlo.');});}
+ async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado.');});}
+ useEffect(()=>{
+  if(session&&me?.profile?.role==='client'&&pendingCase&&!busy){
+   void importIntake(session.user.id,setNotice,pendingCase).then((newId)=>{
+    setPendingCase(null);
+    setWorkspaceVersion(v=>v+1);
+    if(newId)setTargetCaseId(newId);
+   }).catch(()=>{});
+  }
+ },[session,me?.profile,pendingCase]);
  const authSubmit=(form:HTMLFormElement)=>run(async()=>{const data=new FormData(form),db=browserDB();if(!db){setInfo('setup');return;}const email=String(data.get('email')||''),password=String(data.get('password')||'');
   if(authMode==='signup'){const {error}=await db.auth.signUp({email,password,options:{data:{intended_role:role},emailRedirectTo:location.origin}});if(error)throw error;setNotice('Revisa tu correo para confirmar la cuenta. Si ya tenías una, puedes entrar.');setAuthMode('login');}
   else if(authMode==='reset'){const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin});if(error)throw error;setNotice('Si hay una cuenta con ese correo, recibirás un enlace para cambiar la contraseña.');setAuthMode('login');}
@@ -159,7 +168,7 @@ export default function Home() {
  }
 
  return <>
-  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
+  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
    <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
   {composer&&<CaseIntake signedIn={!!session} onClose={()=>setComposer(false)} onGoToDashboard={(id)=>{setComposer(false);if(id)setTargetCaseId(id);setWorkspaceInitialView('cases');}} onReady={handleCaseReady}/>}
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
