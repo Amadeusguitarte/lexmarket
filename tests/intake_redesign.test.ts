@@ -173,6 +173,7 @@ test('SummaryReviewStep renders provisional legal area and editable fields', () 
   assert.ok(html.includes('Ciudad / Ubicación'));
   assert.ok(html.includes('Seleccionar ciudad...'));
   assert.ok(html.includes('Bogotá'));
+  assert.ok(!html.includes('Definida'), 'Neither date nor city should appear as Definida initially');
   assert.ok(html.includes('Está bien, continuar'));
 });
 

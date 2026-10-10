@@ -100,24 +100,36 @@ export default function SummaryReviewStep({
       initialDateStr !== 'No especificadas' &&
       !matchedCommonDate
   );
-  const [selectedDateOption, setSelectedDateOption] = useState<string>(() => {
-    if (matchedCommonDate) return matchedCommonDate;
-    if (initialDateStr && initialDateStr !== 'No especificadas') return initialDateStr;
-    return '';
-  });
+
+  // Both date and city start unconfirmed until user actually selects
+  const [selectedDateOption, setSelectedDateOption] = useState<string>('');
+  const [userDefinedDate, setUserDefinedDate] = useState<boolean>(false);
+  const [userDefinedCity, setUserDefinedCity] = useState<boolean>(false);
   const [isExactDateMode, setIsExactDateMode] = useState(false);
   const [exactDateValue, setExactDateValue] = useState('');
 
   const handleDateSelect = (val: string) => {
+    if (!val) {
+      setSelectedDateOption('');
+      setUserDefinedDate(false);
+      setIsExactDateMode(false);
+      setData((d) => ({ ...d, importantDates: [] }));
+      return;
+    }
+
     if (val === 'exact_date') {
       setIsExactDateMode(true);
       setSelectedDateOption('exact_date');
+      if (exactDateValue) {
+        setUserDefinedDate(true);
+      }
     } else {
       setIsExactDateMode(false);
       setSelectedDateOption(val);
+      setUserDefinedDate(true);
       setData((d) => ({
         ...d,
-        importantDates: val ? [val] : []
+        importantDates: [val]
       }));
     }
   };
@@ -125,10 +137,23 @@ export default function SummaryReviewStep({
   const handleExactDateChange = (val: string) => {
     setExactDateValue(val);
     if (val) {
+      setUserDefinedDate(true);
       setData((d) => ({
         ...d,
         importantDates: [val]
       }));
+    } else {
+      setUserDefinedDate(false);
+    }
+  };
+
+  const handleCitySelect = (val: string) => {
+    if (!val) {
+      setUserDefinedCity(false);
+      setData((d) => ({ ...d, detectedCity: '' }));
+    } else {
+      setUserDefinedCity(true);
+      setData((d) => ({ ...d, detectedCity: val }));
     }
   };
 
@@ -284,7 +309,7 @@ export default function SummaryReviewStep({
                 <span className="box-title">
                   <Calendar size={14} /> Fechas importantes
                 </span>
-                {data.importantDates.length > 0 && data.importantDates[0] && (
+                {userDefinedDate && selectedDateOption && (
                   <span className="direct-selected-badge">
                     <Check size={11} strokeWidth={2.5} /> Definida
                   </span>
@@ -300,12 +325,17 @@ export default function SummaryReviewStep({
                     aria-label="Seleccionar fecha importante"
                   >
                     <option value="">Seleccionar cuándo ocurrió...</option>
-                    {isCustomDetectedDate && (
-                      <option value={initialDateStr}>
-                        {initialDateStr} (detectada del relato)
+                    {matchedCommonDate && (
+                      <option value={matchedCommonDate}>
+                        {matchedCommonDate} (mencionada en el relato)
                       </option>
                     )}
-                    {COMMON_DATE_OPTIONS.map((opt) => (
+                    {isCustomDetectedDate && (
+                      <option value={initialDateStr}>
+                        {initialDateStr} (mencionada en el relato)
+                      </option>
+                    )}
+                    {COMMON_DATE_OPTIONS.filter((opt) => opt !== matchedCommonDate).map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
@@ -334,7 +364,7 @@ export default function SummaryReviewStep({
                 <span className="box-title">
                   <MapPin size={14} /> Ciudad / Ubicación
                 </span>
-                {data.detectedCity && (
+                {userDefinedCity && data.detectedCity && (
                   <span className="direct-selected-badge">
                     <Check size={11} strokeWidth={2.5} /> Definida
                   </span>
@@ -345,22 +375,17 @@ export default function SummaryReviewStep({
                 <div className="direct-picker-wrap">
                   <select
                     className="direct-picker-select"
-                    value={data.detectedCity || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setData((d) => ({ ...d, detectedCity: val }));
-                    }}
+                    value={userDefinedCity ? (data.detectedCity || '') : ''}
+                    onChange={(e) => handleCitySelect(e.target.value)}
                     aria-label="Seleccionar ciudad o ubicación"
                   >
                     <option value="">Seleccionar ciudad...</option>
-                    {data.detectedCity &&
-                      !COLOMBIAN_CITIES_LIST.includes(data.detectedCity) &&
-                      data.detectedCity !== 'Otra ciudad / En todo el país' && (
-                        <option value={data.detectedCity}>
-                          {data.detectedCity} (detectada del relato)
-                        </option>
-                      )}
-                    {COLOMBIAN_CITIES_LIST.map((city) => (
+                    {data.detectedCity && (
+                      <option value={data.detectedCity}>
+                        {data.detectedCity} (mencionada en el relato)
+                      </option>
+                    )}
+                    {COLOMBIAN_CITIES_LIST.filter((c) => c !== data.detectedCity).map((city) => (
                       <option key={city} value={city}>
                         {city}
                       </option>
