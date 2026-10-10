@@ -122,6 +122,26 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   const [city, setCity] = useState('');
   const [urgency, setUrgency] = useState<'normal' | 'soon' | 'urgent'>('normal');
   const [caseId, setCaseId] = useState<string | undefined>(undefined);
+  const [completedStages, setCompletedStages] = useState<Set<IntakeStage>>(new Set());
+
+  // Intelligent check whether a given stage has actually been completed
+  const isStageCompleted = (stg: IntakeStage): boolean => {
+    if (completedStages.has(stg)) return true;
+    switch (stg) {
+      case 'narrative':
+        return narrative.trim().length >= 20 && stage !== 'narrative' && stage !== 'welcome';
+      case 'clarification':
+        return Object.keys(answers).length > 0;
+      case 'evidence':
+        return files.length > 0;
+      case 'parties':
+        return Boolean(privateData.fullName?.trim() && privateData.email?.trim());
+      case 'review':
+        return stage === 'success';
+      default:
+        return false;
+    }
+  };
 
   const [hasExistingDraft, setHasExistingDraft] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -314,6 +334,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
       const catShort = INTAKE_CATEGORIES[analyzedData.suggestedCategory]?.shortLabel || 'Asunto legal';
       setTitle(`Consulta sobre ${catShort.toLowerCase()}`);
 
+      setCompletedStages((prev) => new Set(prev).add('narrative').add('summary_review'));
       setStage('summary_review');
       await persistDraft('summary_review');
     } catch (err: any) {
@@ -327,6 +348,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   const handleSummaryConfirm = async (confirmedFacts: ExtractedFacts) => {
     setExtractedFacts(confirmedFacts);
     setUserOverriddenCategory(confirmedFacts.suggestedCategory);
+    setCompletedStages((prev) => new Set(prev).add('narrative').add('summary_review'));
     setStage('clarification');
     await persistDraft('clarification');
   };
@@ -341,12 +363,14 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
     if (confirmedAnswers['city']) {
       setCity(confirmedAnswers['city']);
     }
+    setCompletedStages((prev) => new Set(prev).add('clarification'));
     setStage('evidence');
     await persistDraft('evidence');
   };
 
   // Stage 4 -> Stage 5: Documents done / skipped
   const handleDocumentsContinue = async () => {
+    setCompletedStages((prev) => new Set(prev).add('evidence'));
     setStage('parties');
     await persistDraft('parties');
   };
@@ -354,6 +378,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
   // Stage 5 -> Stage 6: Parties done
   const handlePartiesContinue = async (confirmedParties: PrivateClientData) => {
     setPrivateData(confirmedParties);
+    setCompletedStages((prev) => new Set(prev).add('parties'));
     setStage('review');
     await persistDraft('review');
   };
@@ -476,7 +501,11 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
             </div>
 
             <div className="header-stepper-wrap">
-              <IntakeProgress currentStage={stage} onNavigateStage={handleNavigateStage} />
+              <IntakeProgress
+                currentStage={stage}
+                onNavigateStage={handleNavigateStage}
+                isStageCompleted={isStageCompleted}
+              />
             </div>
 
             <button

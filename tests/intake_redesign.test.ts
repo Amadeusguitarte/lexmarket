@@ -397,6 +397,36 @@ test('IntakeProgress renders interactive clickable step buttons for navigation',
   assert.ok(html.includes('Revisión'));
 });
 
+test('IntakeProgress keeps numbers when skipping steps and only checkmarks genuinely completed steps', () => {
+  // User jumped directly to 'parties' (Privacidad, step 4) having only completed 'narrative' (step 1)
+  const completed = new Set(['narrative']);
+  const html = renderToStaticMarkup(
+    React.createElement(IntakeProgress, {
+      currentStage: 'parties',
+      completedStages: completed as any
+    })
+  );
+  const doc = new JSDOM(html).window.document;
+
+  // Step 1 was completed -> has check icon
+  const step1 = doc.querySelectorAll('button.intake-stage-btn')[0];
+  assert.ok(step1.querySelector('svg.intake-check-icon'));
+
+  // Step 2 was skipped -> NOT completed, shows number 2
+  const step2 = doc.querySelectorAll('button.intake-stage-btn')[1];
+  assert.ok(!step2.querySelector('svg.intake-check-icon'));
+  assert.equal(step2.querySelector('.intake-step-number')?.textContent?.trim(), '2');
+
+  // Step 3 was skipped -> NOT completed, shows number 3
+  const step3 = doc.querySelectorAll('button.intake-stage-btn')[2];
+  assert.ok(!step3.querySelector('svg.intake-check-icon'));
+  assert.equal(step3.querySelector('.intake-step-number')?.textContent?.trim(), '3');
+
+  // Step 4 is current -> shows number 4
+  const step4 = doc.querySelectorAll('button.intake-stage-btn')[3];
+  assert.equal(step4.querySelector('.intake-step-number')?.textContent?.trim(), '4');
+});
+
 test('MicActivationModal renders step-by-step guidance for browser microphone permission', () => {
   const html = renderToStaticMarkup(
     React.createElement(MicActivationModal, {

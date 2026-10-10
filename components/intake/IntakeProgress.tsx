@@ -6,6 +6,8 @@ import { getNamedStage } from './types';
 interface IntakeProgressProps {
   currentStage: IntakeStage;
   onNavigateStage?: (target: IntakeStage) => void;
+  completedStages?: Set<IntakeStage> | IntakeStage[];
+  isStageCompleted?: (stage: IntakeStage) => boolean;
 }
 
 const NAMED_STEPS: { name: ProgressNamedStep; stage: IntakeStage; index: number }[] = [
@@ -16,15 +18,34 @@ const NAMED_STEPS: { name: ProgressNamedStep; stage: IntakeStage; index: number 
   { name: 'Revisión', stage: 'review', index: 4 }
 ];
 
-export default function IntakeProgress({ currentStage, onNavigateStage }: IntakeProgressProps) {
+export default function IntakeProgress({
+  currentStage,
+  onNavigateStage,
+  completedStages,
+  isStageCompleted
+}: IntakeProgressProps) {
   const activeNamed = getNamedStage(currentStage);
   const activeIndex = NAMED_STEPS.findIndex((s) => s.name === activeNamed);
+
+  const checkIsDone = (stepStage: IntakeStage): boolean => {
+    if (isStageCompleted) return isStageCompleted(stepStage);
+    if (completedStages instanceof Set) {
+      return (
+        completedStages.has(stepStage) ||
+        (stepStage === 'narrative' && completedStages.has('summary_review'))
+      );
+    }
+    if (Array.isArray(completedStages)) {
+      return completedStages.includes(stepStage);
+    }
+    return false;
+  };
 
   return (
     <nav className="intake-stage-progress" aria-label="Progreso del caso">
       <ol className="intake-stage-list">
         {NAMED_STEPS.map((step, idx) => {
-          const isDone = idx < activeIndex;
+          const isDone = checkIsDone(step.stage);
           const isCurrent = idx === activeIndex;
 
           return (
@@ -39,8 +60,10 @@ export default function IntakeProgress({ currentStage, onNavigateStage }: Intake
                 aria-current={isCurrent ? 'step' : undefined}
                 title={`Ir al paso ${idx + 1}: ${step.name}`}
               >
-                <div className="intake-stage-indicator">
-                  {isDone ? (
+                <div
+                  className={`intake-stage-indicator ${isCurrent ? 'current' : ''} ${isDone ? 'completed' : ''}`}
+                >
+                  {isDone && !isCurrent ? (
                     <Check size={13} className="intake-check-icon" />
                   ) : (
                     <span className="intake-step-number">{idx + 1}</span>
