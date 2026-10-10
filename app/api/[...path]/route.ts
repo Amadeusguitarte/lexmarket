@@ -2,7 +2,7 @@ import { chatApi } from '@/lib/chat-server';
 import { safeAvatar } from '@/lib/avatar';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth, db, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
+import { auth, db, ensureCaseFilesBucket, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
 import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
@@ -326,24 +326,163 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     return json({items:result(await q)});
    }
    if(path[0]==='admin') {
-    if(!isAdmin(user)) throw new HttpError(403,'Acceso restringido.');
-    if(method==='GET') return json({profiles:result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200)),cases:result(await client.from('cases').select('id,title,category,city,service,public_summary,status,updated_at,moderation_note').in('status',['review','published']).order('updated_at').limit(200)),audit:result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))});
-    if(method==='PATCH'&&path[1]==='cases'&&path[2]) {
-     const id=uuid.parse(path[2]);const p=z.object({decision:z.enum(['approved','changes_requested','rejected','removed']),note:z.string().trim().min(20).max(2000),version:z.string().datetime({offset:true})}).parse(await body(req));
-     result(await client.rpc('review_case',{p_case:id,p_actor:user.id,p_result:p.decision,p_note:p.note,p_version:p.version}));return json({ok:true});
-    }
-    if(method==='PATCH'&&path[1]) {
-     uuid.parse(path[1]);
-     const p=z.object({verification:z.enum(['verified','rejected']).optional(),featured:z.boolean().optional(),note:z.string().trim().min(20).max(2000).optional()}).parse(await body(req));
-     if(p.verification && p.note) {
-      result(await client.rpc('review_professional',{p_target:path[1],p_actor:user.id,p_result:p.verification,p_note:p.note}));
+     if(!isAdmin(user)) throw new HttpError(403,'Acceso restringido.');
+
+     if(path[1]==='storage') {
+      if(method==='POST'&&path[2]==='init') {
+       await ensureCaseFilesBucket(client);
+       return json({ok:true,bucket:'case-files',ready:true});
+      }
+      let bucketsList:any[]=[];
+      try{const b=await client.storage.listBuckets();bucketsList=b.data||[];}catch{}
+      const exists=bucketsList.some((b:any)=>b.name==='case-files'||b.id==='case-files');
+      const docCount=await client.from('documents').select('id',{count:'exact',head:true});
+      return json({ok:true,bucket:'case-files',exists,totalFiles:docCount.count||0});
      }
-     if(p.featured !== undefined) {
-      result(await client.from('profiles').update({featured:p.featured}).eq('id',path[1]));
+
+     if(path[1]==='documents') {
+      if(method==='GET'&&path[2]) {
+       const docId=uuid.parse(path[2]);
+       const d=result(await client.from('documents').select('*').eq('id',docId).maybeSingle());
+       if(!d) throw new HttpError(404,'Archivo no disponible.');
+       const file=result(await client.storage.from('case-files').download(d.path));
+       await client.from('audit_log').insert({actor_id:user.id,action:'admin.document.download',target_id:d.id,note:JSON.stringify({name:d.name,path:d.path})});
+       return new Response(file,{headers:{'Content-Type':d.mime||'application/octet-stream','Content-Disposition':"attachment; filename*=UTF-8''"+encodeURIComponent(d.name),'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+      }
+      if(method==='POST'&&path[2]&&path[3]==='state') {
+       const docId=uuid.parse(path[2]);
+       const p=z.object({state:z.enum(['clean','quarantine','failed','blocked'])}).parse(await body(req));
+       result(await client.from('documents').update({state:p.state}).eq('id',docId));
+       await client.from('audit_log').insert({actor_id:user.id,action:'admin.document.state.'+p.state,target_id:docId});
+       return json({ok:true});
+      }
+      if(method==='GET') {
+       const docs=result(await client.from('documents').select('id,case_id,name,path,mime,size,state,created_at,extraction_note').order('created_at',{ascending:false}).limit(200))||[];
+       const caseIds=[...new Set(docs.map((d:any)=>d.case_id))];
+       let casesMap:Record<string,any>={};
+       if(caseIds.length){
+        const cs=result(await client.from('cases').select('id,title,status,category,city').in('id',caseIds))||[];
+        for(const c of cs) casesMap[c.id]=c;
+       }
+       return json({documents:docs.map((d:any)=>({...d,case:casesMap[d.case_id]||null}))});
+      }
      }
-     return json({ok:true});
+
+     if(path[1]==='cases') {
+      if(method==='GET'&&path[2]) {
+       const caseId=uuid.parse(path[2]);
+       const c=result(await client.from('cases').select('*').eq('id',caseId).maybeSingle());
+       if(!c) throw new HttpError(404,'No encontramos ese caso.');
+       const owner=result(await client.from('profiles').select('*').eq('id',c.owner_id).maybeSingle());
+       const docs=result(await client.from('documents').select('*').eq('case_id',caseId).order('created_at'))||[];
+       const audit=result(await client.from('audit_log').select('*').eq('target_id',caseId).order('created_at',{ascending:false}).limit(20))||[];
+       const events=result(await client.from('events').select('*').eq('case_id',caseId).order('created_at',{ascending:false}).limit(20))||[];
+       return json({case:c,owner,documents:docs,audit,events});
+      }
+
+      if(method==='GET') {
+       const url=new URL(req.url);const statusFilter=url.searchParams.get('status');
+       let q=client.from('cases').select('id,owner_id,title,category,city,service,urgency,status,description,public_summary,counterparty,moderation_note,created_at,updated_at').order('updated_at',{ascending:false}).limit(200);
+       if(statusFilter&&statusFilter!=='all') q=q.eq('status',statusFilter);
+       const casesList=result(await q)||[];
+       const caseIds=casesList.map((c:any)=>c.id);
+       const ownerIds=[...new Set(casesList.map((c:any)=>c.owner_id))];
+       const ownersMap:Record<string,any>={};
+       if(ownerIds.length){
+        const ows=result(await client.from('profiles').select('id,name,city,avatar_url,role').in('id',ownerIds))||[];
+        for(const o of ows) ownersMap[o.id]=o;
+       }
+       const docCounts:Record<string,number>={};
+       if(caseIds.length){
+        const docs=result(await client.from('documents').select('id,case_id').in('case_id',caseIds))||[];
+        for(const d of docs) docCounts[d.case_id]=(docCounts[d.case_id]||0)+1;
+       }
+       return json({cases:casesList.map((c:any)=>({...c,owner:ownersMap[c.owner_id]||null,document_count:docCounts[c.id]||0}))});
+      }
+
+      if(method==='PATCH'&&path[2]) {
+       const id=uuid.parse(path[2]);
+       const payload=await body(req);
+       if(payload.decision&&payload.version){
+        const p=z.object({decision:z.enum(['approved','changes_requested','rejected','removed']),note:z.string().trim().min(20).max(2000),version:z.string().datetime({offset:true})}).parse(payload);
+        result(await client.rpc('review_case',{p_case:id,p_actor:user.id,p_result:p.decision,p_note:p.note,p_version:p.version}));
+        return json({ok:true});
+       }
+       const p=z.object({action:z.enum(['approve','request_changes','reject','pause','close']),note:z.string().trim().max(2000).optional()}).parse(payload);
+       const c=result(await client.from('cases').select('*').eq('id',id).maybeSingle());
+       if(!c) throw new HttpError(404,'Caso no encontrado.');
+       if(p.action==='approve'){
+        result(await client.from('cases').update({status:'published',moderation_note:p.note||'Publicación aprobada por administración',updated_at:new Date().toISOString()}).eq('id',id));
+        result(await client.from('listings').delete().eq('case_id',id));
+        result(await client.from('listings').insert({case_id:id,title:c.title,category:c.category,city:c.city,service:c.service,summary:c.public_summary||c.title,urgency:c.urgency}));
+        result(await client.from('audit_log').insert({actor_id:user.id,action:'case.approved',target_id:id,note:JSON.stringify({method:'manual',reason:p.note||'Aprobado por administración'})}));
+        await event(ctx,id,'Publicación aprobada',p.note||'Tu caso ha sido publicado en el marketplace de MatchJurídico.');
+       }else if(p.action==='request_changes'||p.action==='reject'){
+        result(await client.from('listings').delete().eq('case_id',id));
+        result(await client.from('cases').update({status:'draft',moderation_note:p.note||(p.action==='reject'?'Publicación rechazada':'Se solicitan ajustes'),updated_at:new Date().toISOString()}).eq('id',id));
+        result(await client.from('audit_log').insert({actor_id:user.id,action:p.action==='reject'?'case.rejected':'case.changes_requested',target_id:id,note:JSON.stringify({method:'manual',reason:p.note})}));
+        await event(ctx,id,p.action==='reject'?'Publicación rechazada':'Necesitamos algunos ajustes',p.note||'Revisa las observaciones del administrador.');
+       }else if(p.action==='pause'){
+        result(await client.from('listings').delete().eq('case_id',id));
+        result(await client.from('cases').update({status:'draft',moderation_note:p.note||'Publicación retirada temporalmente',updated_at:new Date().toISOString()}).eq('id',id));
+        result(await client.from('audit_log').insert({actor_id:user.id,action:'case.removed',target_id:id,note:JSON.stringify({method:'manual',reason:p.note})}));
+        await event(ctx,id,'Publicación retirada',p.note||'Publicación retirada temporalmente.');
+       }else if(p.action==='close'){
+        result(await client.from('listings').delete().eq('case_id',id));
+        result(await client.from('cases').update({status:'closed',updated_at:new Date().toISOString()}).eq('id',id));
+        result(await client.from('audit_log').insert({actor_id:user.id,action:'case.closed',target_id:id}));
+        await event(ctx,id,'Caso cerrado por administración',p.note||'');
+       }
+       return json({ok:true});
+      }
+     }
+
+     if(method==='PATCH'&&path[1]&&path[1]!=='cases'&&path[1]!=='documents'&&path[1]!=='storage') {
+      uuid.parse(path[1]);
+      const p=z.object({verification:z.enum(['verified','rejected']).optional(),featured:z.boolean().optional(),note:z.string().trim().min(20).max(2000).optional()}).parse(await body(req));
+      if(p.verification && p.note) {
+       result(await client.rpc('review_professional',{p_target:path[1],p_actor:user.id,p_result:p.verification,p_note:p.note}));
+      }
+      if(p.featured !== undefined) {
+       result(await client.from('profiles').update({featured:p.featured}).eq('id',path[1]));
+      }
+      return json({ok:true});
+     }
+
+     if(method==='GET') {
+      const allCases=result(await client.from('cases').select('id,owner_id,title,category,city,service,urgency,status,description,public_summary,moderation_note,created_at,updated_at').order('updated_at',{ascending:false}).limit(200))||[];
+      const caseIds=allCases.map((c:any)=>c.id);
+      const ownerIds=[...new Set(allCases.map((c:any)=>c.owner_id))];
+      const ownersMap:Record<string,any>={};
+      if(ownerIds.length){
+       const ows=result(await client.from('profiles').select('id,name,city,avatar_url,role').in('id',ownerIds))||[];
+       for(const o of ows) ownersMap[o.id]=o;
+      }
+      const docCounts:Record<string,number>={};
+      if(caseIds.length){
+       const docs=result(await client.from('documents').select('id,case_id').in('case_id',caseIds))||[];
+       for(const d of docs) docCounts[d.case_id]=(docCounts[d.case_id]||0)+1;
+      }
+      const allDocs=result(await client.from('documents').select('id,case_id,name,path,mime,size,state,created_at').order('created_at',{ascending:false}).limit(50))||[];
+      const profiles=result(await client.from('profiles').select('*').eq('role','lawyer').order('created_at',{ascending:false}).limit(200))||[];
+      const audit=result(await client.from('audit_log').select('*').order('created_at',{ascending:false}).limit(50))||[];
+      return json({
+       profiles,
+       cases:allCases.map((c:any)=>({...c,owner:ownersMap[c.owner_id]||null,document_count:docCounts[c.id]||0})),
+       documents:allDocs,
+       audit,
+       stats:{
+        totalCases:allCases.length,
+        pendingReview:allCases.filter((c:any)=>c.status==='review').length,
+        published:allCases.filter((c:any)=>c.status==='published').length,
+        draft:allCases.filter((c:any)=>c.status==='draft').length,
+        totalDocuments:allDocs.length,
+        pendingLawyers:profiles.filter((p:any)=>p.verification==='pending').length,
+        storageBucket:'case-files'
+       }
+      });
+     }
     }
-   }
 
   if(path[0]==='documents'&&path[1]) {
    uuid.parse(path[1]);const d=result(await client.from('documents').select('*').eq('id',path[1]).maybeSingle());
@@ -474,7 +613,12 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     try{mime=validateFile(file.name,bytes);}catch(e){throw new HttpError(400,(e as Error).message);}
     const docId=form.get('document_id')?uuid.parse(form.get('document_id')):crypto.randomUUID(),storagePath=id+'/'+docId;const existing=result(await client.from('documents').select('id,case_id').eq('id',docId).maybeSingle());if(existing){if(existing.case_id!==id)throw new HttpError(409,'No se pudo recuperar el archivo.');return json({ok:true});}
     const count=await client.from('documents').select('id',{count:'exact',head:true}).eq('case_id',id);if(count.error) throw new HttpError(503,'No se pudo comprobar el espacio.');if((count.count||0)>=30) throw new HttpError(409,'Este caso alcanzó los 30 archivos de la beta.');
-    result(await client.storage.from('case-files').upload(storagePath,bytes,{contentType:mime,upsert:false}));
+    let uploadRes=await client.storage.from('case-files').upload(storagePath,bytes,{contentType:mime,upsert:false});
+    if(uploadRes.error && (uploadRes.error.message?.toLowerCase().includes('bucket') || (uploadRes.error as any).statusCode===404 || (uploadRes.error as any).status===404)){
+     await ensureCaseFilesBucket(client);
+     uploadRes=await client.storage.from('case-files').upload(storagePath,bytes,{contentType:mime,upsert:false});
+    }
+    result(uploadRes);
     const saved=await client.from('documents').insert({id:docId,case_id:id,name:safeName(file.name),path:storagePath,mime,size:bytes.length});
     if(saved.error){await client.storage.from('case-files').remove([storagePath]);result(saved);}
     const queued=await client.from('jobs').insert({case_id:id,document_id:docId,kind:'scan'});

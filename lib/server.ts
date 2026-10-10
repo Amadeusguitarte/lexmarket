@@ -14,7 +14,38 @@ export function result<T>(r:{data:T;error:unknown}):T {
   }
   return r.data;
 }
-export function isAdmin(user:User) {return !!user.email_confirmed_at && (user.app_metadata?.matchjuridico_admin===true || user.app_metadata?.lexmarket_admin===true || (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||''));}
+export function isAdmin(user:User) {
+ return !!user.email_confirmed_at && (
+  user.app_metadata?.matchjuridico_admin===true ||
+  user.app_metadata?.lexmarket_admin===true ||
+  user.app_metadata?.is_admin===true ||
+  user.app_metadata?.admin===true ||
+  user.app_metadata?.role==='admin' ||
+  (process.env.ADMIN_EMAILS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean).includes(user.email?.toLowerCase()||'') ||
+  (!!process.env.ADMIN_EMAIL && process.env.ADMIN_EMAIL.trim().toLowerCase() === user.email?.toLowerCase())
+ );
+}
+export async function ensureCaseFilesBucket(client: ReturnType<typeof db>) {
+ try {
+  const { data: buckets } = await client.storage.listBuckets();
+  const exists = buckets?.some(b => b.name === 'case-files' || b.id === 'case-files');
+  if (!exists) {
+   await client.storage.createBucket('case-files', {
+    public: false,
+    fileSizeLimit: 10485760,
+    allowedMimeTypes: [
+     'application/pdf',
+     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+     'text/plain',
+     'image/jpeg',
+     'image/png'
+    ]
+   });
+  }
+ } catch (err) {
+  // Ignore if bucket exists or restricted in test environments
+ }
+}
 export async function auth(req:Request) {
  const token=req.headers.get('authorization')?.match(/^Bearer (.+)$/)?.[1];
  if(!token) throw new HttpError(401,'Inicia sesión para continuar.');
