@@ -38,3 +38,13 @@ test('signed-in welcome uses the Google avatar and offers cases and messages bef
  assert.ok(doc.querySelector('.chat-launcher'));
  assert.equal(doc.querySelector('.stat-grid'),null);
 });
+
+test('profile view allows changing photo or leaving anonymous without hardcoded google phrase',async()=>{
+ const {default:Workspace}=await import('../components/Workspace');
+ const html=renderToStaticMarkup(React.createElement(Workspace,{initialView:'profile',me:{profile:{id:'test',name:'Carlos Lopez',role:'client',avatar_url:'https://lh3.googleusercontent.com/a/example'}},session:{user:{id:'test',user_metadata:{avatar_url:'https://lh3.googleusercontent.com/a/example'}}} as any,busy:false,run:async f=>{await f();},onNotice:()=>{},onInfo:()=>{},onRefreshMe:async()=>{},onLogout:()=>{}}));
+ assert.equal(html.includes('Tu foto de Google te acompaña en MatchJurídico.'),false);
+ assert.ok(html.includes('Foto de perfil'));
+ assert.ok(html.includes('Subir foto'));
+ assert.ok(html.includes('Dejar anónimo'));
+});
+

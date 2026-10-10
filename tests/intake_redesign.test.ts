@@ -324,6 +324,8 @@ test('SuccessStep and Permissions Manager render expected post-publication state
   assert.ok(successHtml.includes('Recibirás una notificación cuando alguien muestre interés'));
   assert.ok(successHtml.includes('Tú decides con quién hablar, qué compartir'));
   assert.ok(successHtml.includes('Ir a mi panel'));
+  assert.ok(!successHtml.includes('&ldquo;'));
+  assert.ok(successHtml.includes('“Reclamación laboral”'));
 
   const permsHtml = renderToStaticMarkup(
     React.createElement(CasePermissionsManager, {

@@ -74,6 +74,8 @@ export default function PublishAuthModal({
 
       try {
         localStorage.setItem('lexmarket.intendedRole', 'client');
+        localStorage.setItem('lexmarket.intakeActive', 'true');
+        localStorage.setItem('lexmarket.intakeStage', 'review');
         if (publicationData) {
           localStorage.setItem('lexmarket.pendingCase', JSON.stringify(publicationData));
         }

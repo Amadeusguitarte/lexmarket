@@ -24,7 +24,7 @@ export default function SuccessStep({
         </span>
         <h1 className="editorial-headline">Tu caso ha sido publicado de forma anónima.</h1>
         <p className="step-sub success-sub">
-          {caseTitle ? `Hemos registrado &ldquo;${caseTitle}&rdquo; de forma protegida.` : 'Tu expediente ya está activo y bajo tu estricto control.'}
+          {caseTitle ? `Hemos registrado “${caseTitle}” de forma protegida.` : 'Tu expediente ya está activo y bajo tu estricto control.'}
         </p>
       </div>
 

@@ -280,11 +280,28 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
       await saveProfileSafely(profileUpdates);
       return json({ok:true,profile:profileUpdates});
      }
-     if(method==='GET') {const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);if(profile&&avatar&&profile.avatar_url!==avatar){result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));profile.avatar_url=avatar;}return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});}
+     if(method==='GET') {
+       const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);
+       if(profile&&avatar&&(profile.avatar_url===null||profile.avatar_url===undefined)){
+         result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));
+         profile.avatar_url=avatar;
+       }
+       return json({profile,admin:isAdmin(user),ai:!!process.env.OPENAI_API_KEY&&!!process.env.OPENAI_MODEL});
+     }
      if(method==='PUT') {
       const p=profileSchema.parse(await body(req));
       if(profile&&p.role!==profile.role) throw new HttpError(400,'El tipo de cuenta no se puede cambiar aquí.');
       const reset=profile&&p.role==='lawyer'&&(p.license!==profile.license||p.name!==profile.name);
+      let userAvatar: string | null = profile?.avatar_url ?? null;
+      if (p.avatar_url !== undefined) {
+        if (p.avatar_url === '' || p.avatar_url === null) {
+          userAvatar = '';
+        } else {
+          userAvatar = safeAvatar(p.avatar_url) || null;
+        }
+      } else if (profile?.avatar_url === undefined || profile?.avatar_url === null) {
+        userAvatar = safeAvatar(user.user_metadata?.avatar_url || user.user_metadata?.picture) || null;
+      }
       const profileData: Record<string, any> = {
         id: user.id,
         name: p.name,
@@ -299,7 +316,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         virtual_available: p.virtual_available ?? true,
         in_person_available: p.in_person_available ?? true,
         featured: p.featured ?? false,
-        avatar_url: safeAvatar(user.user_metadata?.avatar_url || user.user_metadata?.picture) || null
+        avatar_url: userAvatar
       };
 
       if (!profile || reset) {

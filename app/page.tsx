@@ -28,6 +28,12 @@ function LinkedinIcon({ size = 18 }: { size?: number }) {
 export default function Home() {
  const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[loadingProfile,setLoadingProfile]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
  const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
+ const [targetCaseId,setTargetCaseId]=useState<string>(''),[workspaceInitialView,setWorkspaceInitialView]=useState<string>('welcome');
+
+ const isLawyerAccount = role === 'lawyer' || 
+   session?.user?.user_metadata?.intended_role === 'lawyer' || 
+   (typeof window !== 'undefined' && localStorage.getItem('lexmarket.intendedRole') === 'lawyer') || 
+   me?.profile?.role === 'lawyer';
 
  const handleInvite = (lawyer: LawyerData) => {
   if (!session) {
@@ -46,12 +52,51 @@ export default function Home() {
   setNotice(`¡Invitación enviada exitosamente a ${inviteLawyer?.name}!`);
  };
 
- useEffect(()=>{try{const saved=localStorage.getItem('lexmarket.pendingCase');const savedRole=localStorage.getItem('lexmarket.intendedRole');if(saved)setPendingCase(JSON.parse(saved));if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);if(typeof window!=='undefined'){const sp=new URLSearchParams(window.location.search);const qAuth=sp.get('auth');const qRole=sp.get('role');if(qRole==='lawyer'||qRole==='client'){setRole(qRole);try{localStorage.setItem('lexmarket.intendedRole',qRole);}catch{}}if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}}}catch{}const db=browserDB();if(!db){setAuthReady(true);return;}db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});const {data}=db.auth.onAuthStateChange((event,s)=>{setSession(s);if(event==='PASSWORD_RECOVERY')setAuthMode('update');});return ()=>data.subscription.unsubscribe();},[]);
+ useEffect(()=>{
+  try{
+   const saved=localStorage.getItem('lexmarket.pendingCase');
+   const savedRole=localStorage.getItem('lexmarket.intendedRole');
+   const intakeActive=localStorage.getItem('lexmarket.intakeActive')==='true';
+   if(intakeActive)setComposer(true);
+   if(saved)setPendingCase(JSON.parse(saved));
+   if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);
+   if(typeof window!=='undefined'){
+    const sp=new URLSearchParams(window.location.search);
+    const qAuth=sp.get('auth');
+    const qRole=sp.get('role');
+    if(qRole==='lawyer'||qRole==='client'){setRole(qRole);try{localStorage.setItem('lexmarket.intendedRole',qRole);}catch{}}
+    if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}
+   }
+  }catch{}
+  const db=browserDB();
+  if(!db){setAuthReady(true);return;}
+  db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});
+  const {data}=db.auth.onAuthStateChange((event,s)=>{
+   setSession(s);
+   if(event==='PASSWORD_RECOVERY')setAuthMode('update');
+   if(s&&typeof window!=='undefined'&&localStorage.getItem('lexmarket.intakeActive')==='true'){
+    setComposer(true);
+   }
+  });
+  return ()=>data.subscription.unsubscribe();
+ },[]);
+
+ useEffect(()=>{
+  if(session&&me&&!me.profile&&!isLawyerAccount){
+   const intakeActive=typeof window!=='undefined'&&localStorage.getItem('lexmarket.intakeActive')==='true';
+   if(composer||intakeActive){
+    const intakeName=(typeof window!=='undefined'&&localStorage.getItem('lexmarket.intakeName'))||'';
+    const defaultName=session.user.user_metadata?.full_name||session.user.user_metadata?.name||intakeName||'Cliente';
+    void saveProfile({name:defaultName,role:'client'});
+   }
+  }
+ },[session,me,composer,isLawyerAccount]);
+
  useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});void linkedinAvailable().then(setLinkedinReady).catch(()=>{});},[]);
  useEffect(()=>{if(session){setLoadingProfile(true);api('me').then(setMe).catch(e=>setError(e.message)).finally(()=>setLoadingProfile(false));}else{setMe(null);setLoadingProfile(false);}},[session]);
  async function run(fn:()=>Promise<void>) {setBusy(true);setError('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'No pudimos completar la acción.');}finally{setBusy(false);}}
- function start(r:string){setRole(r);try{localStorage.setItem('lexmarket.intendedRole',r);}catch{}if(r==='client')setComposer(true);else setAuthMode('signup');}
- function keepDraft(data:Row){setPendingCase(data);try{localStorage.setItem('lexmarket.pendingCase',JSON.stringify(data));}catch{}if(session){void importDraft();}else{setComposer(false);setAuthMode('signup');setNotice('Tu borrador está preparado. Entra o crea tu cuenta para guardarlo en privado.');}}
+ function start(r:string){setRole(r);try{localStorage.setItem('lexmarket.intendedRole',r);if(r==='client')localStorage.setItem('lexmarket.intakeActive','true');}catch{}if(r==='client')setComposer(true);else setAuthMode('signup');}
+ async function handleCaseReady(data:Row):Promise<string>{setPendingCase(data);try{localStorage.setItem('lexmarket.pendingCase',JSON.stringify(data));}catch{}if(session){const newId=await importIntake(session.user.id,setNotice,data);setPendingCase(null);setWorkspaceVersion(v=>v+1);if(newId)setTargetCaseId(newId);return newId;}return '';}
  async function googleAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.google===true;}
  async function linkedinAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.linkedin===true||settings.external?.linkedin_oidc===true;}
  async function continueWithGoogle(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}if(!await googleAvailable()){setGoogleReady(false);throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin}});if(error)throw error;});}
@@ -78,11 +123,6 @@ export default function Home() {
  if (session && (me === null || loadingProfile) && !error) {
   return <AppLoadingScreen message="Abriendo tu espacio…" />;
  }
-
- const isLawyerAccount = role === 'lawyer' || 
-   session?.user?.user_metadata?.intended_role === 'lawyer' || 
-   (typeof window !== 'undefined' && localStorage.getItem('lexmarket.intendedRole') === 'lawyer') || 
-   me?.profile?.role === 'lawyer';
 
  if (session && isLawyerAccount && !me?.profile) {
    const lawyerName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Abogado';
@@ -119,13 +159,13 @@ export default function Home() {
  }
 
  return <>
-  {session&&me?.profile?<Workspace pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
+  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} pendingImport={me.profile.role==='client'&&pendingCase?<section className="pending-import" aria-label="Borrador pendiente de guardar"><div><strong>Tu borrador te estaba esperando.</strong><p>Guarda el caso y sus archivos en esta cuenta para continuar.</p></div><button className="button" disabled={busy} onClick={()=>void importDraft()}>{busy?'Guardando…':'Guardar en mi cuenta'}<ArrowRight size={17}/></button></section>:null} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
    <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
-  {composer&&<CaseIntake signedIn={!!session} onClose={()=>setComposer(false)} onReady={keepDraft}/>}
+  {composer&&<CaseIntake signedIn={!!session} onClose={()=>setComposer(false)} onGoToDashboard={(id)=>{setComposer(false);if(id)setTargetCaseId(id);setWorkspaceInitialView('cases');}} onReady={handleCaseReady}/>}
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
 
 
-  {session&&me&&!me.profile&&!isLawyerAccount&&<Modal title={pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
+  {session&&me&&!me.profile&&!isLawyerAccount&&!composer&&<Modal title={pendingCase?'Guarda tu espacio':'Hagamos espacio para tu caso'} onClose={()=>run(async()=>{await browserDB()!.auth.signOut();})}><p className="muted">{pendingCase?'Solo necesitamos cómo quieres aparecer para guardar lo que preparaste.':'Solo necesitamos estos datos para empezar.'}</p><ProfileForm initial={{name:session.user.user_metadata?.full_name||session.user.user_metadata?.name||''}} role={role} busy={busy} onSave={p=>run(async()=>{await saveProfile(p);setAuthMode('');})}/></Modal>}
   {authMode&&(!session||authMode==='update')&&(
     <AuthModal
       authMode={authMode}

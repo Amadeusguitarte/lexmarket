@@ -27,7 +27,8 @@ import PublishAuthModal from './intake/PublishAuthModal';
 
 interface CaseIntakeProps {
   onClose: () => void;
-  onReady: (data: Record<string, string>) => void | Promise<void>;
+  onReady: (data: Record<string, string>) => void | Promise<any>;
+  onGoToDashboard?: (caseId?: string) => void;
   signedIn?: boolean;
 }
 
@@ -86,7 +87,7 @@ const STAGE_ASIDE_CONTENT: Record<
   }
 };
 
-export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseIntakeProps) {
+export default function CaseIntake({ onClose, onReady, onGoToDashboard, signedIn = false }: CaseIntakeProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   // Core intake state
@@ -158,10 +159,14 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
       .then((savedDraft) => {
         if (savedDraft && (savedDraft.data?.description || savedDraft.files?.length)) {
           setHasExistingDraft(true);
+          const wasActive = typeof window !== 'undefined' && localStorage.getItem('lexmarket.intakeActive') === 'true';
+          if (wasActive || (signedIn && savedDraft.data?.stage && savedDraft.data.stage !== 'welcome')) {
+            void handleResumeDraft();
+          }
         }
       })
       .catch(() => {});
-  }, []);
+  }, [signedIn]);
 
   useEffect(() => {
     if (mounted && dialogRef.current) {
@@ -187,6 +192,15 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
           ? extractedFacts.summary.slice(0, 70).replace(/\.+$/, '')
           : `Consulta sobre ${INTAKE_CATEGORIES[activeCat]?.shortLabel || 'asunto legal'}`);
 
+      const currentStage = overrideStage || stage;
+      try {
+        localStorage.setItem('lexmarket.intakeActive', 'true');
+        localStorage.setItem('lexmarket.intakeStage', currentStage);
+        if (privateData.fullName) {
+          localStorage.setItem('lexmarket.intakeName', privateData.fullName);
+        }
+      } catch {}
+
       const dataToStore: Record<string, string> = {
         title: finalTitle,
         category: mapToSystemCategory(activeCat),
@@ -201,7 +215,7 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
         counterparties_json: JSON.stringify(privateData.counterparties || []),
         answers_json: JSON.stringify(answers),
         other_texts_json: JSON.stringify(otherTexts),
-        stage: overrideStage || stage
+        stage: currentStage
       };
 
       const previous = await draftStore('read');
@@ -445,7 +459,10 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
       }
 
       // Forward to parent case publisher
-      await onReady(publicationData);
+      const createdId = await onReady(publicationData);
+      if (createdId && typeof createdId === 'string') {
+        setCaseId(createdId);
+      }
 
       setStage('success');
     } catch (err: any) {
@@ -464,7 +481,10 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
     setError('');
     try {
       await persistDraft('review');
-      await onReady(dataToPublish);
+      const createdId = await onReady(dataToPublish);
+      if (createdId && typeof createdId === 'string') {
+        setCaseId(createdId);
+      }
       setStage('success');
     } catch (err: any) {
       setError(err.message || 'No se pudo publicar el caso. Por favor revisa la información.');
@@ -685,13 +705,29 @@ export default function CaseIntake({ onClose, onReady, signedIn = false }: CaseI
 
                     {stage === 'success' && (
                       <SuccessStep
-                        onGoToDashboard={() => onClose()}
+                        onGoToDashboard={() => {
+                          try {
+                            localStorage.removeItem('lexmarket.intakeActive');
+                            localStorage.removeItem('lexmarket.intakeStage');
+                            localStorage.removeItem('lexmarket.intakePendingPublish');
+                          } catch {}
+                          if (onGoToDashboard) {
+                            onGoToDashboard(caseId);
+                          } else {
+                            onClose();
+                          }
+                        }}
                         onPublishAnother={() => {
                           setStage('welcome');
                           setNarrative('');
                           setFiles([]);
                           setAnswers({});
                           setOtherTexts({});
+                          try {
+                            localStorage.removeItem('lexmarket.intakeActive');
+                            localStorage.removeItem('lexmarket.intakeStage');
+                            localStorage.removeItem('lexmarket.intakePendingPublish');
+                          } catch {}
                         }}
                         caseTitle={title}
                       />

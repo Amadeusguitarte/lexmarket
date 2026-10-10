@@ -25,4 +25,11 @@ test('chat reads stay between the two participants; revocation closes realtime a
  await pg.query(`update access_requests set state='granted' where lawyer_id=$1`,[lawyer]);await pg.query(`update profiles set verification='rejected' where id=$1`,[lawyer]);await pg.exec('set role authenticated');assert.equal((await pg.query('select * from messages')).rows.length,0);
  }finally{await pg.close();}
 });
-test('profile images only accept secure Google image URLs',()=>{assert.equal(safeAvatar('javascript:alert(1)'),null);assert.equal(safeAvatar('https://evil.test/picture'),null);assert.equal(safeAvatar('https://lh3.googleusercontent.com/a/photo'),'https://lh3.googleusercontent.com/a/photo');});
+test('profile images only accept secure Google image URLs and valid data URLs',()=>{
+  assert.equal(safeAvatar('javascript:alert(1)'),null);
+  assert.equal(safeAvatar('https://evil.test/picture'),null);
+  assert.equal(safeAvatar('https://lh3.googleusercontent.com/a/photo'),'https://lh3.googleusercontent.com/a/photo');
+  assert.equal(safeAvatar('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='),'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
+  assert.equal(safeAvatar(''),null);
+  assert.equal(safeAvatar(null),null);
+});
