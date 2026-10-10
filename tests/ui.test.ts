@@ -29,15 +29,34 @@ test('lawyer onboarding requests license and specialties but offers no self-veri
  assert.ok(doc.querySelector('input[name=specialties]'));
  assert.equal(doc.querySelector('[name=verification]'),null);
 });
-test('signed-in welcome automatically recognizes empty user and renders State C without switcher bar',async()=>{
+test('signed-in welcome renders DashboardSkeleton during initial load to prevent flicker',async()=>{
  const {default:Workspace}=await import('../components/Workspace');
  const html=renderToStaticMarkup(React.createElement(Workspace,{me:{profile:{id:'test',name:'Louis Amadeus',role:'client',avatar_url:'https://lh3.googleusercontent.com/a/example'}},session:{user:{id:'test',user_metadata:{}}} as any,busy:false,run:async f=>{await f();},onNotice:()=>{},onInfo:()=>{},onRefreshMe:async()=>{},onLogout:()=>{}}));
  const doc=new JSDOM(html).window.document;
  assert.equal(doc.querySelector('.adaptive-state-bar'),null);
- assert.match(doc.querySelector('.empty-hero-headline')!.textContent!,/Todo empieza con tu situación/);
+ assert.ok(doc.querySelector('.dashboard-skeleton-root'));
+ assert.equal(doc.querySelector('.empty-welcome-hero-card'),null); // MUST NOT flash empty card while loading
  assert.ok(doc.querySelector('.account img[src="https://lh3.googleusercontent.com/a/example"]'));
  assert.ok(doc.querySelector('.chat-launcher'));
  assert.equal(doc.querySelector('.stat-grid'),null);
+});
+
+test('ClientAdaptiveDashboard renders State C when loaded and user has no cases',async()=>{
+ const {default:ClientAdaptiveDashboard}=await import('../components/ClientAdaptiveDashboard');
+ const html=renderToStaticMarkup(React.createElement(ClientAdaptiveDashboard,{
+   loading:false,
+   user:{id:'test',name:'Louis Amadeus'},
+   items:[],
+   draftCase:null,
+   onOpenCase:()=>{},
+   onContinueDraft:()=>{},
+   onCreateCase:()=>{},
+   onNavigate:()=>{}
+ }));
+ const doc=new JSDOM(html).window.document;
+ assert.equal(doc.querySelector('.adaptive-state-bar'),null);
+ assert.match(doc.querySelector('.empty-hero-headline')!.textContent!,/Todo empieza con tu situación/);
+ assert.ok(doc.querySelector('img[src="/intake-situation-desk.webp"]'));
 });
 
 test('ClientAdaptiveDashboard automatically recognizes draft state without switcher bar',async()=>{

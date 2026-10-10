@@ -12372,8 +12372,130 @@ input.auth-input-control.with-trailing {
   .how-steps-row-grid {
     grid-template-columns: 1fr;
   }
-  .adaptive-state-bar {
-    flex-direction: column;
-    align-items: flex-start;
+}
+
+/* ==========================================================================
+   DASHBOARD SKELETON & ANTI-FLICKER ANIMATIONS
+   ========================================================================== */
+
+@keyframes dashboardShimmer {
+  0% { opacity: 0.55; }
+  50% { opacity: 0.95; }
+  100% { opacity: 0.55; }
+}
+
+@keyframes dashboardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
+.dashboard-content-flow {
+  animation: dashboardFadeIn 0.22s ease-out;
+}
+
+.dashboard-skeleton-root {
+  animation: dashboardFadeIn 0.15s ease-out;
+}
+
+.skeleton-line {
+  background: #ede6df;
+  border-radius: 6px;
+  animation: dashboardShimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-title {
+  width: 240px;
+  height: 28px;
+  margin-bottom: 8px;
+}
+
+.skeleton-sub {
+  width: 170px;
+  height: 16px;
+  margin-bottom: 22px;
+}
+
+.skeleton-hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: #fbf8f5;
+  border: 1px solid #ebe4dc;
+  border-radius: 16px;
+  padding: 24px 28px;
+  min-height: 140px;
+  margin-bottom: 24px;
+}
+
+.skeleton-hero-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.skeleton-sq {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ede6df;
+  animation: dashboardShimmer 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-hero-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-badge {
+  width: 120px;
+  height: 12px;
+}
+
+.skeleton-case-title {
+  width: 60%;
+  max-width: 320px;
+  height: 22px;
+}
+
+.skeleton-meta {
+  width: 40%;
+  max-width: 200px;
+  height: 14px;
+}
+
+.skeleton-btn {
+  width: 160px;
+  height: 42px;
+  border-radius: 10px;
+  background: #ede6df;
+  animation: dashboardShimmer 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-metric-card {
+  border: 1px solid #ebe5df;
+  border-radius: 14px;
+  height: 96px;
+  background: linear-gradient(90deg, #ffffff 0%, #faf7f4 50%, #ffffff 100%);
+  animation: dashboardShimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-panel-card {
+  border: 1px solid #ebe5df;
+  border-radius: 16px;
+  height: 220px;
+  background: linear-gradient(90deg, #ffffff 0%, #faf7f4 50%, #ffffff 100%);
+  animation: dashboardShimmer 1.4s ease-in-out infinite;
+}
+

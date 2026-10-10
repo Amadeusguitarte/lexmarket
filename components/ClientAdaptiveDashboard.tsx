@@ -25,6 +25,7 @@ import type { Row } from './Forms';
 export type DashboardMode = 'draft' | 'published' | 'empty' | 'in_progress';
 
 interface ClientAdaptiveDashboardProps {
+  loading?: boolean;
   user: {
     id: string;
     name: string;
@@ -47,6 +48,7 @@ interface ClientAdaptiveDashboardProps {
 }
 
 export default function ClientAdaptiveDashboard({
+  loading,
   user,
   items,
   draftCase,
@@ -56,6 +58,10 @@ export default function ClientAdaptiveDashboard({
   onNavigate,
   onOpenChat
 }: ClientAdaptiveDashboardProps) {
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   // 1. D: In-progress case with lawyer
   const inProgressCase = items.find(
     (c) => c.status === 'engaged' || c.status === 'in_progress' || c.access_state === 'granted'
@@ -527,7 +533,7 @@ function EmptyDashboardView({
 
         <div className="empty-hero-art-wrapper">
           <img
-            src="/intake-situation-desk.png"
+            src="/intake-situation-desk.webp"
             alt="Espacio de trabajo ordenado con carpetas, libreta y laptop"
             className="empty-hero-art-img"
           />
@@ -808,3 +814,46 @@ function InProgressDashboardView({
     </div>
   );
 }
+
+/* =========================================================================================
+ * SKELETON: Displayed during initial data loading to completely prevent layout jump & flicker
+ * ========================================================================================= */
+export function DashboardSkeleton() {
+  return (
+    <div className="adaptive-dashboard-root dashboard-skeleton-root" aria-busy="true" aria-label="Cargando panel">
+      {/* Header Skeleton */}
+      <div className="skeleton-header-box">
+        <div className="skeleton-line skeleton-title" />
+        <div className="skeleton-line skeleton-sub" />
+      </div>
+
+      {/* Hero Card Skeleton */}
+      <div className="skeleton-hero-card">
+        <div className="skeleton-hero-left">
+          <div className="skeleton-sq" />
+          <div className="skeleton-hero-text">
+            <div className="skeleton-line skeleton-badge" />
+            <div className="skeleton-line skeleton-case-title" />
+            <div className="skeleton-line skeleton-meta" />
+          </div>
+        </div>
+        <div className="skeleton-btn" />
+      </div>
+
+      {/* Metric Cards Skeleton */}
+      <div className="dashboard-metrics-grid">
+        <div className="skeleton-metric-card" />
+        <div className="skeleton-metric-card" />
+        <div className="skeleton-metric-card" />
+        <div className="skeleton-metric-card" />
+      </div>
+
+      {/* Bottom Columns Skeleton */}
+      <div className="dashboard-bottom-columns">
+        <div className="skeleton-panel-card" />
+        <div className="skeleton-panel-card" />
+      </div>
+    </div>
+  );
+}
+
