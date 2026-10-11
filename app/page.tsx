@@ -16,6 +16,8 @@ import type { LawyerData } from '@/components/LawyerCard';
 import AuthModal from '@/components/AuthModal';
 import LawyerOnboardingDashboard from '@/components/LawyerOnboardingDashboard';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
+import OAuthPopupCallback from '@/components/OAuthPopupCallback';
+import { openGoogleOAuthPopup } from '@/lib/oauth';
 
 function LinkedinIcon({ size = 18 }: { size?: number }) {
  return (
@@ -29,6 +31,13 @@ export default function Home() {
  const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[loadingProfile,setLoadingProfile]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
  const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
  const [targetCaseId,setTargetCaseId]=useState<string>(''),[workspaceInitialView,setWorkspaceInitialView]=useState<string>('welcome');
+ const [isPopupCallback, setIsPopupCallback] = useState(false);
+
+ useEffect(() => {
+  if (typeof window !== 'undefined' && window.name === 'matchjuridico_oauth_popup') {
+   setIsPopupCallback(true);
+  }
+ }, []);
 
  const isLawyerAccount = role === 'lawyer' || 
    session?.user?.user_metadata?.intended_role === 'lawyer' || 
@@ -138,7 +147,26 @@ export default function Home() {
  async function googleAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.google===true;}
  async function linkedinAvailable(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key)return false;const response=await fetch(url+'/auth/v1/settings',{headers:{apikey:key},cache:'no-store'});if(!response.ok)return false;const settings=await response.json();return settings.external?.linkedin===true||settings.external?.linkedin_oidc===true;}
  const getAuthOrigin = () => typeof window !== 'undefined' && window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : (typeof location !== 'undefined' ? location.origin : undefined);
- async function continueWithGoogle(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}if(!await googleAvailable()){setGoogleReady(false);throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:getAuthOrigin()}});if(error)throw error;});}
+ async function continueWithGoogle(){
+  await run(async()=>{
+   const db=browserDB();
+   if(!db){setInfo('setup');return;}
+   if(!await googleAvailable()){
+    setGoogleReady(false);
+    throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');
+   }
+   await openGoogleOAuthPopup({
+    intendedRole: role,
+    pendingCase,
+    onSuccess: () => {
+     setAuthMode('');
+    },
+    onError: (err) => {
+     setError(err.message || 'No se pudo conectar con Google.');
+    }
+   });
+  });
+ }
  async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:getAuthOrigin()}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:getAuthOrigin()}});if(err2)throw error;}});}
  async function saveProfile(data:Row){await api('me','PUT',data);setMe(await api('me'));}
  async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado.');});}
@@ -163,6 +191,10 @@ export default function Home() {
   terms:{title:'Sobre esta beta',paragraphs:['MatchJurídico facilita el encuentro entre clientes y profesionales. Publicar o recibir propuestas no crea una representación automática. El encargo y los poderes que correspondan se acuerdan con el abogado.','Los honorarios se pactan directamente con el profesional. Esta versión no procesa pagos, no radica documentos ante autoridades y no calcula plazos judiciales.','La verificación profesional requiere una revisión del equipo. Las actualizaciones del proceso las registran las personas participantes; no son un reporte oficial de un juzgado.','Las condiciones definitivas de contratación y operación deben ser publicadas por el operador antes del lanzamiento abierto.']},
   help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue preparándose, espera a que termine antes de pedir una organización asistida.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'El canal de soporte se habilitará antes de abrir la beta.']},
  };
+
+ if (isPopupCallback) {
+  return <OAuthPopupCallback />;
+ }
 
  if (!authReady) {
   return <AppLoadingScreen message="Iniciando MatchJurídico…" />;

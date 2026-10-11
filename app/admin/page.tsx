@@ -6,6 +6,7 @@ import { api, browserDB } from '@/lib/browser';
 import AdminDashboard from '@/components/AdminDashboard';
 import { ShieldCheck, ArrowLeft, LogOut, Lock } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import { openGoogleOAuthPopup } from '@/lib/oauth';
 
 export default function AdminPage() {
   const [session, setSession] = useState<any>(null);
@@ -111,10 +112,15 @@ export default function AdminPage() {
               await checkAuth();
             }}
             onContinueGoogle={async () => {
-              const db = browserDB()!;
-              await db.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: (window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : window.location.origin) + '/admin' }
+              void openGoogleOAuthPopup({
+                intendedRole: 'admin',
+                onSuccess: async () => {
+                  setShowAuthModal(false);
+                  await checkAuth();
+                },
+                onError: (err) => {
+                  alert(err.message);
+                }
               });
             }}
             onContinueLinkedIn={async () => {}}

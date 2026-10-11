@@ -14,6 +14,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { browserDB } from '@/lib/browser';
+import { openGoogleOAuthPopup } from '@/lib/oauth';
 
 interface PublishAuthModalProps {
   isOpen: boolean;
@@ -72,22 +73,18 @@ export default function PublishAuthModal({
         throw new Error('Servicio de autenticación no disponible en este momento.');
       }
 
-      try {
-        localStorage.setItem('lexmarket.intendedRole', 'client');
-        localStorage.setItem('lexmarket.intakeActive', 'true');
-        localStorage.setItem('lexmarket.intakeStage', 'review');
-        if (publicationData) {
-          localStorage.setItem('lexmarket.pendingCase', JSON.stringify(publicationData));
-        }
-      } catch {}
-
-      const { error: oauthError } = await db.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: typeof window !== 'undefined' ? (window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : window.location.origin) : undefined
+      await openGoogleOAuthPopup({
+        intendedRole: 'client',
+        pendingCase: publicationData,
+        onSuccess: async () => {
+          setBusy(false);
+          await onSuccess();
+        },
+        onError: (err) => {
+          setBusy(false);
+          setError(err.message || 'No se pudo conectar con Google.');
         }
       });
-      if (oauthError) throw oauthError;
     } catch (err: any) {
       setError(err?.message || 'No se pudo conectar con Google.');
       setBusy(false);
