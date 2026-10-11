@@ -30,10 +30,47 @@ import {
   type LegalCategoryKey,
   analyzeNarrativeHeuristically
 } from '@/lib/intake-engine';
+import type { IntakeStage } from './intake/types';
 import IntakeProgress from './intake/IntakeProgress';
 import CasePermissionsManager from './intake/CasePermissionsManager';
 import { CaseForm, Field, Modal, UploadBox, type Row } from './Forms';
 import { Empty, type WorkProps } from './Workspace';
+
+const STAGE_ASIDE_INFO: Record<
+  string,
+  { eyebrow: string; title: string; subtitle: string; image: string }
+> = {
+  narrative: {
+    eyebrow: 'EN TUS PALABRAS',
+    title: 'Tu situación.\nEn tus palabras.',
+    subtitle: 'Explícanos lo que pasó tal como se lo contarías a alguien de confianza.',
+    image: '/intake-situation-desk.png'
+  },
+  clarification: {
+    eyebrow: 'PRECISIÓN JURÍDICA',
+    title: 'Algunos detalles\npara entender mejor tu caso.',
+    subtitle: 'Preguntas y datos adaptados a tu situación concreta para conectar con el especialista adecuado.',
+    image: '/intake-expediente.png'
+  },
+  evidence: {
+    eyebrow: 'EXPEDIENTE PROTEGIDO',
+    title: 'Documentos que\npueden ayudar.',
+    subtitle: 'Sube contratos, cartas o comprobantes cuando quieras. Todo permanece privado.',
+    image: '/intake-expediente.png'
+  },
+  parties: {
+    eyebrow: 'CONFIDENCIALIDAD TOTAL',
+    title: 'Información\nprivada.',
+    subtitle: 'Tus datos de contacto y la contraparte se mantienen bajo reserva absoluta.',
+    image: '/intake-expediente.png'
+  },
+  review: {
+    eyebrow: 'ASISTENCIA INTELIGENTE',
+    title: 'Organizamos\ntu información.',
+    subtitle: 'Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.',
+    image: '/intake-expediente.png'
+  }
+};
 
 const money = (n: number) =>
   new Intl.NumberFormat('es-CO', {
@@ -137,13 +174,16 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
   const [data, setData] = useState<Row | null>(null);
   const [loadError, setLoadError] = useState('');
   const [tab, setTab] = useState('overview');
+  const [stage, setStage] = useState<IntakeStage>('review');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCounterparty, setEditCounterparty] = useState('');
   const [modal, setModal] = useState('');
   const [selected, setSelected] = useState<Row | null>(null);
   const [professional, setProfessional] = useState<Row | null>(null);
   const [lawyerId, setLawyerId] = useState('');
   const [uploadProgress, setUploadProgress] = useState('');
   const [showAreaPanel, setShowAreaPanel] = useState(false);
-  const [editingField, setEditingField] = useState<'summary' | 'goal' | null>(null);
+  const [editingField, setEditingField] = useState<'summary' | 'goal' | 'counterparty' | null>(null);
   const [editSummary, setEditSummary] = useState('');
   const [editGoal, setEditGoal] = useState('');
   const [selectedDateOption, setSelectedDateOption] = useState('La semana pasada');
@@ -151,6 +191,15 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
   async function refresh() {
     setData(await api('cases/' + id));
   }
+
+  useEffect(() => {
+    if (data?.case) {
+      setEditDescription(data.case.description || data.case.public_summary || '');
+      setEditCounterparty(data.case.counterparty || '');
+      setEditSummary(data.case.description || data.case.public_summary || '');
+      setEditGoal(data.case.service || '');
+    }
+  }, [data?.case]);
 
   useEffect(() => {
     let active = true;
@@ -272,6 +321,8 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
 
   const catInfo = getCategoryInfo(c?.category);
   const factsList = getFactsList(c);
+  const isDraft = c.status === 'draft';
+  const currentAside = STAGE_ASIDE_INFO[stage] || STAGE_ASIDE_INFO.review;
 
   return (
     <div className="case-detail-root">
@@ -344,122 +395,471 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
             )}
           </section>
         </>
-      ) : (
-        <>
-          {/* Navigation Tabs (Available for all tabs switching) */}
-          <div className="case-page-navigation-strip">
-            <nav className="case-detail-tabs" aria-label="Secciones del caso">
-              {[
-                ['overview', 'Mi caso'],
-                ['documents', 'Documentos'],
-                ['proposals', owner ? 'Abogados y propuestas' : 'Mi propuesta'],
-                ['messages', 'Conversaciones'],
-                ['progress', 'Seguimiento']
-              ].map(([k, v]) => (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => setTab(k)}
-                  aria-current={tab === k ? 'page' : undefined}
-                  className={`case-tab-btn ${tab === k ? 'active' : ''}`}
-                >
-                  <span>{v}</span>
-                  {k === 'documents' && (
-                    <span className="tab-count-pill">{data.documents.length}</span>
-                  )}
-                  {k === 'proposals' && (
-                    <span className="tab-count-pill">
-                      {owner
-                        ? `${data.requests.filter((r: Row) => r.state !== 'revoked').length} interesados · ${data.proposals.filter((p: Row) => p.status === 'pending').length} propuestas`
-                        : data.proposals.filter((p: Row) => p.status === 'pending').length}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {c.urgency === 'urgent' && tab !== 'overview' && (
-            <div className="notice-panel case-urgent-panel">
-              Se ha indicado una situación urgente. Los tiempos que acuerdes aquí no sustituyen los plazos de una autoridad.
+      ) : isDraft ? (
+        /* DRAFT INTERFACE: Identical to the intake popup, rendered directly at the top with fully interactive stepper */
+        <div className="case-stage-card-wrapper">
+          {/* Top Bar with Stepper */}
+          <header className="case-stage-top-bar">
+            <div className="case-stage-top-left">
+              <button className="back-button-quiet" onClick={props.onBack}>
+                <ArrowLeft size={15} />
+                <span>Volver a mi espacio</span>
+              </button>
             </div>
-          )}
 
-          {owner && c.status === 'review' && (
-            <p className="notice-panel" role="status">
-              Tu caso está en revisión. Puedes retirar la solicitud para editarlo. Los documentos siguen privados.
-            </p>
-          )}
+            <div className="case-stage-top-stepper">
+              <IntakeProgress
+                currentStage={stage}
+                completedStages={new Set(['narrative', 'clarification', 'evidence', 'parties', 'review'])}
+                onNavigateStage={(stg) => setStage(stg)}
+              />
+            </div>
 
-          {owner && c.moderation_note && (
-            <p className="notice-panel">Revisión de la publicación: {c.moderation_note}</p>
-          )}
+            <div className="case-stage-top-right">
+              <span className="case-pill status-pill status-draft">
+                <span className="pill-dot burgundy" />
+                Borrador
+              </span>
+            </div>
+          </header>
 
-          {/* Overview Tab: Literal Identical Interface to the Intake Popup */}
-          {tab === 'overview' && (
-            <div className="case-stage-card-wrapper">
-              {/* Top Bar with Stepper (Identical to Intake popup header) */}
-              <header className="case-stage-top-bar">
-                <div className="case-stage-top-left">
-                  <button className="back-button-quiet" onClick={props.onBack}>
-                    <ArrowLeft size={15} />
-                    <span>Volver a mi espacio</span>
-                  </button>
-                </div>
-
-                <div className="case-stage-top-stepper">
-                  <IntakeProgress
-                    currentStage="review"
-                    completedStages={new Set(['narrative', 'clarification', 'evidence', 'parties'])}
-                    onNavigateStage={(stg) => {
-                      if (stg === 'evidence') setTab('documents');
-                      else setTab('overview');
-                    }}
-                  />
-                </div>
-
-                <div className="case-stage-top-right">
-                  <span className={`case-pill status-pill status-${c.status}`}>
-                    <span className="pill-dot burgundy" />
-                    {statusLabels[c.status] || 'Borrador'}
+          {/* 2-Column Split Stage */}
+          <div className="case-stage-grid">
+            {/* Left Column: Contextual Narrative & Reassurance matching active step */}
+            <aside className="case-page-aside">
+              <div className="aside-top">
+                <div className="aside-narrative-copy">
+                  <span className="eyebrow aside-eyebrow">
+                    <span className="tiny-dot" /> {currentAside.eyebrow}
                   </span>
+                  <h2 className="aside-headline">{currentAside.title}</h2>
+                  <p className="aside-sub">{currentAside.subtitle}</p>
                 </div>
-              </header>
+              </div>
 
-              {/* 2-Column Split Stage (Identical to Intake popup body) */}
-              <div className="case-stage-grid">
-                {/* Left Column: Contextual Narrative & Reassurance */}
-                <aside className="case-page-aside">
-                  <div className="aside-top">
-                    <div className="aside-narrative-copy">
-                      <span className="eyebrow aside-eyebrow">
-                        <span className="tiny-dot" /> ASISTENCIA INTELIGENTE
-                      </span>
-                      <h2 className="aside-headline">Organizamos{'\n'}tu información.</h2>
-                      <p className="aside-sub">
-                        Extraemos lo esencial de tu relato para que puedas revisarlo y corregir cualquier detalle.
+              <div className="aside-visual-wrapper">
+                <img
+                  src={currentAside.image}
+                  alt="Expediente"
+                  className="aside-atmospheric-img"
+                />
+              </div>
+
+              <div className="aside-bottom">
+                <p className="intake-private-notice">
+                  <Lock size={14} className="lock-icon" />
+                  <span>Por ahora, todo se guarda bajo tu control en este espacio privado.</span>
+                </p>
+              </div>
+            </aside>
+
+            {/* Right Column: Dynamic Stage Content */}
+            <main className="case-page-main">
+              {stage === 'narrative' && (
+                <div className="case-editor-step-wrap">
+                  <div className="step-header">
+                    <h1 className="editorial-headline">Tu situación. En tus palabras.</h1>
+                    <p className="step-sub">
+                      Explícanos lo ocurrido con tranquilidad. Puedes modificar o ampliar tu relato antes de compartir tu caso.
+                    </p>
+                  </div>
+
+                  <div className="case-narrative-field-wrap">
+                    <textarea
+                      className="case-narrative-textarea"
+                      rows={8}
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Cuéntanos qué sucedió, quiénes están involucrados y cuál es tu situación actual..."
+                    />
+                  </div>
+
+                  <div className="case-privacy-callout-card">
+                    <ShieldCheck size={20} className="privacy-shield-icon" />
+                    <div>
+                      <h4>Tus palabras quedan guardadas de forma privada</h4>
+                      <p>
+                        Solo tú puedes ver este relato completo mientras el caso esté en borrador. Al compartirlo, se generará una síntesis anónima.
                       </p>
                     </div>
                   </div>
 
-                  <div className="aside-visual-wrapper">
-                    <img
-                      src="/intake-expediente.png"
-                      alt="Expediente"
-                      className="aside-atmospheric-img"
-                    />
+                  <div className="case-stage-nav-footer">
+                    <button type="button" className="text-button quiet-action" onClick={props.onBack}>
+                      <ArrowLeft size={16} /> Volver a mi espacio
+                    </button>
+                    <button
+                      type="button"
+                      className="button button-burgundy"
+                      onClick={async () => {
+                        if (editDescription !== (c.description || c.public_summary)) {
+                          await run(async () => {
+                            await api('cases/' + id, 'PATCH', {
+                              description: editDescription,
+                              public_summary: editDescription
+                            });
+                            await refresh();
+                            onNotice('Relato de tu situación actualizado.');
+                          });
+                        }
+                        setStage('clarification');
+                      }}
+                    >
+                      Continuar a Detalles <ArrowRight size={16} />
+                    </button>
                   </div>
+                </div>
+              )}
 
-                  <div className="aside-bottom">
-                    <p className="intake-private-notice">
-                      <Lock size={14} className="lock-icon" />
-                      <span>Por ahora, todo se guarda bajo tu control en este espacio privado.</span>
+              {stage === 'clarification' && (
+                <div className="case-editor-step-wrap">
+                  <div className="step-header">
+                    <h1 className="editorial-headline">Detalles para entender mejor tu caso.</h1>
+                    <p className="step-sub">
+                      Ajusta el área jurídica sugerida, lo que deseas resolver, las fechas clave y tu ubicación.
                     </p>
                   </div>
-                </aside>
 
-                {/* Right Column: Exact SummaryReviewStep content */}
-                <main className="case-page-main">
+                  <div className="extracted-overview-card">
+                    <div className="summary-category-bar compact-view">
+                      <div className="category-meta">
+                        <span className="provisional-tag">ÁREA LEGAL SUGERIDA</span>
+                        <div className="category-current-badge-row">
+                          <span className="current-area-badge">
+                            <span className="area-indicator-dot" />
+                            {catInfo.label}
+                          </span>
+                        </div>
+                      </div>
+                      {owner && (
+                        <button
+                          type="button"
+                          className="button outline small select-area-btn"
+                          onClick={() => setShowAreaPanel(true)}
+                        >
+                          <Edit2 size={13} />
+                          <span>Seleccionar área legal</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="summary-details-list">
+                      <article className="summary-field-row">
+                        <div className="field-meta">
+                          <span className="field-title">Lo que buscas resolver</span>
+                          {editingField === 'goal' ? (
+                            <div className="inline-edit-box">
+                              <input
+                                type="text"
+                                value={editGoal}
+                                onChange={(e) => setEditGoal(e.target.value)}
+                              />
+                              <div className="inline-edit-actions">
+                                <button
+                                  type="button"
+                                  className="button small button-burgundy"
+                                  onClick={async () => {
+                                    await run(async () => {
+                                      await api('cases/' + id, 'PATCH', { service: editGoal });
+                                      await refresh();
+                                      setEditingField(null);
+                                      onNotice('Objetivo actualizado.');
+                                    });
+                                  }}
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  type="button"
+                                  className="text-button"
+                                  onClick={() => setEditingField(null)}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="field-value">{c.service || 'Entender mis opciones y posibles reclamaciones.'}</p>
+                          )}
+                        </div>
+                        {editingField !== 'goal' && owner && (
+                          <button
+                            type="button"
+                            className="text-button small-edit"
+                            onClick={() => {
+                              setEditGoal(c.service || 'Entender mis opciones y posibles reclamaciones.');
+                              setEditingField('goal');
+                            }}
+                          >
+                            <Edit2 size={13} /> Editar
+                          </button>
+                        )}
+                      </article>
+
+                      <div className="summary-two-col">
+                        <article className="summary-field-box direct-selector-box">
+                          <div className="box-header">
+                            <span className="box-title">
+                              <Calendar size={14} /> Fechas importantes
+                            </span>
+                            <span className="direct-selected-badge">
+                              <Check size={11} strokeWidth={2.5} /> Definida
+                            </span>
+                          </div>
+                          <div className="direct-picker-container">
+                            <div className="direct-picker-wrap">
+                              <select
+                                className="direct-picker-select"
+                                value={selectedDateOption}
+                                onChange={async (e) => {
+                                  const val = e.target.value;
+                                  setSelectedDateOption(val);
+                                  if (val === 'Atención urgente') {
+                                    await run(async () => {
+                                      await api('cases/' + id, 'PATCH', { urgency: 'urgent' });
+                                      await refresh();
+                                      onNotice('Prioridad urgente indicada.');
+                                    });
+                                  }
+                                }}
+                                aria-label="Seleccionar fecha importante"
+                              >
+                                {COMMON_DATE_OPTIONS.map((opt) => (
+                                  <option key={opt} value={opt}>
+                                    {opt}
+                                  </option>
+                                ))}
+                                <option value="Atención urgente">Atención urgente</option>
+                              </select>
+                              <ChevronDown size={15} className="direct-picker-arrow" />
+                            </div>
+                          </div>
+                        </article>
+
+                        <article className="summary-field-box direct-selector-box">
+                          <div className="box-header">
+                            <span className="box-title">
+                              <MapPin size={14} /> Ciudad / Ubicación
+                            </span>
+                            {c.city && (
+                              <span className="direct-selected-badge">
+                                <Check size={11} strokeWidth={2.5} /> Definida
+                              </span>
+                            )}
+                          </div>
+                          <div className="direct-picker-container">
+                            <div className="direct-picker-wrap">
+                              <select
+                                className="direct-picker-select"
+                                value={c.city || ''}
+                                onChange={async (e) => {
+                                  const val = e.target.value;
+                                  if (val) {
+                                    await run(async () => {
+                                      await api('cases/' + id, 'PATCH', { city: val });
+                                      await refresh();
+                                      onNotice('Ciudad actualizada a ' + val);
+                                    });
+                                  }
+                                }}
+                                aria-label="Seleccionar ciudad o ubicación"
+                              >
+                                <option value="">Seleccionar ciudad...</option>
+                                {c.city && !COLOMBIAN_CITIES_LIST.includes(c.city) && (
+                                  <option value={c.city}>{c.city}</option>
+                                )}
+                                {COLOMBIAN_CITIES_LIST.map((city) => (
+                                  <option key={city} value={city}>
+                                    {city}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown size={15} className="direct-picker-arrow" />
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="case-stage-nav-footer">
+                    <button type="button" className="text-button quiet-action" onClick={() => setStage('narrative')}>
+                      <ArrowLeft size={16} /> Volver a Tu situación
+                    </button>
+                    <button type="button" className="button button-burgundy" onClick={() => setStage('evidence')}>
+                      Continuar a Documentos <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {stage === 'evidence' && (
+                <div className="case-editor-step-wrap">
+                  <div className="step-header">
+                    <h1 className="editorial-headline">Documentos de apoyo.</h1>
+                    <p className="step-sub">
+                      Adjunta contratos, cartas, comprobantes o notas. Todo permanece privado y bajo tu control.
+                    </p>
+                  </div>
+
+                  {owner && c.status !== 'closed' && (
+                    <UploadBox onFiles={files} busy={busy} />
+                  )}
+
+                  {uploadProgress && <p role="status" className="upload-progress-text">{uploadProgress}</p>}
+
+                  <div className="summary-docs-header">
+                    <span className="facts-header">Documentos en tu expediente ({data.documents.length}):</span>
+                  </div>
+
+                  {data.documents.length > 0 ? (
+                    <div className="document-list-stack">
+                      {data.documents.map((d: Row) => (
+                        <div className="document-item-row" key={d.id}>
+                          <div className="doc-item-icon">
+                            <FileText size={18} />
+                          </div>
+                          <div className="doc-item-info">
+                            <b>{d.name}</b>
+                            <small>{(d.size / 1024).toFixed(0)} KB · {statusLabels[d.state]}</small>
+                          </div>
+                          <div className="doc-item-actions">
+                            <button
+                              type="button"
+                              className="icon-button"
+                              onClick={() => run(() => download(d))}
+                              title="Descargar"
+                            >
+                              <Download size={16} />
+                            </button>
+                            {owner && (
+                              <button
+                                type="button"
+                                className="icon-button danger"
+                                onClick={() => {
+                                  setSelected(d);
+                                  setModal('delete-file');
+                                }}
+                                title="Eliminar"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="case-empty-evidence-box">
+                      <FileText size={32} style={{ margin: '0 auto 8px', color: '#6b2d3e', display: 'block' }} />
+                      <p>No has adjuntado documentos aún. Son opcionales y puedes añadirlos en cualquier momento.</p>
+                    </div>
+                  )}
+
+                  <div className="case-stage-nav-footer">
+                    <button type="button" className="text-button quiet-action" onClick={() => setStage('clarification')}>
+                      <ArrowLeft size={16} /> Volver a Detalles
+                    </button>
+                    <button type="button" className="button button-burgundy" onClick={() => setStage('parties')}>
+                      Continuar a Privacidad <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {stage === 'parties' && (
+                <div className="case-editor-step-wrap">
+                  <div className="step-header">
+                    <h1 className="editorial-headline">Privacidad y partes involucradas.</h1>
+                    <p className="step-sub">
+                      Protegemos tu identidad y los datos de cualquier persona o entidad relacionada.
+                    </p>
+                  </div>
+
+                  <div className="extracted-overview-card">
+                    <div className="summary-details-list">
+                      <article className="summary-field-row">
+                        <div className="field-meta">
+                          <span className="field-title">
+                            <Lock size={13} className="inline-lock-icon" /> Contraparte o persona involucrada
+                          </span>
+                          {editingField === 'counterparty' ? (
+                            <div className="inline-edit-box">
+                              <input
+                                type="text"
+                                value={editCounterparty}
+                                onChange={(e) => setEditCounterparty(e.target.value)}
+                                placeholder="Empresa, institución o particular involucrado..."
+                              />
+                              <div className="inline-edit-actions">
+                                <button
+                                  type="button"
+                                  className="button small button-burgundy"
+                                  onClick={async () => {
+                                    await run(async () => {
+                                      await api('cases/' + id, 'PATCH', { counterparty: editCounterparty });
+                                      await refresh();
+                                      setEditingField(null);
+                                      onNotice('Contraparte actualizada.');
+                                    });
+                                  }}
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  type="button"
+                                  className="text-button"
+                                  onClick={() => setEditingField(null)}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="field-value">
+                              {c.counterparty || 'No especificada (opcional)'}
+                            </p>
+                          )}
+                        </div>
+                        {editingField !== 'counterparty' && owner && (
+                          <button
+                            type="button"
+                            className="text-button small-edit"
+                            onClick={() => {
+                              setEditCounterparty(c.counterparty || '');
+                              setEditingField('counterparty');
+                            }}
+                          >
+                            <Edit2 size={13} /> Editar
+                          </button>
+                        )}
+                      </article>
+                    </div>
+
+                    <div className="case-privacy-callout-card" style={{ marginTop: '16px' }}>
+                      <ShieldCheck size={20} className="privacy-shield-icon" />
+                      <div>
+                        <h4>Garantía de confidencialidad absoluta</h4>
+                        <p>
+                          Tu identidad y los nombres de terceros no son públicos en ningún momento. Los abogados en la plataforma solo ven un resumen general sin nombres hasta que decidas autorizar el acceso formalmente.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="case-stage-nav-footer">
+                    <button type="button" className="text-button quiet-action" onClick={() => setStage('evidence')}>
+                      <ArrowLeft size={16} /> Volver a Documentos
+                    </button>
+                    <button type="button" className="button button-burgundy" onClick={() => setStage('review')}>
+                      Continuar a Revisión <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {stage === 'review' && (
+                <div>
                   <div className="step-header summary-step-header">
                     <h1 className="editorial-headline summary-compact-title">Esto es lo que entendimos.</h1>
                     <p className="step-sub summary-compact-sub">
@@ -480,7 +880,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                         </div>
                       </div>
 
-                      {owner && c.status === 'draft' && (
+                      {owner && (
                         <button
                           type="button"
                           className="button outline small select-area-btn"
@@ -536,7 +936,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                             <p className="field-value">{c.description || c.public_summary}</p>
                           )}
                         </div>
-                        {editingField !== 'summary' && owner && c.status === 'draft' && (
+                        {editingField !== 'summary' && owner && (
                           <button
                             type="button"
                             className="text-button small-edit"
@@ -589,7 +989,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                             <p className="field-value">{c.service || 'Entender mis opciones y posibles reclamaciones.'}</p>
                           )}
                         </div>
-                        {editingField !== 'goal' && owner && c.status === 'draft' && (
+                        {editingField !== 'goal' && owner && (
                           <button
                             type="button"
                             className="text-button small-edit"
@@ -711,7 +1111,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                           <span className="facts-header">
                             Documentos aportados ({data.documents.length}):
                           </span>
-                          {owner && c.status !== 'closed' && (
+                          {owner && (
                             <label className="inline-add-doc-btn">
                               <Plus size={13} />
                               <span>Agregar documentos</span>
@@ -748,7 +1148,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                                 >
                                   <Download size={13} />
                                 </button>
-                                {owner && c.status === 'draft' && (
+                                {owner && (
                                   <button
                                     type="button"
                                     className="doc-pill-action danger"
@@ -784,7 +1184,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                     </button>
 
                     <div className="summary-forward-actions">
-                      {owner && c.status === 'draft' ? (
+                      {owner && (
                         <button
                           type="button"
                           className="button button-burgundy case-publish-button"
@@ -792,24 +1192,201 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                         >
                           Compartir caso <ArrowRight size={17} />
                         </button>
-                      ) : owner && ['published', 'review'].includes(c.status) ? (
-                        <button
-                          type="button"
-                          className="button outline small"
-                          onClick={() =>
-                            run(async () => {
-                              await action('pause');
-                              onNotice('Publicación pausada. Ahora puedes editar el resumen.');
-                            })
-                          }
-                          disabled={busy}
-                        >
-                          Pausar para editar
-                        </button>
-                      ) : null}
+                      )}
                     </div>
                   </div>
-                </main>
+                </div>
+              )}
+            </main>
+          </div>
+        </div>
+      ) : (
+        /* PUBLISHED / ACTIVE INTERFACE: Full post-publication navigation tabs and case management */
+        <>
+          <div className="case-page-navigation-strip">
+            <nav className="case-detail-tabs" aria-label="Secciones del caso">
+              {[
+                ['overview', 'Mi caso'],
+                ['documents', 'Documentos'],
+                ['proposals', owner ? 'Abogados y propuestas' : 'Mi propuesta'],
+                ['messages', 'Conversaciones'],
+                ['progress', 'Seguimiento']
+              ].map(([k, v]) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setTab(k)}
+                  aria-current={tab === k ? 'page' : undefined}
+                  className={`case-tab-btn ${tab === k ? 'active' : ''}`}
+                >
+                  <span>{v}</span>
+                  {k === 'documents' && (
+                    <span className="tab-count-pill">{data.documents.length}</span>
+                  )}
+                  {k === 'proposals' && (
+                    <span className="tab-count-pill">
+                      {owner
+                        ? `${data.requests.filter((r: Row) => r.state !== 'revoked').length} interesados · ${data.proposals.filter((p: Row) => p.status === 'pending').length} propuestas`
+                        : data.proposals.filter((p: Row) => p.status === 'pending').length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {c.urgency === 'urgent' && tab !== 'overview' && (
+            <div className="notice-panel case-urgent-panel">
+              Se ha indicado una situación urgente. Los tiempos que acuerdes aquí no sustituyen los plazos de una autoridad.
+            </div>
+          )}
+
+          {owner && c.status === 'review' && (
+            <p className="notice-panel" role="status">
+              Tu caso está en revisión. Puedes retirar la solicitud para editarlo. Los documentos siguen privados.
+            </p>
+          )}
+
+          {owner && c.moderation_note && (
+            <p className="notice-panel">Revisión de la publicación: {c.moderation_note}</p>
+          )}
+
+          {/* Overview Tab for Published Case */}
+          {tab === 'overview' && (
+            <div className="published-overview-card">
+              <div className="published-header-top">
+                <button className="back-button-quiet" onClick={props.onBack}>
+                  <ArrowLeft size={15} />
+                  <span>Volver a mi espacio</span>
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span className={`case-pill status-pill status-${c.status}`}>
+                    <span className="pill-dot burgundy" />
+                    {statusLabels[c.status] || 'Publicado'}
+                  </span>
+                  {owner && ['published', 'review'].includes(c.status) && (
+                    <button
+                      type="button"
+                      className="button outline small"
+                      onClick={() =>
+                        run(async () => {
+                          await action('pause');
+                          onNotice('Publicación pausada. Ahora puedes editar el borrador.');
+                        })
+                      }
+                      disabled={busy}
+                    >
+                      Pausar para editar
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="step-header summary-step-header">
+                <h1 className="editorial-headline summary-compact-title">{c.title || 'Tu caso publicado'}</h1>
+                <p className="step-sub summary-compact-sub">
+                  {c.service || 'Expediente activo en MatchJurídico.'}
+                </p>
+              </div>
+
+              <div className="extracted-overview-card">
+                <div className="summary-category-bar compact-view">
+                  <div className="category-meta">
+                    <span className="provisional-tag">ÁREA LEGAL</span>
+                    <div className="category-current-badge-row">
+                      <span className="current-area-badge">
+                        <span className="area-indicator-dot" />
+                        {catInfo.label}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="summary-details-list">
+                  <article className="summary-field-row">
+                    <div className="field-meta">
+                      <span className="field-title">Resumen publicado</span>
+                      <p className="field-value">{c.public_summary || c.description}</p>
+                    </div>
+                  </article>
+
+                  <div className="summary-two-col">
+                    <article className="summary-field-box direct-selector-box">
+                      <div className="box-header">
+                        <span className="box-title"><Calendar size={14} /> Tiempos</span>
+                        <span className="direct-selected-badge"><Check size={11} strokeWidth={2.5} /> Definida</span>
+                      </div>
+                      <p className="field-value" style={{ margin: '8px 0 0', fontSize: '13px' }}>
+                        {c.urgency === 'urgent' ? 'Atención urgente' : 'Estándar'}
+                      </p>
+                    </article>
+
+                    <article className="summary-field-box direct-selector-box">
+                      <div className="box-header">
+                        <span className="box-title"><MapPin size={14} /> Ciudad / Ubicación</span>
+                        <span className="direct-selected-badge"><Check size={11} strokeWidth={2.5} /> Definida</span>
+                      </div>
+                      <p className="field-value" style={{ margin: '8px 0 0', fontSize: '13px' }}>
+                        {c.city || 'Colombia'}
+                      </p>
+                    </article>
+                  </div>
+
+                  {factsList.length > 0 && (
+                    <div className="facts-section">
+                      <span className="facts-header">Hechos identificados:</span>
+                      <ul className="facts-list">
+                        {factsList.map((fact: string, i: number) => (
+                          <li key={i}>
+                            <Check size={14} className="fact-check" />
+                            <span>{fact}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {data.documents.length > 0 && (
+                    <div className="summary-documents-row">
+                      <div className="summary-docs-header">
+                        <span className="facts-header">
+                          Documentos en el expediente ({data.documents.length}):
+                        </span>
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={() => setTab('documents')}
+                        >
+                          Ver todos en Documentos <ArrowRight size={14} />
+                        </button>
+                      </div>
+                      <div className="summary-docs-chips-wrap">
+                        {data.documents.map((d: Row) => (
+                          <div key={d.id} className="summary-doc-pill">
+                            <FileText size={14} className="doc-pill-icon" />
+                            <button
+                              type="button"
+                              className="doc-pill-name"
+                              onClick={() => run(() => download(d))}
+                              title={`Descargar ${d.name}`}
+                            >
+                              {d.name}
+                            </button>
+                            <button
+                              type="button"
+                              className="doc-pill-action"
+                              onClick={() => run(() => download(d))}
+                              aria-label={`Descargar ${d.name}`}
+                            >
+                              <Download size={13} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
