@@ -7,7 +7,7 @@ export default function RootLayout({ children }: Readonly<{children:React.ReactN
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `if(typeof window!=='undefined'&&window.location.hostname==='lexmarket-production.up.railway.app'){window.location.replace('https://matchjuridico.com'+window.location.pathname+window.location.search+window.location.hash);}`,
+            __html: `if(typeof window!=='undefined'){if(window.location.hostname==='lexmarket-production.up.railway.app'){window.location.replace('https://matchjuridico.com'+window.location.pathname+window.location.search+window.location.hash);}if(window.location.hash==='#'||(window.location.href.endsWith('#'))){window.history.replaceState(null,'',window.location.pathname+window.location.search);}}`,
           }}
         />
       </head>

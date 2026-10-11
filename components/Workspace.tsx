@@ -30,7 +30,63 @@ export default function Workspace(props:WorkProps) {
  function openChat(caseId:string,lawyerId:string){setChatTarget({case_id:caseId,lawyer_id:lawyerId});setChatOpen(true);}
  useEffect(()=>{let active=true;setLoadError('');if(view==='profile'||view==='messages'){setLoading(false);return;}if(view==='marketplace'&&p.verification!=='verified'){setItems([]);setLoading(false);return;}setLoading(true);api(view==='admin'?'admin':view==='marketplace'?'marketplace':'cases').then(data=>{if(!active)return;if(view==='admin')setAdmin(data);else{setItems(data.items);try{sessionStorage.setItem('lexmarket.user_cases',JSON.stringify(data.items));}catch{}}setInitialLoaded(true);}).catch(e=>{if(active)setLoadError(e.message);setInitialLoaded(true);}).finally(()=>{if(active)setLoading(false);});return ()=>{active=false;};},[view,revision,p.verification]);
  useEffect(()=>{let active=true;draftStore('read').then(d=>{if(!active)return;if(d?.data){setDraftCase({title:d.data.title,category:d.data.category,city:d.data.city,summary:d.data.summary});}else{setDraftCase(null);}}).catch(()=>{if(active)setDraftCase(null);}).finally(()=>{if(active)setDraftLoading(false);});return ()=>{active=false;};},[revision,view]);
- function navigate(v:string){if(v==='messages')setChatOpen(false);setView(v);setCaseId('');setQuery('');setCategory('');}
+ function getPathForView(v:string, cid?:string){
+  if(cid) return `/casos/${cid}`;
+  if(v==='cases') return '/mis-casos';
+  if(v==='messages') return '/mensajes';
+  if(v==='marketplace') return '/casos';
+  if(v==='profile') return '/mi-perfil';
+  if(v==='admin') return '/admin';
+  return '/explorar';
+ }
+ function navigate(v:string, newCaseId:string=''){
+  if(v==='messages')setChatOpen(false);
+  setView(v);
+  setCaseId(newCaseId);
+  setQuery('');
+  setCategory('');
+  if(typeof window!=='undefined'){
+   const targetPath=getPathForView(v, newCaseId);
+   if(window.location.pathname!==targetPath||window.location.hash){
+    window.history.pushState(null,'',targetPath);
+   }
+  }
+ }
+ useEffect(()=>{
+  if(typeof window==='undefined')return;
+  const currentPath=getPathForView(view, caseId);
+  if(window.location.pathname!==currentPath||window.location.hash){
+   window.history.replaceState(null,'',currentPath);
+  }
+  const onPop=()=>{
+   const path=window.location.pathname;
+   if(path.startsWith('/casos/')){
+    const cid=path.replace('/casos/','');
+    setCaseId(cid);
+    setView('cases');
+   }else if(path==='/mis-casos'){
+    setCaseId('');
+    setView('cases');
+   }else if(path==='/mensajes'){
+    setCaseId('');
+    setView('messages');
+   }else if(path==='/mi-perfil'||path==='/perfil'){
+    setCaseId('');
+    setView('profile');
+   }else if(path==='/casos'){
+    setCaseId('');
+    setView('marketplace');
+   }else if(path==='/admin'){
+    setCaseId('');
+    setView('admin');
+   }else{
+    setCaseId('');
+    setView('welcome');
+   }
+  };
+  window.addEventListener('popstate',onPop);
+  return ()=>window.removeEventListener('popstate',onPop);
+ },[]);
  const filtered=items.filter(c=>(!category||c.category===category)&&[c.title,c.city,c.summary].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
 
  if (isLawyer && view === 'welcome') {
@@ -57,9 +113,9 @@ export default function Workspace(props:WorkProps) {
  }
 
  return <div className="app-shell"><aside className="sidebar"><a href="/" className="sidebar-brand" aria-label="Inicio"><Brand/></a><div className="workspace-label">{isLawyer?'ESPACIO PROFESIONAL':'TU ESPACIO'}</div><nav aria-label="Tu espacio">{(isLawyer?[{id:'welcome',label:'Inicio',icon:Home},{id:'messages',label:'Mensajes',icon:MessageCircle},{id:'cases',label:'Mis oportunidades',icon:FolderOpen},{id:'marketplace',label:'Explora casos',icon:Compass},{id:'profile',label:'Mi perfil',icon:Settings},...(me.admin?[{id:'admin',label:'Administración',icon:ShieldCheck}]:[])]:[{id:'welcome',label:'Explorar',icon:Compass},{id:'cases',label:'Mis casos',icon:FolderOpen},{id:'messages',label:'Mensajes',icon:MessageCircle},{id:'find_lawyers',label:'Encontrar abogados',icon:Users},{id:'legal_resources',label:'Recursos legales',icon:FileText},{id:'profile',label:'Mi perfil',icon:Settings},...(me.admin?[{id:'admin',label:'Administración',icon:ShieldCheck}]:[])]).map(n=><button key={n.id} className={view===n.id&&!caseId?'selected':''} onClick={()=>{if(n.id==='find_lawyers'){window.location.href='/abogados';}else if(n.id==='legal_resources'){if(view!=='welcome'||caseId)navigate('welcome');setTimeout(()=>{document.getElementById('recursos')?.scrollIntoView({behavior:'smooth',block:'start'});},120);}else{navigate(n.id);}}}><n.icon size={19}/><span>{n.label}</span></button>)}</nav><div className="sidebar-bottom">{!isLawyer&&<button type="button" className="sidebar-premium-card" onClick={()=>props.onInfo('premium')}><Crown size={18} className="premium-crown"/><span className="premium-text-box"><strong>Accede a beneficios Premium</strong><small>Prioriza tus casos, recibe recomendaciones y más.</small></span><ChevronRight size={15} className="premium-arrow"/></button>}<button onClick={()=>props.onInfo('help')}><CircleHelp size={18}/>¿Te ayudamos?</button><div className="account"><Avatar name={p.name} url={avatar}/><div><b>{p.name}</b><small>{isLawyer?'Cuenta profesional':'Cuenta personal'}</small></div><button aria-label="Cerrar sesión" onClick={props.onLogout}><LogOut size={17}/></button></div></div></aside>
- <div className={'workspace'+(!isLawyer&&view==='welcome'&&!caseId?' is-landing':'')}><header className="workspace-top"><span className="workspace-top-hint"><span className="tiny-dot"/> Un paso a la vez</span><div className="workspace-top-right">{!isLawyer&&<button type="button" className="lp-top-cta" onClick={()=>setCreate(true)}><Plus size={15}/>Empezar mi caso</button>}<Notifications userId={props.session.user.id} onSelect={n=>{if(n.lawyer_id&&n.case_id)openChat(n.case_id,n.lawyer_id);else if(n.case_id)setCaseId(n.case_id);else navigate('profile');}}/><div className="header-user-avatar" onClick={()=>navigate('profile')} style={{cursor:'pointer'}} title="Mi perfil"><Avatar name={p.name} url={avatar}/></div><button className="icon-button" aria-label="Ayuda" onClick={()=>props.onInfo('help')}><CircleHelp size={19}/></button></div></header><main className="workspace-main">
- {caseId?<CaseView {...props} onChat={openChat} id={caseId} onBack={()=>{setCaseId('');setRevision(n=>n+1);}}/>:<>
- {view==='messages'?<Messenger mode="page" userId={props.session.user.id} open target={chatTarget} onOpen={()=>{}} onClose={()=>{}} onSelect={setChatTarget} onCase={setCaseId}/>:view==='welcome'?<ClientAdaptiveDashboard
+ <div className={'workspace'+(!isLawyer&&view==='welcome'&&!caseId?' is-landing':'')}><header className="workspace-top"><span className="workspace-top-hint"><span className="tiny-dot"/> Un paso a la vez</span><div className="workspace-top-right">{!isLawyer&&<button type="button" className="lp-top-cta" onClick={()=>setCreate(true)}><Plus size={15}/>Empezar mi caso</button>}<Notifications userId={props.session.user.id} onSelect={n=>{if(n.lawyer_id&&n.case_id)openChat(n.case_id,n.lawyer_id);else if(n.case_id)navigate('cases',n.case_id);else navigate('profile');}}/><div className="header-user-avatar" onClick={()=>navigate('profile')} style={{cursor:'pointer'}} title="Mi perfil"><Avatar name={p.name} url={avatar}/></div><button className="icon-button" aria-label="Ayuda" onClick={()=>props.onInfo('help')}><CircleHelp size={19}/></button></div></header><main className="workspace-main">
+ {caseId?<CaseView {...props} onChat={openChat} id={caseId} onBack={()=>{navigate('cases','');setRevision(n=>n+1);}}/>:<>
+ {view==='messages'?<Messenger mode="page" userId={props.session.user.id} open target={chatTarget} onOpen={()=>{}} onClose={()=>{}} onSelect={setChatTarget} onCase={id=>navigate('cases',id)}/>:view==='welcome'?<ClientAdaptiveDashboard
   loading={!initialLoaded && items.length === 0 && draftLoading}
   user={{
     id: props.session.user.id,
@@ -69,7 +125,7 @@ export default function Workspace(props:WorkProps) {
   }}
   items={items}
   draftCase={draftCase}
-  onOpenCase={(id)=>setCaseId(id)}
+  onOpenCase={(id)=>navigate('cases',id)}
   onContinueDraft={()=>setCreate(true)}
   onCreateCase={()=>setCreate(true)}
   onNavigate={(dest)=>{
@@ -83,12 +139,12 @@ export default function Workspace(props:WorkProps) {
  {isLawyer&&p.verification!=='verified'?<div className="verification-card"><ShieldCheck size={35}/><h2>Vamos a conocerte mejor.</h2><p>Tu perfil está {p.verification==='rejected'?'pendiente de ajustes':'en revisión'}. En cuanto comprobemos tu habilitación, podrás explorar casos y enviar propuestas.</p>{p.verification_note&&<p>{p.verification_note}</p>}<button className="button outline" onClick={()=>navigate('profile')}>Revisar mi perfil <ArrowRight size={17}/></button></div>:<>
  {view==='cases'&&<div className="stat-grid"><div><span>En tu espacio</span><b>{items.length}</b></div><div><span>{isLawyer?'Con acceso':'Recibiendo propuestas'}</span><b>{items.filter(c=>isLawyer?c.access_state==='granted':c.status==='published').length}</b></div><div><span>En acompañamiento</span><b>{items.filter(c=>c.status==='engaged').length}</b></div></div>}
  <div className="list-toolbar"><div className="search"><Search size={18}/><input aria-label="Buscar casos" placeholder="Busca por asunto o ciudad" value={query} onChange={e=>setQuery(e.target.value)}/></div><select aria-label="Filtrar especialidad" value={category} onChange={e=>setCategory(e.target.value)}><option value="">Todas las áreas</option>{categories.map(c=><option key={c}>{c}</option>)}</select><button className="text-button" onClick={()=>setRevision(n=>n+1)}>Actualizar</button></div>
- {loading?<div className="skeleton-list" aria-label="Cargando casos"><div/><div/><div/></div>:filtered.length?<div className="case-grid">{filtered.map(c=><button key={c.id||c.case_id} className="case-card" onClick={()=>setCaseId(c.id||c.case_id)}><div className="split"><span className="tag soft">{c.category}</span>{c.urgency==='urgent'&&<span className="urgency">Solicita atención pronta</span>}</div><h3>{c.title}</h3>{c.summary&&<p>{c.summary}</p>}<span className="case-location">{c.city} · Colombia</span><div className="case-card-bottom"><span>{view==='marketplace'?c.service:statusLabels[c.access_state||c.status]}</span><ArrowRight size={18}/></div></button>)}</div>:<Empty title={query||category?'No encontramos coincidencias':view==='marketplace'?'Los próximos casos aparecerán aquí':isLawyer?'Aquí empiezan tus oportunidades':'Hagamos espacio para tu siguiente paso'} text={query||category?'Prueba con otra búsqueda o especialidad.':view==='marketplace'?'Vuelve pronto para conocer nuevos asuntos.':isLawyer?'Explora los casos y solicita acceso a los que te interesen.':'Comparte tu asunto y reúne lo que has preparado. Puedes completar los detalles a tu ritmo.'} action={!isLawyer?<button className="button" onClick={()=>setCreate(true)}>Crear mi primer espacio <ArrowRight size={17}/></button>:undefined}/>}</>}
+ {loading?<div className="skeleton-list" aria-label="Cargando casos"><div/><div/><div/></div>:filtered.length?<div className="case-grid">{filtered.map(c=><button key={c.id||c.case_id} className="case-card" onClick={()=>navigate(view==='marketplace'?'marketplace':'cases', c.id||c.case_id)}><div className="split"><span className="tag soft">{c.category}</span>{c.urgency==='urgent'&&<span className="urgency">Solicita atención pronta</span>}</div><h3>{c.title}</h3>{c.summary&&<p>{c.summary}</p>}<span className="case-location">{c.city} · Colombia</span><div className="case-card-bottom"><span>{view==='marketplace'?c.service:statusLabels[c.access_state||c.status]}</span><ArrowRight size={18}/></div></button>)}</div>:<Empty title={query||category?'No encontramos coincidencias':view==='marketplace'?'Los próximos casos aparecerán aquí':isLawyer?'Aquí empiezan tus oportunidades':'Hagamos espacio para tu siguiente paso'} text={query||category?'Prueba con otra búsqueda o especialidad.':view==='marketplace'?'Vuelve pronto para conocer nuevos asuntos.':isLawyer?'Explora los casos y solicita acceso a los que te interesen.':'Comparte tu asunto y reúne lo que has preparado. Puedes completar los detalles a tu ritmo.'} action={!isLawyer?<button className="button" onClick={()=>setCreate(true)}>Crear mi primer espacio <ArrowRight size={17}/></button>:undefined}/>}</>}
  </>}
  {loadError&&<div className="notice-panel error" role="alert">{loadError}<button className="text-button" onClick={()=>setRevision(n=>n+1)}>Reintentar</button></div>}
  </>}
- </main></div>{create&&<CaseIntake signedIn onClose={()=>setCreate(false)} onGoToDashboard={id=>{setCreate(false);if(id)setCaseId(id);setView('cases');}} onReady={async(data)=>{const id=await importIntake(props.session.user.id,onNotice,data);setCaseId(id);setRevision(n=>n+1);return id;}}/>}
- {(view!=='messages'||caseId)&&<Messenger onAll={()=>navigate('messages')} userId={props.session.user.id} open={chatOpen} target={chatTarget} onOpen={()=>setChatOpen(true)} onClose={()=>setChatOpen(false)} onSelect={setChatTarget} onCase={id=>{setChatOpen(false);setCaseId(id);}}/>}
+ </main></div>{create&&<CaseIntake signedIn onClose={()=>setCreate(false)} onGoToDashboard={id=>{setCreate(false);if(id)navigate('cases',id);else navigate('cases');}} onReady={async(data)=>{const id=await importIntake(props.session.user.id,onNotice,data);navigate('cases',id);setRevision(n=>n+1);return id;}}/>}
+ {(view!=='messages'||caseId)&&<Messenger onAll={()=>navigate('messages')} userId={props.session.user.id} open={chatOpen} target={chatTarget} onOpen={()=>setChatOpen(true)} onClose={()=>setChatOpen(false)} onSelect={setChatTarget} onCase={id=>{setChatOpen(false);navigate('cases',id);}}/>}
  </div>;
 }
 export function Empty({title,text,action}:{title:string;text:string;action?:React.ReactNode}) {return <div className="empty-state"><div className="empty-icon"><FolderOpen size={31}/></div><h2>{title}</h2><p>{text}</p>{action}</div>;}

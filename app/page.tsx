@@ -56,11 +56,33 @@ export default function Home() {
   try{
    const saved=localStorage.getItem('lexmarket.pendingCase');
    const savedRole=localStorage.getItem('lexmarket.intendedRole');
-   const intakeActive=localStorage.getItem('lexmarket.intakeActive')==='true';
-   if(intakeActive)setComposer(true);
    if(saved)setPendingCase(JSON.parse(saved));
    if(savedRole==='lawyer'||savedRole==='client')setRole(savedRole);
    if(typeof window!=='undefined'){
+    if(window.location.hash){
+     if(window.location.hash.includes('access_token')){
+      setTimeout(()=>{
+       if(window.location.hash){
+        window.history.replaceState(null,'',window.location.pathname+window.location.search);
+       }
+      },300);
+     } else {
+      window.history.replaceState(null,'',window.location.pathname+window.location.search);
+     }
+    }
+    const path=window.location.pathname;
+    if(path==='/mis-casos'||path==='/casos'){
+     setWorkspaceInitialView('cases');
+    }else if(path==='/mensajes'){
+     setWorkspaceInitialView('messages');
+    }else if(path==='/mi-perfil'||path==='/perfil'){
+     setWorkspaceInitialView('profile');
+    }else if(path==='/explorar'){
+     setWorkspaceInitialView('welcome');
+    }else if(path.startsWith('/casos/')){
+     const cid=path.replace('/casos/','');
+     if(cid){setWorkspaceInitialView('cases');setTargetCaseId(cid);}
+    }
     const sp=new URLSearchParams(window.location.search);
     const qAuth=sp.get('auth');
     const qRole=sp.get('role');
@@ -70,12 +92,28 @@ export default function Home() {
   }catch{}
   const db=browserDB();
   if(!db){setAuthReady(true);return;}
-  db.auth.getSession().then(({data})=>{setSession(data.session);setAuthReady(true);});
+  db.auth.getSession().then(({data})=>{
+   setSession(data.session);
+   setAuthReady(true);
+   if(data.session){
+    setComposer(false);
+    try{localStorage.removeItem('lexmarket.intakeActive');}catch{}
+   } else {
+    try{
+     const intakeActive=localStorage.getItem('lexmarket.intakeActive')==='true';
+     if(intakeActive)setComposer(true);
+    }catch{}
+   }
+  });
   const {data}=db.auth.onAuthStateChange((event,s)=>{
    setSession(s);
    if(event==='PASSWORD_RECOVERY')setAuthMode('update');
-   if(s&&typeof window!=='undefined'&&localStorage.getItem('lexmarket.intakeActive')==='true'){
-    setComposer(true);
+   if(s){
+    setComposer(false);
+    try{localStorage.removeItem('lexmarket.intakeActive');}catch{}
+    if(typeof window!=='undefined'&&window.location.hash){
+     setTimeout(()=>{window.history.replaceState(null,'',window.location.pathname+window.location.search);},200);
+    }
    }
   });
   return ()=>data.subscription.unsubscribe();
@@ -169,9 +207,9 @@ export default function Home() {
  }
 
  return <>
-  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);})}/>:
+  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);if(typeof window!=='undefined')window.history.pushState(null,'','/');})}/>:
    <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
-  {composer&&<CaseIntake signedIn={!!session} onClose={()=>setComposer(false)} onGoToDashboard={(id)=>{setComposer(false);if(id)setTargetCaseId(id);setWorkspaceInitialView('cases');}} onReady={handleCaseReady}/>}
+  {composer&&!session&&<CaseIntake signedIn={false} onClose={()=>{setComposer(false);try{localStorage.removeItem('lexmarket.intakeActive');}catch{}}} onGoToDashboard={(id)=>{setComposer(false);try{localStorage.removeItem('lexmarket.intakeActive');}catch{}if(id){setTargetCaseId(id);if(typeof window!=='undefined')window.history.pushState(null,'',`/casos/${id}`);}setWorkspaceInitialView('cases');}} onReady={handleCaseReady}/>}
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
 
 

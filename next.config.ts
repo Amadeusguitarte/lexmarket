@@ -16,6 +16,18 @@ const config: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      { source: '/explorar', destination: '/' },
+      { source: '/mis-casos', destination: '/' },
+      { source: '/mensajes', destination: '/' },
+      { source: '/mi-perfil', destination: '/' },
+      { source: '/recursos', destination: '/' },
+      { source: '/recursos-legales', destination: '/' },
+      { source: '/casos', destination: '/' },
+      { source: '/casos/:id', destination: '/' },
+    ];
+  },
   async headers() { return [{ source: '/:path*', headers: [
     {key:'Strict-Transport-Security',value:'max-age=63072000; includeSubDomains; preload'},
     {key:'X-Content-Type-Options',value:'nosniff'},
