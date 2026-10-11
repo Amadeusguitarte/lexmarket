@@ -1,6 +1,21 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
   output: 'standalone', poweredByHeader: false,
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'lexmarket-production.up.railway.app',
+          },
+        ],
+        destination: 'https://matchjuridico.com/:path*',
+        permanent: false,
+      },
+    ];
+  },
   async headers() { return [{ source: '/:path*', headers: [
     {key:'Strict-Transport-Security',value:'max-age=63072000; includeSubDomains; preload'},
     {key:'X-Content-Type-Options',value:'nosniff'},
@@ -11,3 +26,4 @@ const config: NextConfig = {
   ]}]; }
 };
 export default config;
+

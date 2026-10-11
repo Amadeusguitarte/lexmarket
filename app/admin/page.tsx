@@ -114,7 +114,7 @@ export default function AdminPage() {
               const db = browserDB()!;
               await db.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: window.location.origin + '/admin' }
+                options: { redirectTo: (window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : window.location.origin) + '/admin' }
               });
             }}
             onContinueLinkedIn={async () => {}}

@@ -84,7 +84,7 @@ export default function PublishAuthModal({
       const { error: oauthError } = await db.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined
+          redirectTo: typeof window !== 'undefined' ? (window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : window.location.origin) : undefined
         }
       });
       if (oauthError) throw oauthError;
@@ -120,7 +120,7 @@ export default function PublishAuthModal({
             data: {
               intended_role: 'client'
             },
-            emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined
+            emailRedirectTo: typeof window !== 'undefined' ? (window.location.hostname !== 'localhost' ? 'https://matchjuridico.com' : window.location.origin) : undefined
           }
         });
 
