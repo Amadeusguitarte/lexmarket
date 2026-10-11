@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -112,6 +112,24 @@ function getCategoryInfo(rawCat: string) {
     }
   }
   return { key: 'otro' as LegalCategoryKey, label: rawCat || 'Otro asunto', shortLabel: rawCat || 'Otro' };
+}
+
+function getFactsList(c: Row | null | undefined): string[] {
+  if (!c) return [];
+  if (c.ai_result?.facts && c.ai_result.facts.length > 0) {
+    return c.ai_result.facts;
+  }
+  const extracted = analyzeNarrativeHeuristically(c.description || c.public_summary || '').extractedFacts;
+  if (extracted && extracted.length > 0) {
+    return extracted;
+  }
+  const sentences = (c.description || '')
+    .split(/[.;\n]+/)
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 15);
+  return sentences.length > 0
+    ? sentences.slice(0, 4)
+    : ['Relato aportado por el cliente en su espacio privado.'];
 }
 
 export default function CaseView(props: WorkProps & { id: string; onBack: () => void }) {
@@ -234,7 +252,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  if (!data) {
+  if (!data || !c) {
     return (
       <div className="case-detail-root">
         <button className="back-button-quiet" onClick={props.onBack}>
@@ -247,30 +265,13 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
     );
   }
 
-  const activeRequests = data.requests.filter((r: Row) => r.state === 'granted');
+  const activeRequests = (data.requests || []).filter((r: Row) => r.state === 'granted');
   const activeLawyer = owner ? lawyerId || activeRequests[0]?.lawyer_id : session.user.id;
-  const ownRequest = data.requests.find((r: Row) => r.lawyer_id === session.user.id);
+  const ownRequest = (data.requests || []).find((r: Row) => r.lawyer_id === session.user.id);
   const selectedLawyer = c.selected_lawyer === session.user.id;
 
-  const catInfo = useMemo(() => getCategoryInfo(c?.category), [c?.category]);
-
-  const factsList = useMemo(() => {
-    if (!c) return [];
-    if (c.ai_result?.facts && c.ai_result.facts.length > 0) {
-      return c.ai_result.facts;
-    }
-    const extracted = analyzeNarrativeHeuristically(c.description || c.public_summary || '').extractedFacts;
-    if (extracted && extracted.length > 0) {
-      return extracted;
-    }
-    const sentences = (c.description || '')
-      .split(/[.;\n]+/)
-      .map((s: string) => s.trim())
-      .filter((s: string) => s.length > 15);
-    return sentences.length > 0
-      ? sentences.slice(0, 4)
-      : ['Relato aportado por el cliente en su espacio privado.'];
-  }, [c]);
+  const catInfo = getCategoryInfo(c?.category);
+  const factsList = getFactsList(c);
 
   return (
     <div className="case-detail-root">
