@@ -757,7 +757,7 @@ function InProgressStateArea({
           <div className="dashboard-panel-card lawyer-assigned-panel">
             <h3 className="panel-title">Tu abogado asignado</h3>
             <div className="assigned-lawyer-card-box">
-              <img src="/lawyers/thumbs/andrea.webp" alt="Andrea Gómez" className="lawyer-avatar-img" />
+              <img src="/lawyers/thumbs/andrea.webp" alt="Andrea Gómez" className="assigned-lawyer-avatar-img" />
               <div className="assigned-lawyer-text">
                 <div className="lawyer-name-row">
                   <h4>Andrea Gómez</h4>
