@@ -27,11 +27,63 @@ function LinkedinIcon({ size = 18 }: { size?: number }) {
  );
 }
 
+function getCachedSession(): Session | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        const item = localStorage.getItem(key);
+        if (item) {
+          const parsed = JSON.parse(item);
+          if (parsed && (parsed.access_token || parsed.user)) {
+            return parsed as Session;
+          }
+        }
+      }
+    }
+  } catch {}
+  return null;
+}
+
+function getCachedMe(): Row | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem('lexmarket.me_cache') || localStorage.getItem('lexmarket.me_cache');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedMe(data: Row | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (data) {
+      sessionStorage.setItem('lexmarket.me_cache', JSON.stringify(data));
+      localStorage.setItem('lexmarket.me_cache', JSON.stringify(data));
+    } else {
+      sessionStorage.removeItem('lexmarket.me_cache');
+      localStorage.removeItem('lexmarket.me_cache');
+    }
+  } catch {}
+}
+
 export default function Home() {
- const [session,setSession]=useState<Session|null>(null),[me,setMe]=useState<Row|null>(null),[authReady,setAuthReady]=useState(false),[loadingProfile,setLoadingProfile]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
+ const [session,setSession]=useState<Session|null>(()=>getCachedSession()),[me,setMe]=useState<Row|null>(()=>getCachedMe()),[authReady,setAuthReady]=useState<boolean>(()=>{
+   if (typeof window === 'undefined') return false;
+   const hasToken = !!getCachedSession();
+   const cachedMe = getCachedMe();
+   return !hasToken || !!cachedMe;
+ }),[loadingProfile,setLoadingProfile]=useState(false),[authMode,setAuthMode]=useState(''),[role,setRole]=useState('client'),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(''),[info,setInfo]=useState(''),[composer,setComposer]=useState(false),[pendingCase,setPendingCase]=useState<Row|null>(null),[googleReady,setGoogleReady]=useState(false),[linkedinReady,setLinkedinReady]=useState(false),[workspaceVersion,setWorkspaceVersion]=useState(0);
  const [inviteLawyer,setInviteLawyer]=useState<LawyerData|null>(null),[userCases,setUserCases]=useState<Row[]>([]),[loadingCases,setLoadingCases]=useState(false);
  const [targetCaseId,setTargetCaseId]=useState<string>(''),[workspaceInitialView,setWorkspaceInitialView]=useState<string>('welcome');
  const [isPopupCallback, setIsPopupCallback] = useState(false);
+
+ const updateMe = (data: Row | null) => {
+   setMe(data);
+   setCachedMe(data);
+ };
 
  useEffect(() => {
   if (typeof window !== 'undefined' && window.name === 'matchjuridico_oauth_popup') {
@@ -97,6 +149,20 @@ export default function Home() {
     const qRole=sp.get('role');
     if(qRole==='lawyer'||qRole==='client'){setRole(qRole);try{localStorage.setItem('lexmarket.intendedRole',qRole);}catch{}}
     if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}
+    if(sp.get('linkedin_connected')==='true'){
+     const lName=sp.get('linkedin_name');
+     setNotice(`¡Perfil de LinkedIn conectado exitosamente${lName?` (${lName})`:''}!`);
+     const cleanUrl=new URL(window.location.href);
+     cleanUrl.searchParams.delete('linkedin_connected');
+     cleanUrl.searchParams.delete('linkedin_name');
+     cleanUrl.searchParams.delete('linkedin_avatar');
+     window.history.replaceState(null,'',cleanUrl.pathname+cleanUrl.search);
+    }else if(sp.get('linkedin_notice')==='cancelled'){
+     setNotice('Conexión con LinkedIn cancelada.');
+     const cleanUrl=new URL(window.location.href);
+     cleanUrl.searchParams.delete('linkedin_notice');
+     window.history.replaceState(null,'',cleanUrl.pathname+cleanUrl.search);
+    }
    }
   }catch{}
   const db=browserDB();
@@ -108,6 +174,7 @@ export default function Home() {
     setComposer(false);
     try{localStorage.removeItem('lexmarket.intakeActive');}catch{}
    } else {
+    updateMe(null);
     try{
      const intakeActive=localStorage.getItem('lexmarket.intakeActive')==='true';
      if(intakeActive)setComposer(true);
@@ -123,6 +190,8 @@ export default function Home() {
     if(typeof window!=='undefined'&&window.location.hash){
      setTimeout(()=>{window.history.replaceState(null,'',window.location.pathname+window.location.search);},200);
     }
+   } else {
+    updateMe(null);
    }
   });
   return ()=>data.subscription.unsubscribe();
@@ -140,7 +209,15 @@ export default function Home() {
  },[session,me,composer,isLawyerAccount]);
 
  useEffect(()=>{void draftStore('read').then(d=>{if(d&&caseSchema.safeParse(d.data).success)setPendingCase(d.data);}).catch(()=>{});void googleAvailable().then(setGoogleReady).catch(()=>{});void linkedinAvailable().then(setLinkedinReady).catch(()=>{});},[]);
- useEffect(()=>{if(session){setLoadingProfile(true);api('me').then(setMe).catch(e=>setError(e.message)).finally(()=>setLoadingProfile(false));}else{setMe(null);setLoadingProfile(false);}},[session]);
+ useEffect(()=>{
+  if(session){
+   if(!me) setLoadingProfile(true);
+   api('me').then(updateMe).catch(e=>setError(e.message)).finally(()=>setLoadingProfile(false));
+  }else{
+   updateMe(null);
+   setLoadingProfile(false);
+  }
+ },[session]);
  async function run(fn:()=>Promise<void>) {setBusy(true);setError('');try{await fn();}catch(e){setError(e instanceof Error?e.message:'No pudimos completar la acción.');}finally{setBusy(false);}}
  function start(r:string){setRole(r);try{localStorage.setItem('lexmarket.intendedRole',r);if(r==='client')localStorage.setItem('lexmarket.intakeActive','true');}catch{}if(r==='client')setComposer(true);else setAuthMode('signup');}
  async function handleCaseReady(data:Row):Promise<string>{setPendingCase(data);try{localStorage.setItem('lexmarket.pendingCase',JSON.stringify(data));}catch{}if(session){const newId=await importIntake(session.user.id,setNotice,data);setPendingCase(null);setWorkspaceVersion(v=>v+1);if(newId)setTargetCaseId(newId);return newId;}return '';}
@@ -168,7 +245,7 @@ export default function Home() {
   });
  }
  async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:getAuthOrigin()}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:getAuthOrigin()}});if(err2)throw error;}});}
- async function saveProfile(data:Row){await api('me','PUT',data);setMe(await api('me'));}
+ async function saveProfile(data:Row){await api('me','PUT',data);updateMe(await api('me'));}
  async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado.');});}
  useEffect(()=>{
   if(session&&me?.profile?.role==='client'&&pendingCase&&!busy){
@@ -196,11 +273,11 @@ export default function Home() {
   return <OAuthPopupCallback />;
  }
 
- if (!authReady) {
+ if (!authReady && !me && !session) {
   return <AppLoadingScreen message="Iniciando MatchJurídico…" />;
  }
 
- if (session && (me === null || loadingProfile) && !error) {
+ if (session && me === null && loadingProfile && !error) {
   return <AppLoadingScreen message="Abriendo tu espacio…" />;
  }
 
@@ -220,8 +297,9 @@ export default function Home() {
          onLogout={() => run(async () => {
            const { error } = await browserDB()!.auth.signOut();
            if (error) throw error;
-           setMe(null);
+           updateMe(null);
            setSession(null);
+           try { sessionStorage.removeItem('lexmarket.user_cases'); } catch {}
          })}
        />
        {(error || notice) && typeof document !== 'undefined' && createPortal(
@@ -239,7 +317,7 @@ export default function Home() {
  }
 
  return <>
-  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>setMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;setMe(null);if(typeof window!=='undefined')window.history.pushState(null,'','/');})}/>:
+  {session&&me?.profile?<Workspace initialCaseId={targetCaseId} initialView={workspaceInitialView} key={workspaceVersion} me={me} session={session} run={run} busy={busy} onNotice={setNotice} onInfo={setInfo} onRefreshMe={async()=>updateMe(await api('me'))} onLogout={()=>run(async()=>{const {error}=await browserDB()!.auth.signOut();if(error)throw error;updateMe(null);setSession(null);try{sessionStorage.removeItem('lexmarket.user_cases');}catch{}if(typeof window!=='undefined')window.history.pushState(null,'','/');})}/>:
    <Landing onStart={()=>start('client')} onLawyer={()=>start('lawyer')} onLogin={()=>setAuthMode('signup')} onInfo={setInfo} onInviteLawyer={handleInvite}/>}
   {composer&&!session&&<CaseIntake signedIn={false} onClose={()=>{setComposer(false);try{localStorage.removeItem('lexmarket.intakeActive');}catch{}}} onGoToDashboard={(id)=>{setComposer(false);try{localStorage.removeItem('lexmarket.intakeActive');}catch{}if(id){setTargetCaseId(id);if(typeof window!=='undefined')window.history.pushState(null,'',`/casos/${id}`);}setWorkspaceInitialView('cases');}} onReady={handleCaseReady}/>}
   {inviteLawyer&&<InviteModal lawyer={inviteLawyer} cases={userCases} loadingCases={loadingCases} onClose={()=>setInviteLawyer(null)} onSendInvite={handleSendInvite} onCreateCase={()=>setComposer(true)}/>}
