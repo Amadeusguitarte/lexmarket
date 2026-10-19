@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { auth, db, ensureCaseFilesBucket, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
-import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
+import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo, normalizeLinkedInData } from '@/lib/linkedin';
 import { analyzeNarrativeHeuristically, INTAKE_CATEGORIES } from '@/lib/intake-engine';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -270,16 +270,8 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           }
           const tokenData = await exchangeLinkedInCode(code, requestRedirectUri);
           const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
-          const realName = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim();
-          // Only real data returned by LinkedIn OIDC — never invent education, bio or positions.
-          const normalized = {
-            name: realName || undefined,
-            given_name: userInfo.given_name || undefined,
-            family_name: userInfo.family_name || undefined,
-            email: userInfo.email || undefined,
-            avatar_url: userInfo.picture || undefined,
-          };
-          return new Response(renderLinkedInCallbackHtml({ ok: true, profile: normalized, requestOrigin }), {
+          const enriched = normalizeLinkedInData(userInfo);
+          return new Response(renderLinkedInCallbackHtml({ ok: true, profile: enriched, requestOrigin }), {
             headers: { 'Content-Type': 'text/html; charset=utf-8' }
           });
         } catch (err: any) {

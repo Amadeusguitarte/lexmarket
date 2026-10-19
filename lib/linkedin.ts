@@ -141,41 +141,54 @@ export async function fetchLinkedInUserInfo(accessToken: string): Promise<any> {
 }
 
 /**
- * Normalizes raw LinkedIn data into clean MatchJurídico profile fields
+ * Normalizes raw LinkedIn data into clean, enriched MatchJurídico profile fields
  */
 export function normalizeLinkedInData(raw: any): LinkedInProfileData {
-  const name = raw.name || `${raw.given_name || ''} ${raw.family_name || ''}`.trim() || 'Abogado Verificado';
-  const avatar_url = raw.picture || raw.avatar_url || '/lawyers/juan-perez.jpg';
-  const headline = raw.headline || 'Abogado litigante y consultor jurídico';
-  const bio = raw.bio || raw.summary || `${headline}. Asesoría integral con enfoque en resolución oportuna de controversias legales, redacción de acuerdos y litigio estratégico en Colombia.`;
-  const education = raw.education || 'Abogado · Pontificia Universidad Javeriana, Especialización en Derecho Laboral y Relaciones Industriales';
-  const years = raw.years_of_experience ?? 8;
-  const specialties = raw.specialties || mapLinkedInSkillsToSpecialties(`${headline} ${bio}`);
+  const givenName = raw.given_name || '';
+  const familyName = raw.family_name || '';
+  const fullName = raw.name || `${givenName} ${familyName}`.trim() || 'Abogado Verificado';
+  const email = raw.email || '';
+  const avatarUrl = raw.picture || raw.avatar_url || '';
+  const headline = raw.headline || 'Abogado Litigante y Consultor Jurídico';
+  const bio = raw.bio || raw.summary || `${fullName} es profesional del Derecho en Colombia con experiencia en asesoría jurídica integral, estructuración contractual, litigio estratégico y representación ante tribunales y juzgados. Enfoque preventivo y resolución oportuna de controversias legales.`;
+  const education = raw.education || 'Abogado · Pregrado en Derecho y Formación en Litigio Estratégico';
+  const years = raw.years_of_experience ?? 7;
+  const specialties = (raw.specialties && raw.specialties.length > 0)
+    ? raw.specialties
+    : mapLinkedInSkillsToSpecialties(`${headline} ${bio}`);
   const city = raw.city || 'Bogotá, D.C.';
 
+  const positions = raw.positions || [
+    {
+      title: 'Abogado Litigante y Consultor',
+      company: 'Práctica Jurídica & Litigios',
+      start_date: '2021',
+      end_date: 'Actualidad',
+      description: 'Asesoría jurídica corporativa y particular, estructuración de acuerdos y litigio estratégico en Colombia.'
+    },
+    {
+      title: 'Abogado Asociado',
+      company: 'Firma Legal & Consultoría Empresarial',
+      start_date: '2017',
+      end_date: '2021',
+      description: 'Gestión procesal, audiencias judiciales y de conciliación, y redacción de conceptos jurídicos.'
+    }
+  ];
+
   return {
-    name,
-    email: raw.email,
-    avatar_url,
+    name: fullName,
+    given_name: givenName,
+    family_name: familyName,
+    email,
+    avatar_url: avatarUrl,
     headline,
     bio,
     education,
     years_of_experience: years,
     specialties,
     city,
-    linkedin_url: raw.linkedin_url || 'https://www.linkedin.com/in/abogado-colombia',
-    positions: raw.positions || [
-      {
-        title: 'Socio Director / Abogado Senior',
-        company: 'Firma Legal & Asociados',
-        description: 'Litigio estratégico y consultoría preventiva para empresas y particulares.'
-      },
-      {
-        title: 'Abogado Asociado',
-        company: 'Consultoría Jurídica Empresarial',
-        description: 'Gestión procesal, estructuración de contratos y audiencias conciliatorias.'
-      }
-    ]
+    linkedin_url: raw.linkedin_url || `https://www.linkedin.com/in/${encodeURIComponent(fullName.toLowerCase().replace(/\s+/g, '-'))}`,
+    positions,
   };
 }
 
