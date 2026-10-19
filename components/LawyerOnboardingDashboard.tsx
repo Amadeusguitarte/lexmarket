@@ -94,7 +94,6 @@ export default function LawyerOnboardingDashboard({
   // Wizard modal state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
-  const [importedSummaryModal, setImportedSummaryModal] = useState<any | null>(null);
   const [workExperience, setWorkExperience] = useState<Array<{
     title: string;
     company: string;
@@ -210,17 +209,9 @@ export default function LawyerOnboardingDashboard({
     setLinkedInSynced(true);
     setIsLinkedInModalOpen(false);
 
-    // Open genuine summary modal reflecting exactly what was brought
-    setImportedSummaryModal({
-      ...profileData,
-      name: importedName,
-      avatar_url: importedAvatar,
-      bio: importedBio,
-      education: importedEducation,
-      years_of_experience: importedYears,
-      specialties: importedSpecialties,
-      positions,
-    });
+    // Seamless progression: directly open wizard at Step 2 (Tarjeta Profesional)
+    setCurrentStep(2);
+    setIsWizardOpen(true);
 
     if (onSaveProfile) {
       try {
@@ -232,7 +223,7 @@ export default function LawyerOnboardingDashboard({
       } catch {}
     }
 
-    showToast(`¡Cuenta de LinkedIn conectada! Identidad de ${importedName.split(' ')[0]} vinculada.`);
+    showToast(`✓ LinkedIn vinculado: foto y nombre de ${importedName.split(' ')[0]} asociados`);
   };
 
   // Official LinkedIn OAuth: opens centered popup window without losing dashboard state
@@ -556,75 +547,60 @@ export default function LawyerOnboardingDashboard({
                 })}
               </div>
 
-              {/* LinkedIn Import Banner */}
+              {/* LinkedIn Compact Connected Strip */}
               {linkedInSynced ? (
-                <div className="wizard-linkedin-banner" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #e8f7ee 100%)', borderColor: '#bbf7d0', flexWrap: 'wrap' }}>
-                  <div className="linkedin-banner-left">
-                    <div className="summary-avatar-wrap">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '12px',
+                  padding: '12px 18px',
+                  marginTop: '16px',
+                  gap: '14px',
+                  flexWrap: 'wrap',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ position: 'relative', width: '42px', height: '42px', flexShrink: 0 }}>
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
                           alt={lawyerName}
-                          style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', border: '2.5px solid #059669', boxShadow: '0 2px 8px rgba(5, 150, 105, 0.2)' }}
+                          style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #059669' }}
                         />
                       ) : (
-                        <div className="summary-avatar-fallback" style={{ width: '52px', height: '52px', fontSize: '18px' }}>
+                        <div className="summary-avatar-fallback" style={{ width: '42px', height: '42px', fontSize: '15px' }}>
                           {getInitials(lawyerName)}
                         </div>
                       )}
-                      <span className="summary-avatar-badge" style={{ width: '19px', height: '19px', bottom: '-2px', right: '-2px' }}>
-                        <LinkedInOfficialIcon size={12} />
+                      <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0077b5', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #fff' }}>
+                        <LinkedInOfficialIcon size={10} />
                       </span>
                     </div>
 
-                    <div className="linkedin-banner-text">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <span className="linkedin-eyebrow" style={{ color: '#059669', fontWeight: 700 }}>
-                          ✓ LINKEDIN CONECTADO · IDENTIDAD VERIFICADA
-                        </span>
-                        <span style={{ background: '#dcfce7', color: '#166534', border: '1px solid #86efac', fontSize: '10.5px', fontWeight: 700, padding: '1px 8px', borderRadius: '10px' }}>
-                          ✓ AUTENTICADO
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <strong style={{ fontSize: '14px', color: '#064e3b' }}>{lawyerName}</strong>
+                        <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', border: '1px solid #86efac', padding: '1px 7px', borderRadius: '10px', fontWeight: 600 }}>
+                          ✓ Verificado con LinkedIn
                         </span>
                       </div>
-                      <h3 className="linkedin-banner-heading" style={{ color: '#064e3b' }}>
-                        Vinculado como {lawyerName}
-                      </h3>
-                      <p className="linkedin-banner-sub" style={{ color: '#166534' }}>
-                        Fotografía y nombre oficial importados de tu cuenta de LinkedIn. Continúa con tu tarjeta profesional y especialidades para completar tu perfil.
-                      </p>
+                      <span style={{ fontSize: '12.5px', color: '#15803d' }}>
+                        Identidad vinculada. Continúa con tu Tarjeta Profesional en el Paso 2.
+                      </span>
                     </div>
                   </div>
 
-                  <div className="linkedin-banner-actions" style={{ flexDirection: 'row', gap: '10px', flexWrap: 'wrap' }}>
-                    <button
-                      type="button"
-                      className="summary-cta-secondary"
-                      style={{ padding: '8px 14px', fontSize: '12.5px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                      onClick={() => {
-                        setImportedSummaryModal({
-                          name: lawyerName,
-                          avatar_url: avatarUrl,
-                          bio: profileForm.bio,
-                          education: profileForm.education,
-                          years_of_experience: profileForm.years_of_experience,
-                          specialties: profileForm.specialties,
-                          positions: workExperience,
-                        });
-                      }}
-                    >
-                      <Sparkles size={14} className="text-emerald-600" />
-                      <span>Ver qué se trajo de LinkedIn</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="wizard-continue-btn"
-                      style={{ padding: '9px 18px', fontSize: '13px' }}
-                      onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
-                    >
-                      <span>Continuar con mi perfil (Paso 2)</span>
-                      <ArrowRight size={16} strokeWidth={2.2} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="wizard-continue-btn"
+                    style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
+                    onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
+                  >
+                    <span>Completar Tarjeta Profesional (Paso 2)</span>
+                    <ArrowRight size={14} strokeWidth={2.5} />
+                  </button>
                 </div>
               ) : (
                 <div className="wizard-linkedin-banner">
@@ -941,245 +917,6 @@ export default function LawyerOnboardingDashboard({
                   Extraeremos tu fotografía y nombre público. Tu tarjeta profesional (CSJ) y especialidades se configuran en el asistente.
                 </small>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* LinkedIn Import Breakdown & Completion Status Modal */}
-      {importedSummaryModal && (
-        <div className="lawyer-modal-backdrop" onClick={() => setImportedSummaryModal(null)}>
-          <div className="lawyer-modal-content linkedin-summary-modal-box" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="lawyer-modal-close"
-              onClick={() => setImportedSummaryModal(null)}
-              aria-label="Cerrar ventana"
-            >
-              <X size={20} />
-            </button>
-
-            {/* Modal Header */}
-            <div className="summary-modal-header">
-              <div className="summary-status-pill">
-                <span className="summary-status-dot" />
-                <span>Conexión exitosa</span>
-              </div>
-              <h2 className="summary-modal-title">
-                Perfil de LinkedIn vinculado
-              </h2>
-              <p className="summary-modal-sub">
-                Tu foto oficial y datos de identidad han sido asociados a tu cuenta. Continúa completando tu perfil para empezar a recibir casos.
-              </p>
-            </div>
-
-            {/* Modal Body */}
-            <div className="summary-modal-body">
-              {/* SECTION 1: WHAT WAS IMPORTED */}
-              <div className="summary-data-section">
-                <span className="summary-section-badge">
-                  <Sparkles size={14} />
-                  <span>Datos vinculados</span>
-                </span>
-
-                {/* Profile Hero Card */}
-                <div className="summary-profile-hero-card">
-                  <div className="summary-avatar-wrap">
-                    {importedSummaryModal.avatar_url ? (
-                      <img
-                        src={importedSummaryModal.avatar_url}
-                        alt={importedSummaryModal.name}
-                        className="summary-avatar-img"
-                      />
-                    ) : (
-                      <div className="summary-avatar-fallback">
-                        {getInitials(importedSummaryModal.name)}
-                      </div>
-                    )}
-                    <span className="summary-avatar-badge" title="Vinculado con LinkedIn">
-                      <LinkedInOfficialIcon size={13} />
-                    </span>
-                  </div>
-
-                  <div className="summary-profile-meta">
-                    <h4>
-                      <span>{importedSummaryModal.name}</span>
-                      <span className="summary-verified-tag">
-                        <Check size={12} strokeWidth={3} /> Verificado LinkedIn
-                      </span>
-                    </h4>
-                    {importedSummaryModal.headline && (
-                      <p className="summary-profile-headline">
-                        {importedSummaryModal.headline}
-                      </p>
-                    )}
-                    <div className="summary-profile-sub">
-                      {importedSummaryModal.city && <span>📍 {importedSummaryModal.city}</span>}
-                      {importedSummaryModal.email && <span>✉️ {importedSummaryModal.email}</span>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Only render extra cards if genuine bio, positions or specialties exist */}
-                {(importedSummaryModal.bio || (importedSummaryModal.positions && importedSummaryModal.positions.length > 0) || (importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0)) && (
-                  <div className="summary-data-cards-grid">
-                    {importedSummaryModal.bio && (
-                      <div className="summary-subcard">
-                        <span className="summary-subcard-title">
-                          <FileText size={14} className="text-[#68232c]" />
-                          <span>Biografía</span>
-                        </span>
-                        <p className="summary-subcard-content" style={{ margin: 0 }}>
-                          {importedSummaryModal.bio}
-                        </p>
-                      </div>
-                    )}
-
-                    {importedSummaryModal.positions && importedSummaryModal.positions.length > 0 && (
-                      <div className="summary-subcard full-width">
-                        <span className="summary-subcard-title">
-                          <Building2 size={14} className="text-[#68232c]" />
-                          <span>Empresas</span>
-                        </span>
-                        <div className="summary-positions-list">
-                          {importedSummaryModal.positions.map((pos: any, idx: number) => (
-                            <div key={idx} className="summary-position-item">
-                              <span className="summary-position-title">{pos.title}</span>
-                              <span className="summary-position-company">{pos.company}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0 && (
-                      <div className="summary-subcard full-width">
-                        <span className="summary-subcard-title">
-                          <Scale size={14} className="text-[#68232c]" />
-                          <span>Especialidades</span>
-                        </span>
-                        <div className="summary-specialties-wrap">
-                          {importedSummaryModal.specialties.map((spec: string, idx: number) => (
-                            <span key={idx} className="summary-specialty-chip">
-                              ✓ {spec}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* SECTION 2: CHECKLIST */}
-              <div className="summary-data-section">
-                <span className="summary-section-badge">
-                  <CheckCircle2 size={14} className="text-emerald-700" />
-                  <span>Pasos para activar tu perfil</span>
-                </span>
-
-                <div className="summary-checklist-container">
-                  {/* Left Column: Completed */}
-                  <div className="summary-checklist-col completed">
-                    <div className="checklist-col-header">
-                      <span className="checklist-col-title">
-                        <Check size={15} strokeWidth={3} />
-                        <span>Paso Listo</span>
-                      </span>
-                      <span className="checklist-badge">✓ 1 de 5</span>
-                    </div>
-
-                    <ul className="checklist-items-list">
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet done">
-                          <Check size={12} strokeWidth={3} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 1: Foto e Identidad</strong>
-                          <span>Fotografía y nombre vinculados desde LinkedIn.</span>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Right Column: Pending */}
-                  <div className="summary-checklist-col pending">
-                    <div className="checklist-col-header">
-                      <span className="checklist-col-title">
-                        <Clock size={15} strokeWidth={2.5} />
-                        <span>Siguientes Pasos</span>
-                      </span>
-                      <span className="checklist-badge">⏳ 4 pasos</span>
-                    </div>
-
-                    <ul className="checklist-items-list">
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet todo">
-                          <AlertCircle size={12} strokeWidth={2.8} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 2: Tarjeta Profesional CSJ</strong>
-                          <span>Ingresa tu matrícula para habilitar litigio.</span>
-                        </div>
-                      </li>
-
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet todo">
-                          <AlertCircle size={12} strokeWidth={2.8} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 3: Áreas de Práctica</strong>
-                          <span>Selecciona tus especialidades jurídicas.</span>
-                        </div>
-                      </li>
-
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet todo">
-                          <AlertCircle size={12} strokeWidth={2.8} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 4: Experiencia y Presentación</strong>
-                          <span>Indica tus años de ejercicio y trayectoria.</span>
-                        </div>
-                      </li>
-
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet todo">
-                          <AlertCircle size={12} strokeWidth={2.8} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 5: Honorarios y Modalidad</strong>
-                          <span>Define tu tarifa estimada y tipo de atención.</span>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="summary-modal-footer">
-              <button
-                type="button"
-                className="summary-cta-secondary"
-                onClick={() => setImportedSummaryModal(null)}
-              >
-                Cerrar y Ver Mi Panel
-              </button>
-
-              <button
-                type="button"
-                className="summary-cta-primary"
-                onClick={() => {
-                  setImportedSummaryModal(null);
-                  setCurrentStep(2);
-                  setIsWizardOpen(true);
-                }}
-              >
-                <span>Continuar con mi perfil (Paso 2)</span>
-                <ArrowRight size={17} strokeWidth={2.2} />
-              </button>
             </div>
           </div>
         </div>
