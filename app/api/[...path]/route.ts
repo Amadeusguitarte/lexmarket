@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { auth, db, ensureCaseFilesBucket, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
-import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
+import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo, normalizeLinkedInData } from '@/lib/linkedin';
 import { analyzeNarrativeHeuristically, INTAKE_CATEGORIES } from '@/lib/intake-engine';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -26,6 +26,137 @@ async function thread(ctx:Context,c:Record<string,any>,lawyerId:string) {
  const access=result(await ctx.client.from('access_requests').select('state').eq('case_id',c.id).eq('lawyer_id',lawyerId).maybeSingle());
  const p=result(await ctx.client.from('profiles').select('verification,role').eq('id',lawyerId).maybeSingle());
  if(access?.state!=='granted'||p?.role!=='lawyer'||p?.verification!=='verified') throw new HttpError(403,'El acceso a esta conversación no está activo.');
+}
+
+function renderLinkedInCallbackHtml({ ok, profile, error, requestOrigin }: { ok: boolean; profile?: any; error?: string; requestOrigin: string }) {
+  const safeProfile = ok && profile ? JSON.stringify(profile).replace(/</g, '\\u003c') : 'null';
+  const safeError = error ? JSON.stringify(error).replace(/</g, '\\u003c') : 'null';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>${ok ? 'MatchJurídico - LinkedIn Conectado' : 'MatchJurídico - Conexión LinkedIn'}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #faf8f5;
+      color: #2c2526;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #ebdcd5;
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 16px 36px rgba(107, 45, 62, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .avatar-preview {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #6b2d3e;
+      box-shadow: 0 4px 14px rgba(107, 45, 62, 0.15);
+    }
+    .icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .icon-badge.success {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .icon-badge.error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 0;
+      font-weight: 700;
+      color: #1a1516;
+    }
+    p {
+      font-size: 13.5px;
+      margin: 0;
+      color: #6d6263;
+      line-height: 1.5;
+    }
+    .btn {
+      margin-top: 6px;
+      background: #6b2d3e;
+      color: white;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    ${ok ? `
+      ${profile?.avatar_url ? `<img src="${profile.avatar_url}" class="avatar-preview" alt="Foto perfil" />` : '<div class="icon-badge success">✓</div>'}
+      <h3>¡Perfil de LinkedIn vinculado!</h3>
+      <p>Importamos tu fotografía, nombre y titular correctamente. Cerrando esta ventana...</p>
+    ` : `
+      <div class="icon-badge error">✕</div>
+      <h3>No pudimos conectar con LinkedIn</h3>
+      <p>${error || 'Hubo un inconveniente al autorizar tu perfil.'}</p>
+      <button class="btn" onclick="window.close()">Cerrar</button>
+    `}
+  </div>
+  <script>
+    const ok = ${ok};
+    const profile = ${safeProfile};
+    const errorMsg = ${safeError};
+    try {
+      if (window.opener) {
+        if (ok) {
+          window.opener.postMessage({ type: 'linkedin_sync_success', profile: profile }, '*');
+          setTimeout(() => { try { window.close(); } catch(e){} }, 850);
+        } else {
+          window.opener.postMessage({ type: 'linkedin_sync_error', error: errorMsg }, '*');
+        }
+      } else {
+        if (ok) {
+          localStorage.setItem('lexmarket.imported_linkedin_profile', JSON.stringify(profile));
+          window.location.href = '/?linkedin_connected=true';
+        } else {
+          window.location.href = '/?linkedin_notice=error';
+        }
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  </script>
+</body>
+</html>`;
 }
 
 async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
@@ -126,21 +257,28 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         const urlObj = new URL(req.url, requestOrigin);
         const code = urlObj.searchParams.get('code');
         const error = urlObj.searchParams.get('error');
+        const errorDesc = urlObj.searchParams.get('error_description') || error;
         if(error || !code) {
-          return NextResponse.redirect(new URL('/?linkedin_notice=cancelled', requestOrigin));
+          const msg = errorDesc || 'Conexión cancelada en LinkedIn.';
+          return new Response(renderLinkedInCallbackHtml({ ok: false, error: msg, requestOrigin }), {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
         }
         try {
+          if (!process.env.LINKEDIN_CLIENT_SECRET) {
+            throw new Error('Falta configurar la variable LINKEDIN_CLIENT_SECRET en Railway.');
+          }
           const tokenData = await exchangeLinkedInCode(code, requestRedirectUri);
           const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
-          const name = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim() || 'Abogado';
-          const avatar = userInfo.picture || '';
-          const redirectUrl = new URL('/', requestOrigin);
-          redirectUrl.searchParams.set('linkedin_connected', 'true');
-          redirectUrl.searchParams.set('linkedin_name', name);
-          if (avatar) redirectUrl.searchParams.set('linkedin_avatar', avatar);
-          return NextResponse.redirect(redirectUrl);
-        } catch {
-          return NextResponse.redirect(new URL('/?linkedin_notice=error', requestOrigin));
+          const normalized = normalizeLinkedInData(userInfo);
+          return new Response(renderLinkedInCallbackHtml({ ok: true, profile: normalized, requestOrigin }), {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
+        } catch (err: any) {
+          const msg = err?.message || 'Error al obtener datos de perfil de LinkedIn.';
+          return new Response(renderLinkedInCallbackHtml({ ok: false, error: msg, requestOrigin }), {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
         }
       }
     }

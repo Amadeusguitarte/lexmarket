@@ -27,6 +27,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { type LinkedInProfileData } from '@/lib/linkedin';
+import { openLinkedInOAuthPopup } from '@/lib/oauth';
 
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
@@ -165,10 +166,70 @@ export default function LawyerOnboardingDashboard({
 
   const progress = calculateProgress();
 
-  // Official LinkedIn OAuth: navigates directly to LinkedIn OAuth endpoint
-  const handleLinkedInOAuth = () => {
-    window.location.href = '/api/linkedin/auth';
+  const applyImportedLinkedInProfile = async (profileData: LinkedInProfileData) => {
+    const importedName = profileData.name || lawyerName;
+    const importedAvatar = profileData.avatar_url || avatarUrl;
+    const importedBio = profileData.bio || profileForm.bio;
+    const importedEducation = profileData.education || profileForm.education;
+
+    setLawyerName(importedName);
+    if (importedAvatar) setAvatarUrl(importedAvatar);
+
+    const updatedForm = {
+      ...profileForm,
+      name: importedName,
+      bio: importedBio || profileForm.bio,
+      education: importedEducation || profileForm.education,
+    };
+
+    setProfileForm(updatedForm);
+    setLinkedInSynced(true);
+    setIsLinkedInModalOpen(false);
+
+    if (onSaveProfile) {
+      try {
+        await onSaveProfile({
+          ...updatedForm,
+          avatar_url: importedAvatar,
+          role: 'lawyer',
+        });
+      } catch {}
+    }
+
+    showToast(`¡Perfil de LinkedIn sincronizado! Foto y datos de ${importedName.split(' ')[0]} importados.`);
   };
+
+  // Official LinkedIn OAuth: opens centered popup window without losing dashboard state
+  const handleLinkedInOAuth = async () => {
+    setSyncingLinkedIn(true);
+    try {
+      const profile = await openLinkedInOAuthPopup();
+      if (profile) {
+        await applyImportedLinkedInProfile(profile);
+      }
+    } catch (err: any) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.toLowerCase().includes('cancelada') && !msg.toLowerCase().includes('cerrada')) {
+        showToast(msg);
+      }
+    } finally {
+      setSyncingLinkedIn(false);
+    }
+  };
+
+  // Check if profile was saved in localStorage from direct fallback
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('lexmarket.imported_linkedin_profile');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.name || parsed.avatar_url)) {
+          void applyImportedLinkedInProfile(parsed);
+          localStorage.removeItem('lexmarket.imported_linkedin_profile');
+        }
+      }
+    } catch {}
+  }, []);
 
   // LinkedIn Import: brings professional profile ONLY (name, avatar, bio, education)
   // It does NOT fill Tarjeta profesional or specialties!
@@ -217,37 +278,26 @@ export default function LawyerOnboardingDashboard({
           }
         }
       } else if (sampleData) {
-        if (sampleData.name) importedName = sampleData.name;
-        if (sampleData.avatar_url) importedAvatar = sampleData.avatar_url;
-        if (sampleData.bio) importedBio = sampleData.bio;
-        if (sampleData.education) importedEducation = sampleData.education;
+        await applyImportedLinkedInProfile(sampleData);
+        return;
       } else {
-        // Direct to safe OAuth check if no URL was typed
+        // Direct to safe OAuth popup check if no URL was typed
         await handleLinkedInOAuth();
         return;
       }
 
-      setLawyerName(importedName);
-      if (importedAvatar) setAvatarUrl(importedAvatar);
-
-      // ONLY set name, bio, education.
-      // Tarjeta profesional (license) MUST REMAIN EMPTY for manual verification!
-      setProfileForm(prev => ({
-        ...prev,
+      await applyImportedLinkedInProfile({
         name: importedName,
-        bio: importedBio || prev.bio,
-        education: importedEducation || prev.education,
-        // license remains untouched!
-      }));
-
-      setLinkedInSynced(true);
-      setIsLinkedInModalOpen(false);
+        avatar_url: importedAvatar,
+        bio: importedBio,
+        education: importedEducation,
+      });
 
       // Immediately guide lawyer to Step 2 (Tarjeta profesional)
       setCurrentStep(2);
       setIsWizardOpen(true);
       showToast('Perfil de LinkedIn importado con éxito. Ahora ingresa manualmente tu Tarjeta Profesional (CSJ) en el Paso 2.');
-    } catch (err: any) {
+    } catch {
       showToast('Hubo un inconveniente al conectar con LinkedIn. Puedes completar tus datos manualmente.');
     } finally {
       setSyncingLinkedIn(false);
@@ -472,39 +522,78 @@ export default function LawyerOnboardingDashboard({
               </div>
 
               {/* LinkedIn Import Banner */}
-              <div className="wizard-linkedin-banner">
-                <div className="linkedin-banner-left">
-                  <div className="linkedin-logo-badge">
-                    <LinkedInOfficialIcon size={26} />
+              {linkedInSynced ? (
+                <div className="wizard-linkedin-banner" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #e8f7ee 100%)', borderColor: '#bbf7d0' }}>
+                  <div className="linkedin-banner-left">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={lawyerName}
+                        style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #059669', boxShadow: '0 2px 8px rgba(5, 150, 105, 0.2)' }}
+                      />
+                    ) : (
+                      <div className="linkedin-logo-badge" style={{ background: '#dcfce7', borderColor: '#86efac' }}>
+                        <Check size={24} className="text-emerald-700" />
+                      </div>
+                    )}
+                    <div className="linkedin-banner-text">
+                      <span className="linkedin-eyebrow" style={{ color: '#059669', fontWeight: 700 }}>✓ LINKEDIN CONECTADO</span>
+                      <h3 className="linkedin-banner-heading" style={{ color: '#064e3b' }}>
+                        Vinculado como {lawyerName}
+                      </h3>
+                      <p className="linkedin-banner-sub" style={{ color: '#166534' }}>
+                        Tu fotografía, nombre y titular fueron importados con éxito. Continúa al Paso 2 para registrar tu Tarjeta Profesional (CSJ).
+                      </p>
+                    </div>
                   </div>
-                  <div className="linkedin-banner-text">
-                    <span className="linkedin-eyebrow">ACELERA TU PERFIL</span>
-                    <h3 className="linkedin-banner-heading">Conecta tu LinkedIn</h3>
-                    <p className="linkedin-banner-sub">
-                      Importa tu foto, titular, biografía y trayectoria para avanzar más rápido. La tarjeta profesional se completa manualmente.
-                    </p>
-                  </div>
-                </div>
 
-                <div className="linkedin-banner-actions">
-                  <button
-                    type="button"
-                    className="linkedin-connect-btn"
-                    onClick={() => setIsLinkedInModalOpen(true)}
-                    disabled={syncingLinkedIn}
-                  >
-                    <LinkedInOfficialIcon size={17} />
-                    <span>{syncingLinkedIn ? 'Conectando…' : 'Conectar LinkedIn'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="linkedin-manual-link"
-                    onClick={() => setIsWizardOpen(true)}
-                  >
-                    Prefiero hacerlo manualmente
-                  </button>
+                  <div className="linkedin-banner-actions">
+                    <button
+                      type="button"
+                      className="wizard-continue-btn"
+                      style={{ padding: '9px 18px', fontSize: '13.5px' }}
+                      onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
+                    >
+                      <span>Ir a Tarjeta Profesional</span>
+                      <ArrowRight size={16} strokeWidth={2.2} />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="wizard-linkedin-banner">
+                  <div className="linkedin-banner-left">
+                    <div className="linkedin-logo-badge">
+                      <LinkedInOfficialIcon size={26} />
+                    </div>
+                    <div className="linkedin-banner-text">
+                      <span className="linkedin-eyebrow">ACELERA TU PERFIL</span>
+                      <h3 className="linkedin-banner-heading">Conecta tu LinkedIn</h3>
+                      <p className="linkedin-banner-sub">
+                        Importa tu foto oficial, titular y biografía en 1 clic. La tarjeta profesional se completa manualmente por requisito legal.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="linkedin-banner-actions">
+                    <button
+                      type="button"
+                      className="linkedin-connect-btn"
+                      onClick={handleLinkedInOAuth}
+                      disabled={syncingLinkedIn}
+                    >
+                      <LinkedInOfficialIcon size={17} />
+                      <span>{syncingLinkedIn ? 'Conectando…' : 'Conectar LinkedIn'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="linkedin-manual-link"
+                      onClick={() => setIsLinkedInModalOpen(true)}
+                    >
+                      ¿Qué datos se importan?
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Action Footer */}
               <div className="wizard-card-footer">
@@ -520,17 +609,19 @@ export default function LawyerOnboardingDashboard({
               </div>
 
               {/* Bottom Quick Tip */}
-              <div className="wizard-speed-tip">
-                <span className="speed-tip-bolt">⚡</span>
-                <span className="speed-tip-text">¿Quieres avanzar más rápido?</span>
-                <button
-                  type="button"
-                  className="speed-tip-link"
-                  onClick={() => setIsLinkedInModalOpen(true)}
-                >
-                  Conecta tu LinkedIn ↗
-                </button>
-              </div>
+              {!linkedInSynced && (
+                <div className="wizard-speed-tip">
+                  <span className="speed-tip-bolt">⚡</span>
+                  <span className="speed-tip-text">¿Quieres avanzar más rápido?</span>
+                  <button
+                    type="button"
+                    className="speed-tip-link"
+                    onClick={handleLinkedInOAuth}
+                  >
+                    Conecta tu LinkedIn ↗
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right Card: Value Proposition Card */}
@@ -712,17 +803,32 @@ export default function LawyerOnboardingDashboard({
               </div>
               <h3>Conectar perfil de LinkedIn</h3>
               <p>
-                Importa tu fotografía, titular y biografía profesional. Los datos regulatorios como tu <strong>Tarjeta Profesional (CSJ)</strong> se ingresan manualmente en el siguiente paso.
+                Importa en 1 clic tu foto oficial, nombre completo y titular profesional.
               </p>
             </div>
 
             <div className="linkedin-modal-body">
-              {/* Option 1: Official Button */}
+              {/* Information pill showing exactly what is imported */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px', textAlign: 'left' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569', display: 'block', marginBottom: '8px' }}>
+                  ¿Qué información importamos?
+                </span>
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: '#334155', lineHeight: '1.6' }}>
+                  <li><strong>Foto de perfil oficial:</strong> tu imagen visible en MatchJurídico.</li>
+                  <li><strong>Nombre y Titular:</strong> tu nombre verificado y especialidad destacada.</li>
+                  <li><strong>Biografía y Formación:</strong> resumen de tu trayectoria jurídica.</li>
+                </ul>
+                <div style={{ marginTop: '10px', fontSize: '12px', color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                  ⚖️ <em>Nota regulatoria: La <strong>Tarjeta Profesional CSJ</strong> no se obtiene de LinkedIn; se ingresa manualmente en el Paso 2 conforme al Registro Nacional de Abogados.</em>
+                </div>
+              </div>
+
+              {/* Option 1: Official Popup Button */}
               <div className="linkedin-sync-card" style={{ marginBottom: '20px' }}>
                 <div className="sync-card-info">
-                  <span className="sync-badge">RECOMENDADO</span>
-                  <h4>Conectar con cuenta de LinkedIn</h4>
-                  <p>Inicia sesión con tu cuenta para autorizar el acceso seguro a tu fotografía, nombre y titular profesional.</p>
+                  <span className="sync-badge">VENTANA EMERGENTE (POPUP)</span>
+                  <h4>Vincular con tu cuenta de LinkedIn</h4>
+                  <p>Abre una ventana emergente segura para autorizar tu foto y datos sin salir de tu panel.</p>
                 </div>
                 <button
                   type="button"
@@ -731,7 +837,7 @@ export default function LawyerOnboardingDashboard({
                   disabled={syncingLinkedIn}
                 >
                   <LinkedInOfficialIcon size={18} />
-                  <span>{syncingLinkedIn ? 'Abriendo acceso…' : 'Iniciar sesión con LinkedIn'}</span>
+                  <span>{syncingLinkedIn ? 'Abriendo ventana…' : 'Abrir ventana de LinkedIn'}</span>
                 </button>
               </div>
 
