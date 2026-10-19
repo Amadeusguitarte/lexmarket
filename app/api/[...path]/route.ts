@@ -98,9 +98,13 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         const profileData=await fetchLinkedInPublicProfile(b.url||'');
         return json({ok:true,profile:profileData,data:profileData});
       }
-      const proto = req.headers.get('x-forwarded-proto') || (new URL(req.url).protocol.replace(':', ''));
-      const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || new URL(req.url).host;
-      const requestOrigin = `${proto}://${host}`;
+      const proto = req.headers.get('x-forwarded-proto') || 'https';
+      const rawHost = req.headers.get('x-forwarded-host') || req.headers.get('host') || '';
+      const isInternal = !rawHost || rawHost.includes('0.0.0.0') || rawHost.includes('127.0.0.1');
+      const publicHost = isInternal
+        ? (process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RAILWAY_STATIC_URL || 'matchjuridico.com')
+        : rawHost;
+      const requestOrigin = `${proto}://${publicHost}`;
       const requestRedirectUri = `${requestOrigin}/api/linkedin/callback`;
 
       if(path[1]==='auth'&&method==='GET') {
@@ -108,7 +112,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         const acceptsHtml=req.headers.get('accept')?.includes('text/html');
         if(!clientId) {
           if(acceptsHtml) {
-            return NextResponse.redirect(new URL('/abogados?linkedin_status=unconfigured', req.url));
+            return NextResponse.redirect(new URL('/abogados?linkedin_status=unconfigured', requestOrigin));
           }
           return json({configured:false,message:'LinkedIn OAuth no está configurado aún en las variables de entorno.'});
         }
@@ -119,24 +123,24 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         return json({configured:true,url:authUrl});
       }
       if(path[1]==='callback'&&method==='GET') {
-        const urlObj = new URL(req.url);
+        const urlObj = new URL(req.url, requestOrigin);
         const code = urlObj.searchParams.get('code');
         const error = urlObj.searchParams.get('error');
         if(error || !code) {
-          return NextResponse.redirect(new URL('/?linkedin_notice=cancelled', req.url));
+          return NextResponse.redirect(new URL('/?linkedin_notice=cancelled', requestOrigin));
         }
         try {
           const tokenData = await exchangeLinkedInCode(code, requestRedirectUri);
           const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
           const name = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim() || 'Abogado';
           const avatar = userInfo.picture || '';
-          const redirectUrl = new URL('/', req.url);
+          const redirectUrl = new URL('/', requestOrigin);
           redirectUrl.searchParams.set('linkedin_connected', 'true');
           redirectUrl.searchParams.set('linkedin_name', name);
           if (avatar) redirectUrl.searchParams.set('linkedin_avatar', avatar);
           return NextResponse.redirect(redirectUrl);
         } catch {
-          return NextResponse.redirect(new URL('/?linkedin_notice=error', req.url));
+          return NextResponse.redirect(new URL('/?linkedin_notice=error', requestOrigin));
         }
       }
     }
