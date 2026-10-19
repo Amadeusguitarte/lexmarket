@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { auth, db, ensureCaseFilesBucket, event, getCase, HttpError, isAdmin, lawyer, rate, result, type Context } from '@/lib/server';
 import { caseSchema, profileSchema, proposalSchema, safeName, validateFile } from '@/lib/shared';
 import { SEED_FEATURED_LAWYERS } from '@/lib/lawyers';
-import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo, normalizeLinkedInData } from '@/lib/linkedin';
+import { fetchLinkedInPublicProfile, getLinkedInAuthUrl, exchangeLinkedInCode, fetchLinkedInUserInfo } from '@/lib/linkedin';
 import { analyzeNarrativeHeuristically, INTAKE_CATEGORIES } from '@/lib/intake-engine';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -123,7 +123,7 @@ function renderLinkedInCallbackHtml({ ok, profile, error, requestOrigin }: { ok:
     ${ok ? `
       ${profile?.avatar_url ? `<img src="${profile.avatar_url}" class="avatar-preview" alt="Foto perfil" />` : '<div class="icon-badge success">✓</div>'}
       <h3>¡Perfil de LinkedIn vinculado!</h3>
-      <p>Importamos tu fotografía, nombre y titular correctamente. Cerrando esta ventana...</p>
+      <p>Importamos tu fotografía y nombre verificados. Cerrando esta ventana...</p>
     ` : `
       <div class="icon-badge error">✕</div>
       <h3>No pudimos conectar con LinkedIn</h3>
@@ -270,7 +270,15 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
           }
           const tokenData = await exchangeLinkedInCode(code, requestRedirectUri);
           const userInfo = await fetchLinkedInUserInfo(tokenData.access_token);
-          const normalized = normalizeLinkedInData(userInfo);
+          const realName = userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim();
+          // Only real data returned by LinkedIn OIDC — never invent education, bio or positions.
+          const normalized = {
+            name: realName || undefined,
+            given_name: userInfo.given_name || undefined,
+            family_name: userInfo.family_name || undefined,
+            email: userInfo.email || undefined,
+            avatar_url: userInfo.picture || undefined,
+          };
           return new Response(renderLinkedInCallbackHtml({ ok: true, profile: normalized, requestOrigin }), {
             headers: { 'Content-Type': 'text/html; charset=utf-8' }
           });
