@@ -289,8 +289,12 @@ document.querySelectorAll('.example-pill').forEach(button => {
       lawyerRoot.prepend(toast);
     }
     toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big text-emerald-600"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>' + msg + '</span><button type="button" class="toast-close-x" style="background:none;border:none;cursor:pointer;color:#796c6e;font-size:16px;">✕</button>';
-    toast.querySelector('.toast-close-x')?.addEventListener('click', () => toast.remove());
-    setTimeout(() => { if (toast && toast.parentElement) toast.remove(); }, 6000);
+    const dismiss = () => {
+      toast.classList.add('lawyer-dash-toast-exiting', 'toast-exiting');
+      setTimeout(() => { if (toast && toast.parentElement) toast.remove(); }, 350);
+    };
+    toast.querySelector('.toast-close-x')?.addEventListener('click', dismiss);
+    setTimeout(dismiss, 4500);
   }
 
   // Open LinkedIn Modal

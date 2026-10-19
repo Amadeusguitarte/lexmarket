@@ -136,3 +136,16 @@ test('profile view allows changing photo or leaving anonymous without hardcoded 
  assert.ok(html.includes('Dejar anónimo'));
 });
 
+test('Toast renders message and supports entrance and exit animation classes', async () => {
+ const { Toast } = await import('../components/Toast');
+ const html = renderToStaticMarkup(React.createElement(Toast, {
+  message: 'Tu perfil profesional ha sido actualizado.',
+  portal: false
+ }));
+ const doc = new JSDOM(html).window.document;
+ const toast = doc.querySelector('.toast');
+ assert.ok(toast);
+ assert.ok(toast.classList.contains('toast-entering'));
+ assert.ok(toast.textContent?.includes('Tu perfil profesional ha sido actualizado.'));
+});
+

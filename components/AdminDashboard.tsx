@@ -29,6 +29,7 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
+import Toast from './Toast';
 
 export interface AdminCase {
   id: string;
@@ -121,7 +122,6 @@ export default function AdminDashboard({ onNotice }: { onNotice?: (s: string) =>
   const notify = (msg: string) => {
     setToastMsg(msg);
     if (onNotice) onNotice(msg);
-    setTimeout(() => setToastMsg(''), 4500);
   };
 
   const loadData = async () => {
@@ -287,13 +287,13 @@ export default function AdminDashboard({ onNotice }: { onNotice?: (s: string) =>
   return (
     <div className="admin-console" style={{ paddingBottom: 60 }}>
       {/* Toast feedback */}
-      {toastMsg && (
-        <div className="toast" role="status" style={{ zIndex: 9999 }}>
-          <CheckCircle2 size={18} />
-          <span>{toastMsg}</span>
-          <button onClick={() => setToastMsg('')}><X size={15} /></button>
-        </div>
-      )}
+      <Toast
+        message={toastMsg}
+        duration={4500}
+        onClose={() => setToastMsg('')}
+        portal={false}
+        style={{ zIndex: 9999 }}
+      />
 
       {/* Top Banner */}
       <div className="page-heading" style={{ flexWrap: 'wrap', gap: 16 }}>

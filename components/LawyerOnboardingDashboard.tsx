@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { type LinkedInProfileData } from '@/lib/linkedin';
 import { openLinkedInOAuthPopup } from '@/lib/oauth';
+import Toast from './Toast';
 
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
@@ -209,11 +210,7 @@ export default function LawyerOnboardingDashboard({
     setToastMessage(msg);
   };
 
-  React.useEffect(() => {
-    if (!toastMessage) return;
-    const timer = setTimeout(() => setToastMessage(''), 3500);
-    return () => clearTimeout(timer);
-  }, [toastMessage]);
+
 
   // Stepper completion checks based on updated step order:
   // 1: Datos básicos | 2: Biografía y experiencia | 3: Áreas | 4: Honorarios | 5: Tarjeta profesional CSJ | 6: Verificación
@@ -617,13 +614,13 @@ export default function LawyerOnboardingDashboard({
   return (
     <div className="lawyer-dashboard-shell">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="lawyer-dash-toast" role="alert">
-          <CheckCircle2 size={18} className="text-emerald-600" />
-          <span>{toastMessage}</span>
-          <button type="button" onClick={() => setToastMessage('')}><X size={15} /></button>
-        </div>
-      )}
+      <Toast
+        className="lawyer-dash-toast"
+        message={toastMessage}
+        duration={3500}
+        onClose={() => setToastMessage('')}
+        portal={false}
+      />
 
       {/* Left Sidebar */}
       <aside className="lawyer-dash-sidebar">

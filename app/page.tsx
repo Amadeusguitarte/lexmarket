@@ -18,6 +18,7 @@ import LawyerOnboardingDashboard from '@/components/LawyerOnboardingDashboard';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import OAuthPopupCallback from '@/components/OAuthPopupCallback';
 import { openGoogleOAuthPopup } from '@/lib/oauth';
+import Toast from '@/components/Toast';
 
 function LinkedinIcon({ size = 18 }: { size?: number }) {
  return (
@@ -91,17 +92,7 @@ export default function Home() {
   }
  }, []);
 
- useEffect(() => {
-  if (!notice) return;
-  const timer = setTimeout(() => setNotice(''), 4000);
-  return () => clearTimeout(timer);
- }, [notice]);
 
- useEffect(() => {
-  if (!error) return;
-  const timer = setTimeout(() => setError(''), 5000);
-  return () => clearTimeout(timer);
- }, [error]);
 
  const isLawyerAccount = role === 'lawyer' || 
    session?.user?.user_metadata?.intended_role === 'lawyer' || 
@@ -323,16 +314,13 @@ export default function Home() {
            try { sessionStorage.removeItem('lexmarket.user_cases'); } catch {}
          })}
        />
-       {(error || notice) && typeof document !== 'undefined' && createPortal(
-         <div className={'toast ' + (error ? 'error' : '')} role={error ? 'alert' : 'status'}>
-           <CheckCircle2 size={18} />
-           <span>{error || notice}</span>
-           <button aria-label="Cerrar notificación" onClick={() => { setError(''); setNotice(''); }}>
-             <X size={18} />
-           </button>
-         </div>,
-         document.body
-       )}
+       <Toast
+         message={error || notice}
+         isError={Boolean(error)}
+         duration={error ? 5000 : 4000}
+         onClose={() => { setError(''); setNotice(''); }}
+         portalTarget={typeof document !== 'undefined' ? document.body : null}
+       />
      </>
    );
  }
@@ -364,6 +352,11 @@ export default function Home() {
     />
   )}
   {info&&infoText[info]&&<Modal title={infoText[info].title} onClose={()=>setInfo('')}>{infoText[info].paragraphs.map(p=><p className="info-paragraph" key={p}>{p}</p>)}</Modal>}
-  {(error||notice)&&typeof document!=='undefined'&&createPortal(<div className={'toast '+(error?'error':'')} role={error?'alert':'status'}><CheckCircle2 size={18}/><span>{error||notice}</span><button aria-label="Cerrar notificación" onClick={()=>{setError('');setNotice('');}}><X size={18}/></button></div>,document.querySelector('dialog[open]')||document.body)}
+  <Toast
+    message={error || notice}
+    isError={Boolean(error)}
+    duration={error ? 5000 : 4000}
+    onClose={() => { setError(''); setNotice(''); }}
+  />
  </>;
 }

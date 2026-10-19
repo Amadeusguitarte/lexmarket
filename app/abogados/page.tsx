@@ -12,6 +12,7 @@ import { api, browserDB } from '@/lib/browser';
 import { importIntake } from '@/lib/import-intake';
 import { ArrowRight, CheckCircle2, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import Toast from '@/components/Toast';
 
 export default function AbogadosPage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -110,17 +111,12 @@ export default function AbogadosPage() {
         />
       )}
 
-      {(error || notice) && typeof document !== 'undefined' &&
-        createPortal(
-          <div className={'toast ' + (error ? 'error' : '')} role="status">
-            <CheckCircle2 size={18} />
-            <span>{error || notice}</span>
-            <button aria-label="Cerrar notificación" onClick={() => { setError(''); setNotice(''); }}>
-              <X size={18} />
-            </button>
-          </div>,
-          document.body
-        )}
+      <Toast
+        message={error || notice}
+        isError={Boolean(error)}
+        duration={error ? 5000 : 4000}
+        onClose={() => { setError(''); setNotice(''); }}
+      />
     </div>
   );
 }
