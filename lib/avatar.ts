@@ -10,6 +10,13 @@ export function safeAvatar(value:unknown):string|null {
  }
  try{
    const u=new URL(trimmed);
-   return u.protocol==='https:'&&(u.hostname==='lh3.googleusercontent.com'||u.hostname.endsWith('.googleusercontent.com')||u.hostname.endsWith('.supabase.co'))?u.href:null;
+   const h=u.hostname;
+   const allowed=h==='lh3.googleusercontent.com'||
+     h.endsWith('.googleusercontent.com')||
+     h.endsWith('.supabase.co')||
+     h==='media.licdn.com'||
+     h.endsWith('.licdn.com')||
+     h.endsWith('.linkedin.com');
+   return u.protocol==='https:'&&allowed?u.href:null;
  }catch{return null;}
 }

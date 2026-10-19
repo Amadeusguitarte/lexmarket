@@ -458,7 +458,8 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
         virtual_available: p.virtual_available ?? true,
         in_person_available: p.in_person_available ?? true,
         featured: p.featured ?? false,
-        avatar_url: userAvatar
+        avatar_url: userAvatar,
+        linkedin_url: p.linkedin_url || ''
       };
 
       if (!profile || reset) {

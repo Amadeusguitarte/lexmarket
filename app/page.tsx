@@ -289,6 +289,16 @@ export default function Home() {
        <LawyerOnboardingDashboard
          initialLawyerName={lawyerName}
          initialAvatar={lawyerAvatar}
+         initialProfile={me?.profile}
+         initialLinkedInSynced={Boolean(
+           lawyerAvatar?.includes('licdn.com') ||
+           lawyerAvatar?.includes('linkedin') ||
+           me?.profile?.linkedin_url ||
+           (typeof window !== 'undefined' && (
+             localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
+             localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')
+           ))
+         )}
          onNavigate={() => {}}
          onSaveProfile={async (data) => {
            await saveProfile({ ...data, role: 'lawyer' });

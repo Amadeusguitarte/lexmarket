@@ -29,6 +29,7 @@ export const profileSchema = z.object({
   in_person_available: z.boolean().optional().default(true),
   featured: z.boolean().optional().default(false),
   avatar_url: z.string().max(2000000).nullable().optional(),
+  linkedin_url: z.string().trim().max(1000).nullable().optional().default(''),
 });
 export const proposalSchema = z.object({scope:z.string().trim().min(30).max(4000),exclusions:z.string().trim().min(5).max(2000),amount:z.number().int().min(0).max(1000000000),days:z.number().int().min(1).max(365),payment_terms:z.string().trim().min(5).max(1000)});
 export function canReadPrivate(owner:string,user:string,verified:boolean,access?:string) { return owner===user || (verified && access==='granted'); }

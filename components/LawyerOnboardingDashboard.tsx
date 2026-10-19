@@ -36,6 +36,8 @@ import { openLinkedInOAuthPopup } from '@/lib/oauth';
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
   initialAvatar?: string;
+  initialProfile?: any;
+  initialLinkedInSynced?: boolean;
   onNavigate?: (route: string) => void;
   onSaveProfile?: (profileData: any) => Promise<void>;
   onOpenCase?: (caseId: string) => void;
@@ -70,9 +72,22 @@ function getInitials(name?: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+const ONBOARDING_STORAGE_KEY = 'lexmarket.lawyer_onboarding_state';
+
+function loadSavedOnboardingState() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
 export default function LawyerOnboardingDashboard({
   initialLawyerName = '',
   initialAvatar = '',
+  initialProfile,
+  initialLinkedInSynced = false,
   onNavigate,
   onSaveProfile,
   onOpenCase,
@@ -80,19 +95,44 @@ export default function LawyerOnboardingDashboard({
 }: LawyerOnboardingProps) {
   // State for active sidebar menu
   const [activeMenu, setActiveMenu] = useState('inicio');
-  
-  // Real lawyer name and avatar (no Juan Perez fallback)
-  const [lawyerName, setLawyerName] = useState(
-    initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : 'Abogado'
-  );
-  const [avatarUrl, setAvatarUrl] = useState(
-    initialAvatar && !initialAvatar.includes('juan-perez') ? initialAvatar : ''
-  );
-  const [linkedInSynced, setLinkedInSynced] = useState(false);
+
+  // Load saved state once
+  const [lawyerName, setLawyerName] = useState<string>(() => {
+    const saved = loadSavedOnboardingState();
+    if (saved?.lawyerName && saved.lawyerName !== 'Abogado' && saved.lawyerName !== 'Juan Pérez') return saved.lawyerName;
+    if (saved?.profileForm?.name && saved.profileForm.name !== 'Abogado' && saved.profileForm.name !== 'Juan Pérez') return saved.profileForm.name;
+    if (initialLawyerName && initialLawyerName !== 'Juan Pérez' && initialLawyerName !== 'Abogado') return initialLawyerName;
+    if (initialProfile?.name && initialProfile.name !== 'Abogado' && initialProfile.name !== 'Juan Pérez') return initialProfile.name;
+    return 'Abogado';
+  });
+
+  const [avatarUrl, setAvatarUrl] = useState<string>(() => {
+    const saved = loadSavedOnboardingState();
+    if (saved?.avatarUrl) return saved.avatarUrl;
+    if (saved?.profileForm?.avatar_url) return saved.profileForm.avatar_url;
+    if (initialAvatar && !initialAvatar.includes('juan-perez')) return initialAvatar;
+    if (initialProfile?.avatar_url) return initialProfile.avatar_url;
+    return '';
+  });
+
+  const [linkedInSynced, setLinkedInSynced] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const flag = localStorage.getItem('lexmarket.lawyer_linkedin_connected');
+        if (flag === 'true') return true;
+        const saved = loadSavedOnboardingState();
+        if (saved?.linkedInSynced) return true;
+        const imported = localStorage.getItem('lexmarket.imported_linkedin_profile');
+        if (imported) return true;
+      } catch {}
+    }
+    if (initialLinkedInSynced) return true;
+    if (initialAvatar && (initialAvatar.includes('licdn.com') || initialAvatar.includes('linkedin'))) return true;
+    if (initialProfile?.linkedin_url || initialProfile?.avatar_url?.includes('licdn.com')) return true;
+    return false;
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Wizard modal state
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
   const [connectedLinkedInPresentation, setConnectedLinkedInPresentation] = useState<{
     name: string;
@@ -100,30 +140,46 @@ export default function LawyerOnboardingDashboard({
     email?: string;
     linkedin_url: string;
   } | null>(null);
+
   const [workExperience, setWorkExperience] = useState<Array<{
     title: string;
     company: string;
     start_date?: string;
     end_date?: string;
     description?: string;
-  }>>([]);
+  }>>(() => {
+    const saved = loadSavedOnboardingState();
+    return Array.isArray(saved?.workExperience) ? saved.workExperience : [];
+  });
+
   const [syncingLinkedIn, setSyncingLinkedIn] = useState(false);
   const [customLinkedInUrl, setCustomLinkedInUrl] = useState('');
   const [toastMessage, setToastMessage] = useState('');
-  const [currentStep, setCurrentStep] = useState(1);
+
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    const saved = loadSavedOnboardingState();
+    if (typeof saved?.currentStep === 'number' && saved.currentStep >= 1 && saved.currentStep <= 6) {
+      return saved.currentStep;
+    }
+    return 1;
+  });
 
   // Form step data: License & Honorarios are strictly EMPTY until manually provided!
-  const [profileForm, setProfileForm] = useState({
-    name: initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : 'Abogado',
-    city: 'Bogotá, D.C.',
-    license: '', // EMPTY! Requires manual entry in Step 5
-    specialties: [] as string[], // EMPTY! Requires manual selection in Step 3
-    years_of_experience: 0,
-    education: '',
-    bio: '',
-    rate_hourly: '', // STRICTLY EMPTY! Requires manual entry in Step 4
-    modality: '', // STRICTLY EMPTY! Requires manual selection in Step 4
-    linkedin_url: '',
+  const [profileForm, setProfileForm] = useState(() => {
+    const saved = loadSavedOnboardingState();
+    const sf = saved?.profileForm || {};
+    return {
+      name: sf.name || (initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : (initialProfile?.name || 'Abogado')),
+      city: sf.city || initialProfile?.city || 'Bogotá, D.C.',
+      license: sf.license || initialProfile?.license || '',
+      specialties: Array.isArray(sf.specialties) ? sf.specialties : (Array.isArray(initialProfile?.specialties) ? initialProfile.specialties : []),
+      years_of_experience: typeof sf.years_of_experience === 'number' ? sf.years_of_experience : (typeof initialProfile?.years_of_experience === 'number' ? initialProfile.years_of_experience : 0),
+      education: sf.education || initialProfile?.education || '',
+      bio: sf.bio || initialProfile?.bio || '',
+      rate_hourly: sf.rate_hourly || initialProfile?.rate_hourly || '',
+      modality: sf.modality || initialProfile?.modality || '',
+      linkedin_url: sf.linkedin_url || initialProfile?.linkedin_url || '',
+    };
   });
 
   const [oauthAvailable, setOauthAvailable] = useState<boolean>(false);
@@ -216,6 +272,19 @@ export default function LawyerOnboardingDashboard({
     setProfileForm(updatedForm);
     setLinkedInSynced(true);
     setIsLinkedInModalOpen(false);
+    setCurrentStep(2); // On the page!
+
+    try {
+      localStorage.setItem('lexmarket.lawyer_linkedin_connected', 'true');
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+        linkedInSynced: true,
+        lawyerName: importedName,
+        avatarUrl: importedAvatar,
+        currentStep: 2,
+        profileForm: updatedForm,
+        workExperience: positions,
+      }));
+    } catch {}
 
     // Present clean presentation modal with verified photo, name, and clickable link to LinkedIn
     setConnectedLinkedInPresentation({
@@ -237,6 +306,61 @@ export default function LawyerOnboardingDashboard({
 
     showToast(`✓ LinkedIn conectado: foto y nombre de ${importedName.split(' ')[0]} asociados`);
   };
+
+  // Dedicated client-side hydration effect to restore saved state from localStorage
+  const isHydratedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const isConnected = localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true';
+      const saved = loadSavedOnboardingState();
+      if (isConnected || saved?.linkedInSynced || initialLinkedInSynced) {
+        setLinkedInSynced(true);
+      }
+      if (saved) {
+        if (saved.lawyerName && saved.lawyerName !== 'Abogado' && saved.lawyerName !== 'Juan Pérez') {
+          setLawyerName(saved.lawyerName);
+        }
+        if (saved.avatarUrl) {
+          setAvatarUrl(saved.avatarUrl);
+        }
+        if (typeof saved.currentStep === 'number' && saved.currentStep >= 1 && saved.currentStep <= 6) {
+          setCurrentStep(saved.currentStep);
+        }
+        if (Array.isArray(saved.workExperience) && saved.workExperience.length > 0) {
+          setWorkExperience(saved.workExperience);
+        }
+        if (saved.profileForm) {
+          setProfileForm(prev => ({
+            ...prev,
+            ...saved.profileForm,
+            name: (saved.profileForm.name && saved.profileForm.name !== 'Abogado' && saved.profileForm.name !== 'Juan Pérez') ? saved.profileForm.name : prev.name,
+            linkedin_url: saved.profileForm.linkedin_url || prev.linkedin_url,
+          }));
+        }
+      }
+    } catch {}
+    isHydratedRef.current = true;
+  }, [initialLinkedInSynced]);
+
+  // Auto-sync all changes to localStorage so page reloads never lose progress or LinkedIn connection
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !isHydratedRef.current) return;
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+        linkedInSynced,
+        lawyerName,
+        avatarUrl,
+        currentStep,
+        profileForm,
+        workExperience,
+      }));
+      if (linkedInSynced) {
+        localStorage.setItem('lexmarket.lawyer_linkedin_connected', 'true');
+      }
+    } catch {}
+  }, [linkedInSynced, lawyerName, avatarUrl, currentStep, profileForm, workExperience]);
 
   // Official LinkedIn OAuth: opens centered popup window without losing dashboard state
   const handleLinkedInOAuth = async () => {
@@ -264,7 +388,6 @@ export default function LawyerOnboardingDashboard({
         const parsed = JSON.parse(saved);
         if (parsed && (parsed.name || parsed.avatar_url)) {
           void applyImportedLinkedInProfile(parsed);
-          localStorage.removeItem('lexmarket.imported_linkedin_profile');
         }
       }
     } catch {}
@@ -340,7 +463,6 @@ export default function LawyerOnboardingDashboard({
 
   const handleSaveStep = async () => {
     if (currentStep === 6) {
-      setIsWizardOpen(false);
       showToast('¡Perfil enviado a verificación exitosamente!');
       if (onSaveProfile) {
         await onSaveProfile({
@@ -353,6 +475,7 @@ export default function LawyerOnboardingDashboard({
 
     const nextStep = Math.min(currentStep + 1, 6);
     setCurrentStep(nextStep);
+    showToast(`Paso ${currentStep} completado`);
     
     if (onSaveProfile) {
       await onSaveProfile({
@@ -438,7 +561,10 @@ export default function LawyerOnboardingDashboard({
             <button
               type="button"
               className={`lawyer-nav-item ${activeMenu === 'perfil' ? 'active' : ''}`}
-              onClick={() => { setIsWizardOpen(true); }}
+              onClick={() => {
+                setActiveMenu('perfil');
+                document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               <User size={19} strokeWidth={1.8} />
               <span>Perfil profesional</span>
@@ -488,7 +614,13 @@ export default function LawyerOnboardingDashboard({
               <span className="lawyer-bell-badge">1</span>
             </button>
 
-            <div className="lawyer-user-profile-menu" onClick={() => setIsWizardOpen(true)}>
+            <div
+              className="lawyer-user-profile-menu"
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -547,7 +679,7 @@ export default function LawyerOnboardingDashboard({
                       <button
                         type="button"
                         className={`stepper-node ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}`}
-                        onClick={() => { setCurrentStep(step.num); setIsWizardOpen(true); }}
+                        onClick={() => setCurrentStep(step.num)}
                       >
                         <div className="stepper-circle">
                           {isCompleted ? <Check size={12} strokeWidth={3} /> : step.num}
@@ -626,7 +758,10 @@ export default function LawyerOnboardingDashboard({
                     type="button"
                     className="wizard-continue-btn"
                     style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
-                    onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
+                    onClick={() => {
+                      setCurrentStep(2);
+                      document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
                   >
                     <span>Completar biografía (Paso 2)</span>
                     <ArrowRight size={14} strokeWidth={2.5} />
@@ -668,17 +803,309 @@ export default function LawyerOnboardingDashboard({
                 </div>
               )}
 
-              {/* Action Footer */}
-              <div className="wizard-card-footer">
-                <button
-                  type="button"
-                  className="wizard-continue-btn"
-                  onClick={() => setIsWizardOpen(true)}
-                >
-                  <span>Continuar con mi perfil</span>
-                  <ArrowRight size={17} strokeWidth={2.2} />
-                </button>
-                <span className="wizard-time-note">Solo te tomará unos minutos.</span>
+              {/* INLINE WIZARD STEP BODY - DIRECTLY ON THE PAGE */}
+              <div className="wizard-inline-container" id="lawyer-wizard-card" style={{
+                marginTop: '12px',
+                borderTop: '1px solid #ebdccc',
+                paddingTop: '22px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '18px',
+              }}>
+                <div className="wizard-inline-header" style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: '10px',
+                }}>
+                  <div>
+                    <span className="wizard-step-tag">Paso {currentStep} de 6</span>
+                    <h3 style={{
+                      fontFamily: 'Georgia, serif',
+                      fontSize: '20px',
+                      fontWeight: 700,
+                      color: '#1e191a',
+                      margin: '4px 0 2px',
+                    }}>
+                      {stepsList[currentStep - 1]?.label}
+                    </h3>
+                    <p style={{ fontSize: '13px', color: '#6a5e60', margin: 0 }}>
+                      {currentStep === 1 && 'Ingresa tus datos personales básicos y confirma tu enlace de contacto.'}
+                      {currentStep === 2 && 'Indica tu trayectoria, años de experiencia y formación académica.'}
+                      {currentStep === 3 && 'Selecciona las ramas del derecho en las que te especializas.'}
+                      {currentStep === 4 && 'Define tus tarifas estimadas y cómo prefieres atender a tus clientes.'}
+                      {currentStep === 5 && 'Indica tu número de tarjeta profesional expedida por el Consejo Superior de la Judicatura (CSJ / SIRNA).'}
+                      {currentStep === 6 && 'Verifica que todo esté correcto antes de enviar tu perfil a validación.'}
+                    </p>
+                  </div>
+                  <span style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    padding: '3px 10px',
+                    borderRadius: '12px',
+                    background: isStepCompleted(currentStep) ? '#dcfce7' : '#f5eee5',
+                    color: isStepCompleted(currentStep) ? '#166534' : '#796c6e',
+                    border: isStepCompleted(currentStep) ? '1px solid #86efac' : '1px solid #ebdccc',
+                  }}>
+                    {isStepCompleted(currentStep) ? '✓ Completado' : 'Pendiente'}
+                  </span>
+                </div>
+
+                <div className="wizard-inline-form-body" style={{ marginTop: '4px' }}>
+                  {currentStep === 1 && (
+                    <div className="wizard-form-step">
+                      <div className="wizard-field">
+                        <label>Nombre y Apellidos</label>
+                        <input
+                          type="text"
+                          value={profileForm.name}
+                          onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                          placeholder="Ej. Andrés Morales"
+                        />
+                      </div>
+                      <div className="wizard-field">
+                        <label>Ciudad de práctica</label>
+                        <input
+                          type="text"
+                          value={profileForm.city}
+                          onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                          placeholder="Ej. Bogotá, D.C."
+                        />
+                      </div>
+                      <div className="wizard-field">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <label style={{ margin: 0 }}>Enlace a perfil de LinkedIn</label>
+                          {profileForm.linkedin_url && (
+                            <a
+                              href={profileForm.linkedin_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ fontSize: '12px', color: '#0077b5', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontWeight: 600 }}
+                            >
+                              <span>Probar enlace</span>
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="url"
+                            value={profileForm.linkedin_url}
+                            onChange={(e) => setProfileForm({ ...profileForm, linkedin_url: e.target.value })}
+                            placeholder="https://www.linkedin.com/in/tu-perfil"
+                            style={{ flex: 1 }}
+                          />
+                          {profileForm.linkedin_url && (
+                            <a
+                              href={profileForm.linkedin_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="wizard-back-btn"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '0 14px', textDecoration: 'none', fontSize: '13px', background: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd' }}
+                            >
+                              <ExternalLink size={14} />
+                              <span>Abrir</span>
+                            </a>
+                          )}
+                        </div>
+                        <small style={{ color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                          Este enlace redirigido quedará visible en tu perfil para que tus clientes puedan consultar tu trayectoria oficial.
+                        </small>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 2 && (
+                    <div className="wizard-form-step">
+                      <div className="wizard-field">
+                        <label>Años de experiencia profesional</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={profileForm.years_of_experience || ''}
+                          onChange={(e) => setProfileForm({ ...profileForm, years_of_experience: Number(e.target.value) })}
+                          placeholder="Ej. 8"
+                        />
+                      </div>
+                      <div className="wizard-field">
+                        <label>Formación académica (Universidad, postgrados)</label>
+                        <input
+                          type="text"
+                          value={profileForm.education}
+                          onChange={(e) => setProfileForm({ ...profileForm, education: e.target.value })}
+                          placeholder="Ej. Abogado · Universidad del Rosario"
+                        />
+                      </div>
+                      <div className="wizard-field">
+                        <label>Extracto / Trayectoria profesional</label>
+                        <textarea
+                          rows={3}
+                          value={profileForm.bio}
+                          onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                          placeholder="Describe tu trayectoria y enfoque jurídico..."
+                        />
+                      </div>
+
+                      {workExperience && workExperience.length > 0 && (
+                        <div style={{ marginTop: '16px', background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '12px', padding: '14px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                            <LinkedInOfficialIcon size={16} />
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#064e3b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              Trayectoria profesional importada de LinkedIn ({workExperience.length})
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {workExperience.map((pos, idx) => (
+                              <div key={idx} style={{ background: '#fff', border: '1px solid #ebdcd5', borderRadius: '8px', padding: '9px 12px', fontSize: '12.5px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                                  <strong style={{ color: '#1e191a' }}>{pos.title}</strong>
+                                  <span style={{ fontSize: '11px', color: '#796c6e', background: '#faf8f5', padding: '1px 6px', borderRadius: '4px' }}>
+                                    {pos.start_date} – {pos.end_date || 'Actualidad'}
+                                  </span>
+                                </div>
+                                <div style={{ color: '#68232c', fontWeight: 600, fontSize: '12px', marginTop: '2px' }}>
+                                  {pos.company}
+                                </div>
+                                {pos.description && (
+                                  <p style={{ margin: '4px 0 0', color: '#554e4f', fontSize: '11.5px', lineHeight: '1.4' }}>
+                                    {pos.description}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {currentStep === 3 && (
+                    <div className="wizard-form-step">
+                      <label className="wizard-section-label" style={{ fontSize: '13px', fontWeight: 600, color: '#2b2526', display: 'block', marginBottom: '8px' }}>
+                        Selecciona tus áreas principales de práctica:
+                      </label>
+                      <div className="wizard-specialties-chips">
+                        {['Derecho Laboral', 'Derecho Comercial', 'Derecho Civil', 'Derecho de Familia', 'Derecho Penal', 'Derecho Administrativo', 'Tutelas y Derechos de Petición'].map(spec => (
+                          <button
+                            key={spec}
+                            type="button"
+                            className={`specialty-chip ${profileForm.specialties.includes(spec) ? 'selected' : ''}`}
+                            onClick={() => {
+                              const exists = profileForm.specialties.includes(spec);
+                              setProfileForm({
+                                ...profileForm,
+                                specialties: exists
+                                  ? profileForm.specialties.filter((s: string) => s !== spec)
+                                  : [...profileForm.specialties, spec]
+                              });
+                            }}
+                          >
+                            {profileForm.specialties.includes(spec) && <Check size={14} />}
+                            <span>{spec}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 4 && (
+                    <div className="wizard-form-step">
+                      <div className="wizard-field">
+                        <label>Rango de honorarios estimado</label>
+                        <input
+                          type="text"
+                          value={profileForm.rate_hourly}
+                          onChange={(e) => setProfileForm({ ...profileForm, rate_hourly: e.target.value })}
+                          placeholder="Ej. 180.000 COP / hora"
+                        />
+                      </div>
+                      <div className="wizard-field">
+                        <label>Modalidad de atención</label>
+                        <select
+                          value={profileForm.modality}
+                          onChange={(e) => setProfileForm({ ...profileForm, modality: e.target.value })}
+                        >
+                          <option value="">Selecciona modalidad de atención...</option>
+                          <option value="Virtual y Presencial">Virtual y Presencial</option>
+                          <option value="Solo Virtual">Solo Virtual</option>
+                          <option value="Solo Presencial">Solo Presencial</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 5 && (
+                    <div className="wizard-form-step">
+                      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '12px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                        <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
+                        <span><strong>Paso legal indispensable:</strong> Tu Tarjeta Profesional valida tu matrícula judicial ante el Consejo Superior de la Judicatura (CSJ / SIRNA) para autorizarte a atender casos.</span>
+                      </div>
+                      <div className="wizard-field">
+                        <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
+                        <input
+                          type="text"
+                          value={profileForm.license}
+                          onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
+                          placeholder="Ej. 294.180 CSJ"
+                          required
+                        />
+                        <small>Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
+                      </div>
+                      <div className="wizard-file-dropzone">
+                        <Upload size={24} className="text-gray-400" />
+                        <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 6 && (
+                    <div className="wizard-form-step verification-summary">
+                      <div className="verification-ready-badge">
+                        <ShieldCheck size={36} className="text-[#68232c]" />
+                        <h4>¡Todo listo para revisión!</h4>
+                        <p>
+                          Revisaremos tu tarjeta profesional {profileForm.license ? `(${profileForm.license})` : ''} ante el Registro Nacional de Abogados. Mientras tanto, tu perfil estará habilitado para explorar casos afines.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Inline Step Navigation Controls */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderTop: '1px solid #ebdccc',
+                  paddingTop: '18px',
+                  marginTop: '10px',
+                }}>
+                  <div>
+                    {currentStep > 1 ? (
+                      <button
+                        type="button"
+                        className="wizard-back-btn"
+                        onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                      >
+                        ← Anterior
+                      </button>
+                    ) : (
+                      <span className="wizard-time-note">Paso inicial de tu perfil.</span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <button
+                      type="button"
+                      className="wizard-submit-step-btn"
+                      onClick={handleSaveStep}
+                    >
+                      <span>{currentStep === 6 ? 'Finalizar y Enviar' : 'Guardar y Continuar'}</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Bottom Quick Tip */}
@@ -1058,271 +1485,12 @@ export default function LawyerOnboardingDashboard({
                 style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: '14px', borderRadius: '10px' }}
                 onClick={() => {
                   setConnectedLinkedInPresentation(null);
-                  setCurrentStep(2); // Go straight to Biografía y Experiencia!
-                  setIsWizardOpen(true);
+                  setCurrentStep(2);
+                  document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
                 <span>Aceptar y continuar a Biografía y Experiencia</span>
                 <ArrowRight size={16} strokeWidth={2.4} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Interactive Step-by-Step Profile Wizard Modal */}
-      {isWizardOpen && (
-        <div className="lawyer-modal-backdrop" onClick={() => setIsWizardOpen(false)}>
-          <div className="lawyer-modal-content wizard-modal-box" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="lawyer-modal-close"
-              onClick={() => setIsWizardOpen(false)}
-            >
-              <X size={20} />
-            </button>
-
-            <div className="wizard-modal-stepper-header">
-              <span className="wizard-step-tag">Paso {currentStep} de 6</span>
-              <h3>{stepsList[currentStep - 1]?.label}</h3>
-              <p>Completa la información necesaria para activar tu perfil y acceder a casos.</p>
-            </div>
-
-            <div className="wizard-modal-form-body">
-              {currentStep === 1 && (
-                <div className="wizard-form-step">
-                  <div className="wizard-field">
-                    <label>Nombre y Apellidos</label>
-                    <input
-                      type="text"
-                      value={profileForm.name}
-                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                      placeholder="Ej. Andrés Morales"
-                    />
-                  </div>
-                  <div className="wizard-field">
-                    <label>Ciudad de práctica</label>
-                    <input
-                      type="text"
-                      value={profileForm.city}
-                      onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
-                      placeholder="Ej. Bogotá, D.C."
-                    />
-                  </div>
-                  <div className="wizard-field">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <label style={{ margin: 0 }}>Enlace a perfil de LinkedIn</label>
-                      {profileForm.linkedin_url && (
-                        <a
-                          href={profileForm.linkedin_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ fontSize: '12px', color: '#0077b5', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontWeight: 600 }}
-                        >
-                          <span>Probar enlace</span>
-                          <ExternalLink size={12} />
-                        </a>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="url"
-                        value={profileForm.linkedin_url}
-                        onChange={(e) => setProfileForm({ ...profileForm, linkedin_url: e.target.value })}
-                        placeholder="https://www.linkedin.com/in/tu-perfil"
-                        style={{ flex: 1 }}
-                      />
-                      {profileForm.linkedin_url && (
-                        <a
-                          href={profileForm.linkedin_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="wizard-back-btn"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '0 14px', textDecoration: 'none', fontSize: '13px', background: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd' }}
-                        >
-                          <ExternalLink size={14} />
-                          <span>Abrir</span>
-                        </a>
-                      )}
-                    </div>
-                    <small style={{ color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' }}>
-                      Este enlace redirigido quedará visible en tu perfil para que tus clientes puedan consultar tu trayectoria oficial.
-                    </small>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="wizard-form-step">
-                  <div className="wizard-field">
-                    <label>Años de experiencia profesional</label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={profileForm.years_of_experience || ''}
-                      onChange={(e) => setProfileForm({ ...profileForm, years_of_experience: Number(e.target.value) })}
-                      placeholder="Ej. 8"
-                    />
-                  </div>
-                  <div className="wizard-field">
-                    <label>Formación académica (Universidad, postgrados)</label>
-                    <input
-                      type="text"
-                      value={profileForm.education}
-                      onChange={(e) => setProfileForm({ ...profileForm, education: e.target.value })}
-                      placeholder="Ej. Abogado · Universidad del Rosario"
-                    />
-                  </div>
-                  <div className="wizard-field">
-                    <label>Extracto / Trayectoria profesional</label>
-                    <textarea
-                      rows={3}
-                      value={profileForm.bio}
-                      onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                      placeholder="Describe tu trayectoria y enfoque jurídico..."
-                    />
-                  </div>
-
-                  {workExperience && workExperience.length > 0 && (
-                    <div style={{ marginTop: '16px', background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '12px', padding: '14px 16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                        <LinkedInOfficialIcon size={16} />
-                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#064e3b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                          Trayectoria profesional importada de LinkedIn ({workExperience.length})
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {workExperience.map((pos, idx) => (
-                          <div key={idx} style={{ background: '#fff', border: '1px solid #ebdcd5', borderRadius: '8px', padding: '9px 12px', fontSize: '12.5px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
-                              <strong style={{ color: '#1e191a' }}>{pos.title}</strong>
-                              <span style={{ fontSize: '11px', color: '#796c6e', background: '#faf8f5', padding: '1px 6px', borderRadius: '4px' }}>
-                                {pos.start_date} – {pos.end_date || 'Actualidad'}
-                              </span>
-                            </div>
-                            <div style={{ color: '#68232c', fontWeight: 600, fontSize: '12px', marginTop: '2px' }}>
-                              {pos.company}
-                            </div>
-                            {pos.description && (
-                              <p style={{ margin: '4px 0 0', color: '#554e4f', fontSize: '11.5px', lineHeight: '1.4' }}>
-                                {pos.description}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="wizard-form-step">
-                  <label className="wizard-section-label">Selecciona tus áreas principales de práctica:</label>
-                  <div className="wizard-specialties-chips">
-                    {['Derecho Laboral', 'Derecho Comercial', 'Derecho Civil', 'Derecho de Familia', 'Derecho Penal', 'Derecho Administrativo', 'Tutelas y Derechos de Petición'].map(spec => (
-                      <button
-                        key={spec}
-                        type="button"
-                        className={`specialty-chip ${profileForm.specialties.includes(spec) ? 'selected' : ''}`}
-                        onClick={() => {
-                          const exists = profileForm.specialties.includes(spec);
-                          setProfileForm({
-                            ...profileForm,
-                            specialties: exists
-                              ? profileForm.specialties.filter(s => s !== spec)
-                              : [...profileForm.specialties, spec]
-                          });
-                        }}
-                      >
-                        {profileForm.specialties.includes(spec) && <Check size={14} />}
-                        <span>{spec}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 4 && (
-                <div className="wizard-form-step">
-                  <div className="wizard-field">
-                    <label>Rango de honorarios estimado</label>
-                    <input
-                      type="text"
-                      value={profileForm.rate_hourly}
-                      onChange={(e) => setProfileForm({ ...profileForm, rate_hourly: e.target.value })}
-                      placeholder="Ej. 180.000 COP / hora"
-                    />
-                  </div>
-                  <div className="wizard-field">
-                    <label>Modalidad de atención</label>
-                    <select
-                      value={profileForm.modality}
-                      onChange={(e) => setProfileForm({ ...profileForm, modality: e.target.value })}
-                    >
-                      <option value="">Selecciona modalidad de atención...</option>
-                      <option value="Virtual y Presencial">Virtual y Presencial</option>
-                      <option value="Solo Virtual">Solo Virtual</option>
-                      <option value="Solo Presencial">Solo Presencial</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 5 && (
-                <div className="wizard-form-step">
-                  <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '12px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                    <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
-                    <span><strong>Paso legal indispensable:</strong> Tu Tarjeta Profesional valida tu matrícula judicial ante el Consejo Superior de la Judicatura (CSJ / SIRNA) para autorizarte a atender casos.</span>
-                  </div>
-                  <div className="wizard-field">
-                    <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
-                    <input
-                      type="text"
-                      value={profileForm.license}
-                      onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
-                      placeholder="Ej. 294.180 CSJ"
-                      required
-                    />
-                    <small>Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
-                  </div>
-                  <div className="wizard-file-dropzone">
-                    <Upload size={24} className="text-gray-400" />
-                    <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)</span>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 6 && (
-                <div className="wizard-form-step verification-summary">
-                  <div className="verification-ready-badge">
-                    <ShieldCheck size={36} className="text-[#68232c]" />
-                    <h4>¡Todo listo para revisión!</h4>
-                    <p>
-                      Revisaremos tu tarjeta profesional {profileForm.license ? `(${profileForm.license})` : ''} ante el Registro Nacional de Abogados. Mientras tanto, tu perfil estará habilitado para explorar casos afines.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="wizard-modal-footer">
-              {currentStep > 1 && (
-                <button
-                  type="button"
-                  className="wizard-back-btn"
-                  onClick={() => setCurrentStep(prev => prev - 1)}
-                >
-                  Anterior
-                </button>
-              )}
-              <button
-                type="button"
-                className="wizard-submit-step-btn"
-                onClick={handleSaveStep}
-              >
-                <span>{currentStep === 6 ? 'Finalizar y Enviar' : 'Guardar y Continuar'}</span>
-                <ArrowRight size={16} />
               </button>
             </div>
           </div>

@@ -94,6 +94,16 @@ export default function Workspace(props:WorkProps) {
      <LawyerOnboardingDashboard
        initialLawyerName={p.name}
        initialAvatar={avatar || ''}
+       initialProfile={p}
+       initialLinkedInSynced={Boolean(
+         p?.linkedin_url ||
+         p?.avatar_url?.includes('licdn.com') ||
+         p?.avatar_url?.includes('linkedin') ||
+         (typeof window !== 'undefined' && (
+           localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
+           localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')
+         ))
+       )}
        onNavigate={(route) => {
          if (route === 'casos') navigate('marketplace');
          else if (route === 'propuestas' || route === 'mis-casos') navigate('cases');
