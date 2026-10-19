@@ -29,6 +29,7 @@ import {
   GraduationCap,
   Clock,
   Scale,
+  RotateCcw,
 } from 'lucide-react';
 import { type LinkedInProfileData } from '@/lib/linkedin';
 import { openLinkedInOAuthPopup } from '@/lib/oauth';
@@ -77,6 +78,9 @@ const ONBOARDING_STORAGE_KEY = 'lexmarket.lawyer_onboarding_state';
 function loadSavedOnboardingState() {
   if (typeof window === 'undefined') return null;
   try {
+    if (localStorage.getItem('lexmarket.lawyer_onboarding_reset') === 'true') {
+      return null;
+    }
     const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
@@ -118,18 +122,19 @@ export default function LawyerOnboardingDashboard({
   const [linkedInSynced, setLinkedInSynced] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       try {
+        if (localStorage.getItem('lexmarket.lawyer_onboarding_reset') === 'true') {
+          return false;
+        }
         const flag = localStorage.getItem('lexmarket.lawyer_linkedin_connected');
         if (flag === 'true') return true;
+        if (flag === 'false') return false;
         const saved = loadSavedOnboardingState();
         if (saved?.linkedInSynced) return true;
         const imported = localStorage.getItem('lexmarket.imported_linkedin_profile');
         if (imported) return true;
       } catch {}
     }
-    if (initialLinkedInSynced) return true;
-    if (initialAvatar && (initialAvatar.includes('licdn.com') || initialAvatar.includes('linkedin'))) return true;
-    if (initialProfile?.linkedin_url || initialProfile?.avatar_url?.includes('licdn.com')) return true;
-    return false;
+    return Boolean(initialLinkedInSynced);
   });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -258,7 +263,7 @@ export default function LawyerOnboardingDashboard({
     const positions = (profileData.positions && Array.isArray(profileData.positions) && profileData.positions.length > 0)
       ? profileData.positions
       : [];
-    const importedLinkedInUrl = profileData.linkedin_url || customLinkedInUrl.trim() || profileForm.linkedin_url || (importedName && importedName !== 'Abogado' ? `https://www.linkedin.com/in/${encodeURIComponent(importedName.toLowerCase().trim().replace(/[^a-z0-9]/g, '-'))}` : 'https://www.linkedin.com');
+    const importedLinkedInUrl = profileData.linkedin_url || customLinkedInUrl.trim() || profileForm.linkedin_url || '';
 
     setLawyerName(importedName);
     if (importedAvatar) setAvatarUrl(importedAvatar);
@@ -280,6 +285,7 @@ export default function LawyerOnboardingDashboard({
     setCurrentStep(2); // On the page!
 
     try {
+      localStorage.removeItem('lexmarket.lawyer_onboarding_reset');
       localStorage.setItem('lexmarket.lawyer_linkedin_connected', 'true');
       localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
         linkedInSynced: true,
@@ -312,15 +318,62 @@ export default function LawyerOnboardingDashboard({
     showToast(`✓ LinkedIn conectado: foto y nombre de ${importedName.split(' ')[0]} asociados`);
   };
 
+  const handleResetOnboarding = React.useCallback(async () => {
+    try {
+      localStorage.removeItem('lexmarket.lawyer_linkedin_connected');
+      localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+      localStorage.removeItem('lexmarket.imported_linkedin_profile');
+      localStorage.setItem('lexmarket.lawyer_onboarding_reset', 'true');
+    } catch {}
+
+    setLinkedInSynced(false);
+    setLawyerName('Abogado');
+    setAvatarUrl('');
+    setCurrentStep(1);
+    setWorkExperience([]);
+    setCustomLinkedInUrl('');
+    setConnectedLinkedInPresentation(null);
+
+    const resetForm = {
+      name: '',
+      city: 'Bogotá, D.C.',
+      license: '',
+      specialties: [],
+      years_of_experience: 0,
+      education: '',
+      bio: '',
+      rate_hourly: '',
+      modality: '',
+      linkedin_url: '',
+    };
+    setProfileForm(resetForm);
+
+    if (onSaveProfile) {
+      try {
+        await onSaveProfile({
+          ...resetForm,
+          role: 'lawyer',
+          avatar_url: '',
+        });
+      } catch {}
+    }
+
+    showToast('Proceso reiniciado. Puedes comenzar desde el Paso 1.');
+  }, [onSaveProfile]);
+
   // Dedicated client-side hydration effect to restore saved state from localStorage
   const isHydratedRef = React.useRef(false);
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
+      if (localStorage.getItem('lexmarket.lawyer_onboarding_reset') === 'true') {
+        isHydratedRef.current = true;
+        return;
+      }
       const isConnected = localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true';
       const saved = loadSavedOnboardingState();
-      if (isConnected || saved?.linkedInSynced || initialLinkedInSynced) {
+      if (isConnected || saved?.linkedInSynced) {
         setLinkedInSynced(true);
       }
       if (saved) {
@@ -347,12 +400,26 @@ export default function LawyerOnboardingDashboard({
       }
     } catch {}
     isHydratedRef.current = true;
-  }, [initialLinkedInSynced]);
+  }, []);
+
+  // Expose global reset function & handle ?reset=true in query param
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    (window as any).resetLawyerOnboarding = handleResetOnboarding;
+    if (window.location.search.includes('reset=true')) {
+      void handleResetOnboarding();
+      const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]reset=true/, '').replace(/^&/, '?');
+      window.history.replaceState({}, '', cleanUrl || '/');
+    }
+  }, [handleResetOnboarding]);
 
   // Auto-sync all changes to localStorage so page reloads never lose progress or LinkedIn connection
   React.useEffect(() => {
     if (typeof window === 'undefined' || !isHydratedRef.current) return;
     try {
+      if (localStorage.getItem('lexmarket.lawyer_onboarding_reset') === 'true') {
+        return;
+      }
       localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
         linkedInSynced,
         lawyerName,
@@ -665,7 +732,31 @@ export default function LawyerOnboardingDashboard({
             <div className="lawyer-profile-wizard-card">
               <div className="wizard-card-header">
                 <h2 className="wizard-card-title">Tu perfil profesional</h2>
-                <span className="wizard-progress-percent">{progress}% completo</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={handleResetOnboarding}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#8c7e72',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#722f37')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#8c7e72')}
+                    title="Reiniciar onboarding para volver a empezar desde cero"
+                  >
+                    <RotateCcw size={12} />
+                    <span>Reiniciar proceso</span>
+                  </button>
+                  <span className="wizard-progress-percent">{progress}% completo</span>
+                </div>
               </div>
 
               {/* Progress Bar */}
@@ -742,7 +833,7 @@ export default function LawyerOnboardingDashboard({
                         <span style={{ fontSize: '12.5px', color: '#15803d' }}>
                           Identidad y foto vinculadas. Continúa con tu biografía en el Paso 2.
                         </span>
-                        {profileForm.linkedin_url && (
+                        {profileForm.linkedin_url ? (
                           <a
                             href={profileForm.linkedin_url}
                             target="_blank"
@@ -754,22 +845,34 @@ export default function LawyerOnboardingDashboard({
                             <span>Ver perfil de LinkedIn</span>
                             <ExternalLink size={12} />
                           </a>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    className="wizard-continue-btn"
-                    style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
-                    onClick={() => {
-                      setCurrentStep(2);
-                    }}
-                  >
-                    <span>Completar biografía (Paso 2)</span>
-                    <ArrowRight size={14} strokeWidth={2.5} />
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      type="button"
+                      className="wizard-back-btn"
+                      style={{ padding: '7px 12px', fontSize: '12px', borderRadius: '8px', color: '#64748b', borderColor: '#cbd5e1' }}
+                      onClick={handleResetOnboarding}
+                      title="Reiniciar onboarding para volver a probar desde el Paso 1"
+                    >
+                      <RotateCcw size={13} />
+                      <span>Reiniciar</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="wizard-continue-btn"
+                      style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
+                      onClick={() => {
+                        setCurrentStep(2);
+                      }}
+                    >
+                      <span>Completar biografía (Paso 2)</span>
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="wizard-linkedin-banner">
@@ -1475,10 +1578,12 @@ export default function LawyerOnboardingDashboard({
                     <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
                     <span>Nombre completo validado</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                    <span>Enlace directo a tu perfil de LinkedIn</span>
-                  </div>
+                  {connectedLinkedInPresentation.linkedin_url ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                      <span>Enlace directo a tu perfil de LinkedIn</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 

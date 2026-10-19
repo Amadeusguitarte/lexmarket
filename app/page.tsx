@@ -303,13 +303,12 @@ export default function Home() {
          initialAvatar={lawyerAvatar}
          initialProfile={me?.profile}
          initialLinkedInSynced={Boolean(
-           lawyerAvatar?.includes('licdn.com') ||
-           lawyerAvatar?.includes('linkedin') ||
-           me?.profile?.linkedin_url ||
-           (typeof window !== 'undefined' && (
+           typeof window !== 'undefined' &&
+           localStorage.getItem('lexmarket.lawyer_onboarding_reset') !== 'true' &&
+           (
              localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
              localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')
-           ))
+           )
          )}
          onNavigate={() => {}}
          onSaveProfile={async (data) => {

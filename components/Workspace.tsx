@@ -96,13 +96,12 @@ export default function Workspace(props:WorkProps) {
        initialAvatar={avatar || ''}
        initialProfile={p}
        initialLinkedInSynced={Boolean(
-         p?.linkedin_url ||
-         p?.avatar_url?.includes('licdn.com') ||
-         p?.avatar_url?.includes('linkedin') ||
-         (typeof window !== 'undefined' && (
+         typeof window !== 'undefined' &&
+         localStorage.getItem('lexmarket.lawyer_onboarding_reset') !== 'true' &&
+         (
            localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
            localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')
-         ))
+         )
        )}
        onNavigate={(route) => {
          if (route === 'casos') navigate('marketplace');
