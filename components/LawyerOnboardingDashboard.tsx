@@ -197,8 +197,13 @@ export default function LawyerOnboardingDashboard({
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 5500);
   };
+
+  React.useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(''), 3500);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
 
   // Stepper completion checks based on updated step order:
   // 1: Datos básicos | 2: Biografía y experiencia | 3: Áreas | 4: Honorarios | 5: Tarjeta profesional CSJ | 6: Verificación
@@ -760,7 +765,6 @@ export default function LawyerOnboardingDashboard({
                     style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
                     onClick={() => {
                       setCurrentStep(2);
-                      document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
                     <span>Completar biografía (Paso 2)</span>
@@ -1478,7 +1482,7 @@ export default function LawyerOnboardingDashboard({
                 </div>
               </div>
 
-              {/* Single primary button: Aceptar y continuar */}
+              {/* Single primary button: Aceptar */}
               <button
                 type="button"
                 className="wizard-continue-btn"
@@ -1486,10 +1490,9 @@ export default function LawyerOnboardingDashboard({
                 onClick={() => {
                   setConnectedLinkedInPresentation(null);
                   setCurrentStep(2);
-                  document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                <span>Aceptar y continuar a Biografía y Experiencia</span>
+                <span>Aceptar</span>
                 <ArrowRight size={16} strokeWidth={2.4} />
               </button>
             </div>

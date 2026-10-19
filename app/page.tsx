@@ -91,6 +91,18 @@ export default function Home() {
   }
  }, []);
 
+ useEffect(() => {
+  if (!notice) return;
+  const timer = setTimeout(() => setNotice(''), 4000);
+  return () => clearTimeout(timer);
+ }, [notice]);
+
+ useEffect(() => {
+  if (!error) return;
+  const timer = setTimeout(() => setError(''), 5000);
+  return () => clearTimeout(timer);
+ }, [error]);
+
  const isLawyerAccount = role === 'lawyer' || 
    session?.user?.user_metadata?.intended_role === 'lawyer' || 
    (typeof window !== 'undefined' && localStorage.getItem('lexmarket.intendedRole') === 'lawyer') || 
