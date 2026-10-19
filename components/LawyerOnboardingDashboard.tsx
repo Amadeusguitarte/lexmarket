@@ -1219,7 +1219,8 @@ export default function LawyerOnboardingDashboard({
                       <div className="wizard-field">
                         <label>Extracto / Trayectoria profesional</label>
                         <textarea
-                          rows={3}
+                          rows={6}
+                          style={{ minHeight: '140px', lineHeight: '1.5', resize: 'vertical' }}
                           value={profileForm.bio}
                           onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
                           placeholder="Describe tu trayectoria y enfoque jurídico..."

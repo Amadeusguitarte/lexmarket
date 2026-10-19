@@ -6854,8 +6854,7 @@ input.auth-input-control.with-trailing {
 }
 
 .wizard-field input,
-.wizard-field select,
-.wizard-field textarea {
+.wizard-field select {
   padding: 10px 14px;
   border: 1px solid #ebdccc;
   border-radius: 10px;
@@ -6864,6 +6863,20 @@ input.auth-input-control.with-trailing {
   color: #2b2526;
   outline: none;
   font-family: inherit;
+}
+
+.wizard-field textarea {
+  padding: 12px 14px;
+  border: 1px solid #ebdccc;
+  border-radius: 10px;
+  font-size: 13.5px;
+  background: #ffffff;
+  color: #2b2526;
+  outline: none;
+  font-family: inherit;
+  min-height: 140px;
+  line-height: 1.5;
+  resize: vertical;
 }
 
 .wizard-field input:focus,
