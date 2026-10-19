@@ -1031,108 +1031,139 @@ export default function LawyerOnboardingDashboard({
                   </div>
                 </div>
 
-                {/* Data Grid: Bio, Positions, Education & Specialties */}
-                <div className="summary-data-cards-grid">
-                  {/* Bio Card */}
-                  <div className="summary-subcard">
-                    <span className="summary-subcard-title">
-                      <FileText size={14} className="text-[#68232c]" />
-                      <span>Biografía y Extracto</span>
-                    </span>
-                    {importedSummaryModal.bio ? (
-                      <p className="summary-subcard-content" style={{ margin: 0 }}>
-                        {importedSummaryModal.bio}
-                      </p>
-                    ) : (
-                      <p style={{ margin: 0, color: '#796c6e', fontSize: '12.5px', fontStyle: 'italic' }}>
-                        Sin biografía extraída de LinkedIn. Podrás redactar tu presentación en el Paso 4.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Education & Years Card */}
-                  <div className="summary-subcard">
-                    <span className="summary-subcard-title">
-                      <GraduationCap size={14} className="text-[#68232c]" />
-                      <span>Formación y Experiencia</span>
-                    </span>
-                    <div className="summary-subcard-content" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <div>
-                        <strong style={{ display: 'block', fontSize: '13px' }}>Formación académica:</strong>
-                        <span>
-                          {importedSummaryModal.education || (
-                            <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin registrar (Paso 4)</em>
-                          )}
-                        </span>
-                      </div>
-                      <div>
-                        <strong style={{ display: 'block', fontSize: '13px' }}>Años de ejercicio:</strong>
-                        <span>
-                          {importedSummaryModal.years_of_experience > 0 ? (
-                            <span style={{ color: '#059669', fontWeight: 600 }}>{importedSummaryModal.years_of_experience} años de experiencia</span>
-                          ) : (
-                            <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin definir (Paso 4)</em>
-                          )}
-                        </span>
-                      </div>
+                {/* Data Grid: Bio, Positions, Education & Specialties OR Privacy/Identity Confirmation */}
+                {(!importedSummaryModal.bio && !importedSummaryModal.education && (!importedSummaryModal.positions || importedSummaryModal.positions.length === 0) && (!importedSummaryModal.specialties || importedSummaryModal.specialties.length === 0)) ? (
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '18px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0369a1', fontWeight: 700, fontSize: '13.5px' }}>
+                      <ShieldCheck size={18} className="text-[#0284c7]" />
+                      <span>Conexión oficial autorizada por LinkedIn (OpenID Connect)</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#475569', lineHeight: 1.55 }}>
+                      Tu cuenta está vinculada y verificada. La API de inicio de sesión de LinkedIn transmite de forma segura tu <strong>identidad oficial, fotografía en alta definición y correo institucional</strong>. Por políticas de privacidad de LinkedIn/Microsoft (GDPR), el historial laboral y las especialidades jurídicas no se transfieren automáticamente a aplicaciones externas y se completan en los siguientes pasos del asistente.
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '4px', fontSize: '12.5px', color: '#047857', fontWeight: 600 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <Check size={14} strokeWidth={3} /> Fotografía oficial sincronizada
+                      </span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <Check size={14} strokeWidth={3} /> Nombre completo validado
+                      </span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <Check size={14} strokeWidth={3} /> Correo institucional ({importedSummaryModal.email || 'autenticado'})
+                      </span>
                     </div>
                   </div>
+                ) : (
+                  <div className="summary-data-cards-grid">
+                    {/* Bio Card */}
+                    <div className="summary-subcard">
+                      <span className="summary-subcard-title">
+                        <FileText size={14} className="text-[#68232c]" />
+                        <span>Biografía y Extracto</span>
+                      </span>
+                      {importedSummaryModal.bio ? (
+                        <p className="summary-subcard-content" style={{ margin: 0 }}>
+                          {importedSummaryModal.bio}
+                        </p>
+                      ) : (
+                        <p style={{ margin: 0, color: '#796c6e', fontSize: '12.5px', fontStyle: 'italic' }}>
+                          Sin biografía extraída de LinkedIn. Podrás redactar tu presentación en el Paso 4.
+                        </p>
+                      )}
+                    </div>
 
-                  {/* Companies / Positions Card (Full Width) */}
-                  <div className="summary-subcard full-width">
-                    <span className="summary-subcard-title">
-                      <Building2 size={14} className="text-[#68232c]" />
-                      <span>Empresas y Trayectoria Laboral</span>
-                    </span>
-                    {importedSummaryModal.positions && importedSummaryModal.positions.length > 0 ? (
-                      <div className="summary-positions-list">
-                        {importedSummaryModal.positions.map((pos: any, idx: number) => (
-                          <div key={idx} className="summary-position-item">
-                            <div className="summary-position-top">
-                              <span className="summary-position-title">{pos.title}</span>
-                              {pos.start_date && (
-                                <span className="summary-position-dates">
-                                  {pos.start_date} – {pos.end_date || 'Actualidad'}
-                                </span>
+                    {/* Education & Years Card */}
+                    <div className="summary-subcard">
+                      <span className="summary-subcard-title">
+                        <GraduationCap size={14} className="text-[#68232c]" />
+                        <span>Formación y Experiencia</span>
+                      </span>
+                      <div className="summary-subcard-content" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div>
+                          <strong style={{ display: 'block', fontSize: '13px' }}>Formación académica:</strong>
+                          <span>
+                            {importedSummaryModal.education || (
+                              <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin registrar (Paso 4)</em>
+                            )}
+                          </span>
+                        </div>
+                        <div>
+                          <strong style={{ display: 'block', fontSize: '13px' }}>Años de ejercicio:</strong>
+                          <span>
+                            {importedSummaryModal.years_of_experience > 0 ? (
+                              <span style={{ color: '#059669', fontWeight: 600 }}>{importedSummaryModal.years_of_experience} años de experiencia</span>
+                            ) : (
+                              <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin definir (Paso 4)</em>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Companies / Positions Card (Full Width) */}
+                    <div className="summary-subcard full-width">
+                      <span className="summary-subcard-title">
+                        <Building2 size={14} className="text-[#68232c]" />
+                        <span>Empresas y Trayectoria Laboral</span>
+                      </span>
+                      {importedSummaryModal.positions && importedSummaryModal.positions.length > 0 ? (
+                        <div className="summary-positions-list">
+                          {importedSummaryModal.positions.map((pos: any, idx: number) => (
+                            <div key={idx} className="summary-position-item">
+                              <div className="summary-position-top">
+                                <span className="summary-position-title">{pos.title}</span>
+                                {pos.start_date && (
+                                  <span className="summary-position-dates">
+                                    {pos.start_date} – {pos.end_date || 'Actualidad'}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="summary-position-company">
+                                <Briefcase size={12} /> {pos.company}
+                              </span>
+                              {pos.description && (
+                                <p className="summary-position-desc">{pos.description}</p>
                               )}
                             </div>
-                            <span className="summary-position-company">
-                              <Briefcase size={12} /> {pos.company}
-                            </span>
-                            {pos.description && (
-                              <p className="summary-position-desc">{pos.description}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
-                        ℹ️ Por políticas de privacidad de LinkedIn, la API pública estándar no comparte tu historial de empresas. Podrás ingresar tu trayectoria profesional en el <strong>Paso 4</strong>.
-                      </div>
-                    )}
-                  </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
+                          ℹ️ Por políticas de privacidad de LinkedIn, la API pública estándar no comparte tu historial de empresas. Podrás ingresar tu trayectoria profesional en el <strong>Paso 4</strong>.
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Specialties Card (Full Width) */}
-                  <div className="summary-subcard full-width">
-                    <span className="summary-subcard-title">
-                      <Scale size={14} className="text-[#68232c]" />
-                      <span>Especialidades Jurídicas</span>
-                    </span>
-                    {importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0 ? (
-                      <div className="summary-specialties-wrap">
-                        {importedSummaryModal.specialties.map((spec: string, idx: number) => (
-                          <span key={idx} className="summary-specialty-chip">
-                            ✓ {spec}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
-                        ℹ️ No se detectaron especialidades jurídicas en tu cuenta de LinkedIn. Podrás seleccionar tus ramas del Derecho en el <strong>Paso 3</strong>.
-                      </div>
-                    )}
+                    {/* Specialties Card (Full Width) */}
+                    <div className="summary-subcard full-width">
+                      <span className="summary-subcard-title">
+                        <Scale size={14} className="text-[#68232c]" />
+                        <span>Especialidades Jurídicas</span>
+                      </span>
+                      {importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0 ? (
+                        <div className="summary-specialties-wrap">
+                          {importedSummaryModal.specialties.map((spec: string, idx: number) => (
+                            <span key={idx} className="summary-specialty-chip">
+                              ✓ {spec}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
+                          ℹ️ No se detectaron especialidades jurídicas en tu cuenta de LinkedIn. Podrás seleccionar tus ramas del Derecho en el <strong>Paso 3</strong>.
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* SECTION 2: COMPARISON BREAKDOWN (COMPLETED VS PENDING) */}
