@@ -289,7 +289,7 @@ export default function LawyerOnboardingDashboard({
     setProfileForm(updatedForm);
     setLinkedInSynced(true);
     setIsLinkedInModalOpen(false);
-    setCurrentStep(2); // On the page!
+    setCurrentStep(1); // Stay on Step 1!
 
     try {
       localStorage.removeItem('lexmarket.lawyer_onboarding_reset');
@@ -298,7 +298,7 @@ export default function LawyerOnboardingDashboard({
         linkedInSynced: true,
         lawyerName: importedName,
         avatarUrl: importedAvatar,
-        currentStep: 2,
+        currentStep: 1,
         profileForm: updatedForm,
         workExperience: positions,
       }));
@@ -381,14 +381,14 @@ export default function LawyerOnboardingDashboard({
       setProfileForm(updatedForm);
     }
     setConnectedLinkedInPresentation(null);
-    setCurrentStep(2);
+    setCurrentStep(1); // Stay on Step 1!
 
     try {
       localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
         linkedInSynced: true,
         lawyerName,
         avatarUrl,
-        currentStep: 2,
+        currentStep: 1,
         profileForm: updatedForm,
         workExperience,
       }));
@@ -1807,15 +1807,15 @@ export default function LawyerOnboardingDashboard({
                 </p>
               </div>
 
-              {/* Single primary button: Aceptar y continuar */}
+              {/* Single primary button: Aceptar */}
               <button
                 type="button"
                 className="wizard-continue-btn"
                 style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: '14px', borderRadius: '10px' }}
                 onClick={handleConfirmLinkedInPresentation}
               >
-                <span>Aceptar y continuar</span>
-                <ArrowRight size={16} strokeWidth={2.4} />
+                <span>Aceptar</span>
+                <Check size={16} strokeWidth={2.4} />
               </button>
             </div>
           </div>
