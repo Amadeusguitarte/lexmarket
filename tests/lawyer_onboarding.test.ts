@@ -58,7 +58,7 @@ test('LawyerOnboardingDashboard renders connect banner when disconnected with in
   assert.equal(doc.querySelector('.lawyer-modal-backdrop'), null);
 });
 
-test('LawyerOnboardingDashboard offers option to paste LinkedIn link when synced without url', () => {
+test('LawyerOnboardingDashboard offers option to paste LinkedIn link when synced without url and has NO continue button', () => {
   const html = renderToStaticMarkup(
     React.createElement(LawyerOnboardingDashboard, {
       initialLawyerName: 'Louis Amadeus Arteaga',
@@ -68,5 +68,8 @@ test('LawyerOnboardingDashboard offers option to paste LinkedIn link when synced
     })
   );
   assert.match(html, /Pegar enlace de LinkedIn/);
+  assert.doesNotMatch(html, /Completar biografía/);
+  assert.match(html, /Reiniciar/);
 });
+
 
