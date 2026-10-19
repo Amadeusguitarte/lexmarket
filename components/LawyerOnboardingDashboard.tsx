@@ -633,10 +633,10 @@ export default function LawyerOnboardingDashboard({
                       <LinkedInOfficialIcon size={26} />
                     </div>
                     <div className="linkedin-banner-text">
-                      <span className="linkedin-eyebrow">ACELERA TU PERFIL</span>
-                      <h3 className="linkedin-banner-heading">Conecta tu LinkedIn</h3>
+                      <span className="linkedin-eyebrow">VERIFICACIÓN RÁPIDA</span>
+                      <h3 className="linkedin-banner-heading">Conecta tu cuenta de LinkedIn</h3>
                       <p className="linkedin-banner-sub">
-                        Importa tu foto oficial, titular y biografía en 1 clic. La tarjeta profesional se completa manualmente por requisito legal.
+                        Importa tu fotografía oficial en alta resolución y verifica tu identidad en 1 clic. Tu tarjeta profesional y especialidades se configuran en los siguientes pasos.
                       </p>
                     </div>
                   </div>
@@ -870,7 +870,7 @@ export default function LawyerOnboardingDashboard({
               </div>
               <h3>Conectar perfil de LinkedIn</h3>
               <p>
-                Importa en 1 clic tu foto oficial, nombre completo y titular profesional.
+                Importa en 1 clic tu foto oficial, nombre completo y correo autenticado.
               </p>
             </div>
 
@@ -878,15 +878,15 @@ export default function LawyerOnboardingDashboard({
               {/* Information pill showing exactly what is imported */}
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px', textAlign: 'left' }}>
                 <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#475569', display: 'block', marginBottom: '8px' }}>
-                  ¿Qué información importamos?
+                  ¿Qué información verificamos con LinkedIn?
                 </span>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: '#334155', lineHeight: '1.6' }}>
-                  <li><strong>Foto de perfil oficial:</strong> tu imagen visible en MatchJurídico.</li>
-                  <li><strong>Nombre y Titular:</strong> tu nombre verificado y especialidad destacada.</li>
-                  <li><strong>Biografía y Formación:</strong> resumen de tu trayectoria jurídica.</li>
+                  <li><strong>Fotografía de perfil oficial HD:</strong> tu imagen visible en MatchJurídico.</li>
+                  <li><strong>Nombre completo verificado:</strong> tu identidad legal validada.</li>
+                  <li><strong>Correo electrónico autenticado:</strong> tu canal de notificaciones seguras.</li>
                 </ul>
                 <div style={{ marginTop: '10px', fontSize: '12px', color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
-                  ⚖️ <em>Nota regulatoria: La <strong>Tarjeta Profesional CSJ</strong> no se obtiene de LinkedIn; se ingresa manualmente en el Paso 2 conforme al Registro Nacional de Abogados.</em>
+                  ⚖️ <em>Nota regulatoria: La <strong>Tarjeta Profesional CSJ</strong> y tus <strong>especialidades jurídicas</strong> se configuran en los siguientes pasos conforme a la ley colombiana.</em>
                 </div>
               </div>
 
@@ -938,7 +938,7 @@ export default function LawyerOnboardingDashboard({
                   </button>
                 </div>
                 <small className="text-xs text-[#796c6e] mt-2 block" style={{ lineHeight: '1.45' }}>
-                  Extraeremos tu fotografía, titular y biografía pública. Tu tarjeta profesional (CSJ) se ingresa manualmente por requisito legal.
+                  Extraeremos tu fotografía y nombre público. Tu tarjeta profesional (CSJ) y especialidades se configuran en el asistente.
                 </small>
               </div>
             </div>
@@ -1354,7 +1354,7 @@ export default function LawyerOnboardingDashboard({
                 <div className="wizard-form-step">
                   <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '10px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                     <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
-                    <span><strong>Paso 1 de 2 pendientes:</strong> La tarjeta profesional es un requisito legal que no se obtiene de LinkedIn. Ingrésala para validar tu matrícula judicial ante el CSJ / SIRNA.</span>
+                    <span><strong>Requisito legal indispensable:</strong> La tarjeta profesional no se obtiene de LinkedIn. Ingrésala para validar tu matrícula judicial ante el Consejo Superior de la Judicatura (CSJ / SIRNA).</span>
                   </div>
                   <div className="wizard-field">
                     <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
