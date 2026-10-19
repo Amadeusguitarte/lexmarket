@@ -60,11 +60,6 @@ export function mapLinkedInSkillsToSpecialties(text: string): string[] {
     matched.add('Tutelas y Derechos de Petición');
   }
 
-  if (matched.size === 0) {
-    matched.add('Derecho Civil');
-    matched.add('Derecho Comercial');
-  }
-
   return Array.from(matched);
 }
 
@@ -141,39 +136,24 @@ export async function fetchLinkedInUserInfo(accessToken: string): Promise<any> {
 }
 
 /**
- * Normalizes raw LinkedIn data into clean, enriched MatchJurídico profile fields
+ * Normalizes raw LinkedIn data into clean, genuine MatchJurídico profile fields.
+ * NEVER fabricates dummy lawyer firms, degrees or specialties if not present.
  */
 export function normalizeLinkedInData(raw: any): LinkedInProfileData {
   const givenName = raw.given_name || '';
   const familyName = raw.family_name || '';
-  const fullName = raw.name || `${givenName} ${familyName}`.trim() || 'Abogado Verificado';
+  const fullName = raw.name || `${givenName} ${familyName}`.trim() || '';
   const email = raw.email || '';
   const avatarUrl = raw.picture || raw.avatar_url || '';
-  const headline = raw.headline || 'Abogado Litigante y Consultor Jurídico';
-  const bio = raw.bio || raw.summary || `${fullName} es profesional del Derecho en Colombia con experiencia en asesoría jurídica integral, estructuración contractual, litigio estratégico y representación ante tribunales y juzgados. Enfoque preventivo y resolución oportuna de controversias legales.`;
-  const education = raw.education || 'Abogado · Pregrado en Derecho y Formación en Litigio Estratégico';
-  const years = raw.years_of_experience ?? 7;
-  const specialties = (raw.specialties && raw.specialties.length > 0)
+  const headline = raw.headline || '';
+  const bio = raw.bio || raw.summary || '';
+  const education = raw.education || '';
+  const years = typeof raw.years_of_experience === 'number' ? raw.years_of_experience : 0;
+  const specialties = (raw.specialties && Array.isArray(raw.specialties) && raw.specialties.length > 0)
     ? raw.specialties
-    : mapLinkedInSkillsToSpecialties(`${headline} ${bio}`);
-  const city = raw.city || 'Bogotá, D.C.';
-
-  const positions = raw.positions || [
-    {
-      title: 'Abogado Litigante y Consultor',
-      company: 'Práctica Jurídica & Litigios',
-      start_date: '2021',
-      end_date: 'Actualidad',
-      description: 'Asesoría jurídica corporativa y particular, estructuración de acuerdos y litigio estratégico en Colombia.'
-    },
-    {
-      title: 'Abogado Asociado',
-      company: 'Firma Legal & Consultoría Empresarial',
-      start_date: '2017',
-      end_date: '2021',
-      description: 'Gestión procesal, audiencias judiciales y de conciliación, y redacción de conceptos jurídicos.'
-    }
-  ];
+    : (headline || bio ? mapLinkedInSkillsToSpecialties(`${headline} ${bio}`) : []);
+  const city = raw.city || '';
+  const positions = Array.isArray(raw.positions) ? raw.positions : [];
 
   return {
     name: fullName,
@@ -187,14 +167,14 @@ export function normalizeLinkedInData(raw: any): LinkedInProfileData {
     years_of_experience: years,
     specialties,
     city,
-    linkedin_url: raw.linkedin_url || `https://www.linkedin.com/in/${encodeURIComponent(fullName.toLowerCase().replace(/\s+/g, '-'))}`,
+    linkedin_url: raw.linkedin_url || '',
     positions,
   };
 }
 
 /**
  * Fetches public LinkedIn profile data (OpenGraph tags: title, photo, headline)
- * to import the lawyer's real photo and headline without dummy data.
+ * to import genuine publicly visible data without fake fallbacks.
  */
 export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Partial<LinkedInProfileData>> {
   let cleanUrl = profileUrl.trim();
@@ -217,9 +197,9 @@ export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Pa
 
     if (res.ok) {
       const html = await res.text();
-      const ogTitleMatch = html.match(/<meta\s+property=["']og:title["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:title["']/i);
-      const ogDescMatch = html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:description["']/i);
-      const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["'](.*?)["']/i) || html.match(/<meta\s+content=["'](.*?)["']\s+property=["']og:image["']/i);
+      const ogTitleMatch = html.match(/<meta\s+(?:property|name)=["'](?:og:title|title)["']\s+content=["'](.*?)["']/i);
+      const ogDescMatch = html.match(/<meta\s+(?:property|name)=["'](?:og:description|description)["']\s+content=["'](.*?)["']/i);
+      const ogImageMatch = html.match(/<meta\s+(?:property|name)=["'](?:og:image|image)["']\s+content=["'](.*?)["']/i);
 
       const rawTitle = ogTitleMatch ? ogTitleMatch[1] : '';
       let name = rawTitle.split(/[-–|]/)[0]?.trim() || '';
@@ -231,6 +211,20 @@ export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Pa
       bio = bio.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
       headline = headline.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
 
+      // Genuine experience and education extraction from public description if available
+      const expMatch = bio.match(/(?:experiencia|experience):\s*([^·]+)/i);
+      const eduMatch = bio.match(/(?:educaci[óo]n|education):\s*([^·]+)/i);
+      const locMatch = bio.match(/(?:ubicaci[óo]n|location):\s*([^·]+)/i);
+
+      const positions = expMatch ? [{
+        title: headline || 'Profesional',
+        company: expMatch[1].trim(),
+        start_date: '',
+        end_date: 'Actualidad',
+      }] : [];
+
+      const education = eduMatch ? eduMatch[1].trim() : '';
+      const city = locMatch ? locMatch[1].trim() : '';
       const specialties = (headline || bio) ? mapLinkedInSkillsToSpecialties(`${headline} ${bio}`) : [];
 
       if (name) {
@@ -239,17 +233,20 @@ export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Pa
           avatar_url: avatarUrl || undefined,
           headline: headline || undefined,
           bio: bio || undefined,
-          specialties: specialties.length ? specialties : undefined,
+          education: education || undefined,
+          city: city || undefined,
+          positions,
+          specialties,
           linkedin_url: cleanUrl,
           license: '',
         };
       }
     }
   } catch {
-    // Continue to slug extraction fallback
+    // Continue to slug extraction fallback without dummy lawyer roles
   }
 
-  // Resilient slug fallback if LinkedIn blocks automated server scraping
+  // Resilient slug fallback if LinkedIn blocks automated scraping: strictly name only
   const match = cleanUrl.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
   if (match && match[1]) {
     const rawSlug = match[1].replace(/[-_]/g, ' ');
@@ -257,8 +254,6 @@ export async function fetchLinkedInPublicProfile(profileUrl: string): Promise<Pa
     const name = (cleanedWords || rawSlug).replace(/\b\w/g, l => l.toUpperCase());
     return {
       name: name || undefined,
-      headline: 'Abogado / Profesional en Derecho',
-      bio: 'Abogado litigante y consultor profesional en Colombia.',
       linkedin_url: cleanUrl,
       license: '',
     };

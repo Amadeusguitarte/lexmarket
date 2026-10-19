@@ -165,7 +165,7 @@ export default function LawyerOnboardingDashboard({
     }
   };
 
-  // Progress percentage dynamically calculated
+  // Progress percentage dynamically calculated based on genuinely completed steps
   const calculateProgress = (): number => {
     let completed = 0;
     if (isStepCompleted(1)) completed++;
@@ -173,7 +173,7 @@ export default function LawyerOnboardingDashboard({
     if (isStepCompleted(3)) completed++;
     if (isStepCompleted(4)) completed++;
     if (isStepCompleted(5)) completed++;
-    return Math.min(100, Math.max(15, 15 + Math.round(completed * 17)));
+    return Math.max(15, Math.min(100, Math.round((completed / 5) * 100)));
   };
 
   const progress = calculateProgress();
@@ -181,30 +181,17 @@ export default function LawyerOnboardingDashboard({
   const applyImportedLinkedInProfile = async (profileData: LinkedInProfileData) => {
     const importedName = profileData.name || lawyerName;
     const importedAvatar = profileData.avatar_url || avatarUrl;
-    const importedBio = profileData.bio || profileForm.bio;
-    const importedEducation = profileData.education || profileForm.education;
-    const importedSpecialties = (profileData.specialties && profileData.specialties.length > 0)
+    const importedBio = profileData.bio || profileForm.bio || '';
+    const importedEducation = profileData.education || profileForm.education || '';
+    const importedSpecialties = (profileData.specialties && Array.isArray(profileData.specialties) && profileData.specialties.length > 0)
       ? profileData.specialties
-      : (profileForm.specialties.length > 0 ? profileForm.specialties : ['Derecho Comercial', 'Derecho Laboral', 'Derecho Civil']);
-    const importedYears = profileData.years_of_experience || (profileForm.years_of_experience > 0 ? profileForm.years_of_experience : 7);
-    const positions = (profileData.positions && profileData.positions.length > 0)
+      : profileForm.specialties;
+    const importedYears = typeof profileData.years_of_experience === 'number' && profileData.years_of_experience > 0
+      ? profileData.years_of_experience
+      : profileForm.years_of_experience;
+    const positions = (profileData.positions && Array.isArray(profileData.positions) && profileData.positions.length > 0)
       ? profileData.positions
-      : [
-          {
-            title: 'Abogado Litigante y Consultor',
-            company: 'Práctica Jurídica & Litigios',
-            start_date: '2021',
-            end_date: 'Actualidad',
-            description: 'Asesoría jurídica corporativa y particular, estructuración de acuerdos y litigio estratégico en Colombia.'
-          },
-          {
-            title: 'Abogado Asociado',
-            company: 'Firma Legal & Consultoría Empresarial',
-            start_date: '2017',
-            end_date: '2021',
-            description: 'Gestión procesal, audiencias judiciales y de conciliación, y redacción de conceptos jurídicos.'
-          }
-        ];
+      : [];
 
     setLawyerName(importedName);
     if (importedAvatar) setAvatarUrl(importedAvatar);
@@ -213,8 +200,8 @@ export default function LawyerOnboardingDashboard({
     const updatedForm = {
       ...profileForm,
       name: importedName,
-      bio: importedBio || profileForm.bio,
-      education: importedEducation || profileForm.education,
+      bio: importedBio,
+      education: importedEducation,
       years_of_experience: importedYears,
       specialties: importedSpecialties,
     };
@@ -223,7 +210,7 @@ export default function LawyerOnboardingDashboard({
     setLinkedInSynced(true);
     setIsLinkedInModalOpen(false);
 
-    // Open the summary modal displaying what was brought & what points are completed/pending!
+    // Open genuine summary modal reflecting exactly what was brought
     setImportedSummaryModal({
       ...profileData,
       name: importedName,
@@ -245,7 +232,7 @@ export default function LawyerOnboardingDashboard({
       } catch {}
     }
 
-    showToast(`¡Perfil de LinkedIn sincronizado! Foto, empresas y biografía de ${importedName.split(' ')[0]} importadas.`);
+    showToast(`¡Cuenta de LinkedIn conectada! Identidad de ${importedName.split(' ')[0]} vinculada.`);
   };
 
   // Official LinkedIn OAuth: opens centered popup window without losing dashboard state
@@ -315,7 +302,6 @@ export default function LawyerOnboardingDashboard({
               const rawSlug = match[1].replace(/[-_]/g, ' ');
               const cleaned = rawSlug.replace(/\b[a-f0-9]{5,}\b/gi, '').trim();
               importedName = (cleaned || rawSlug).replace(/\b\w/g, l => l.toUpperCase());
-              importedBio = 'Abogado / Profesional en Derecho';
             }
           }
         } catch {
@@ -594,17 +580,17 @@ export default function LawyerOnboardingDashboard({
                     <div className="linkedin-banner-text">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <span className="linkedin-eyebrow" style={{ color: '#059669', fontWeight: 700 }}>
-                          ✓ LINKEDIN CONECTADO · 4 DE 6 PASOS COMPLETADOS
+                          ✓ LINKEDIN CONECTADO · IDENTIDAD VERIFICADA
                         </span>
                         <span style={{ background: '#dcfce7', color: '#166534', border: '1px solid #86efac', fontSize: '10.5px', fontWeight: 700, padding: '1px 8px', borderRadius: '10px' }}>
-                          66% AVANCE
+                          ✓ AUTENTICADO
                         </span>
                       </div>
                       <h3 className="linkedin-banner-heading" style={{ color: '#064e3b' }}>
                         Vinculado como {lawyerName}
                       </h3>
                       <p className="linkedin-banner-sub" style={{ color: '#166534' }}>
-                        Fotografía oficial, empresas, formación y biografía importadas. Solo faltan 2 pasos: Tarjeta Profesional (CSJ) y Honorarios.
+                        Fotografía y nombre oficial importados de tu cuenta de LinkedIn. Continúa con tu tarjeta profesional y especialidades para completar tu perfil.
                       </p>
                     </div>
                   </div>
@@ -635,7 +621,7 @@ export default function LawyerOnboardingDashboard({
                       style={{ padding: '9px 18px', fontSize: '13px' }}
                       onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
                     >
-                      <span>Completar Tarjeta Profesional (Paso 2)</span>
+                      <span>Continuar con mi perfil (Paso 2)</span>
                       <ArrowRight size={16} strokeWidth={2.2} />
                     </button>
                   </div>
@@ -980,10 +966,10 @@ export default function LawyerOnboardingDashboard({
                 <span>Conexión exitosa con LinkedIn</span>
               </div>
               <h2 className="summary-modal-title">
-                ¡Información importada de LinkedIn!
+                Identidad sincronizada desde LinkedIn
               </h2>
               <p className="summary-modal-sub">
-                Hemos extraído los datos de tu cuenta oficial y completamos automáticamente <strong>4 de los 6 pasos</strong> necesarios para tu perfil profesional.
+                Hemos verificado tu identidad oficial con tu cuenta de LinkedIn. A continuación puedes ver la información real importada y los pasos requeridos para completar tu perfil profesional.
               </p>
             </div>
 
@@ -993,7 +979,7 @@ export default function LawyerOnboardingDashboard({
               <div className="summary-data-section">
                 <span className="summary-section-badge">
                   <Sparkles size={14} />
-                  <span>1. Lo que se trajo de tu cuenta de LinkedIn</span>
+                  <span>1. Información real traída de tu cuenta de LinkedIn</span>
                 </span>
 
                 {/* Profile Hero Card */}
@@ -1022,11 +1008,13 @@ export default function LawyerOnboardingDashboard({
                         <Check size={12} strokeWidth={3} /> Verificado LinkedIn
                       </span>
                     </h4>
-                    <p className="summary-profile-headline">
-                      {importedSummaryModal.headline || 'Abogado Litigante y Consultor Jurídico'}
-                    </p>
+                    {importedSummaryModal.headline && (
+                      <p className="summary-profile-headline">
+                        {importedSummaryModal.headline}
+                      </p>
+                    )}
                     <div className="summary-profile-sub">
-                      <span>📍 {importedSummaryModal.city || profileForm.city || 'Bogotá, D.C. · Colombia'}</span>
+                      {importedSummaryModal.city && <span>📍 {importedSummaryModal.city}</span>}
                       {importedSummaryModal.email && <span>✉️ {importedSummaryModal.email}</span>}
                       {importedSummaryModal.linkedin_url && (
                         <a
@@ -1049,11 +1037,17 @@ export default function LawyerOnboardingDashboard({
                   <div className="summary-subcard">
                     <span className="summary-subcard-title">
                       <FileText size={14} className="text-[#68232c]" />
-                      <span>Biografía y Extracto Profesional</span>
+                      <span>Biografía y Extracto</span>
                     </span>
-                    <p className="summary-subcard-content" style={{ margin: 0 }}>
-                      {importedSummaryModal.bio || profileForm.bio}
-                    </p>
+                    {importedSummaryModal.bio ? (
+                      <p className="summary-subcard-content" style={{ margin: 0 }}>
+                        {importedSummaryModal.bio}
+                      </p>
+                    ) : (
+                      <p style={{ margin: 0, color: '#796c6e', fontSize: '12.5px', fontStyle: 'italic' }}>
+                        Sin biografía extraída de LinkedIn. Podrás redactar tu presentación en el Paso 4.
+                      </p>
+                    )}
                   </div>
 
                   {/* Education & Years Card */}
@@ -1065,12 +1059,20 @@ export default function LawyerOnboardingDashboard({
                     <div className="summary-subcard-content" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div>
                         <strong style={{ display: 'block', fontSize: '13px' }}>Formación académica:</strong>
-                        <span>{importedSummaryModal.education || profileForm.education || 'Pregrado en Derecho y Formación Jurídica'}</span>
+                        <span>
+                          {importedSummaryModal.education || (
+                            <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin registrar (Paso 4)</em>
+                          )}
+                        </span>
                       </div>
                       <div>
-                        <strong style={{ display: 'block', fontSize: '13px' }}>Tiempo de ejercicio:</strong>
-                        <span style={{ color: '#059669', fontWeight: 600 }}>
-                          {importedSummaryModal.years_of_experience || profileForm.years_of_experience || 7} años de experiencia profesional
+                        <strong style={{ display: 'block', fontSize: '13px' }}>Años de ejercicio:</strong>
+                        <span>
+                          {importedSummaryModal.years_of_experience > 0 ? (
+                            <span style={{ color: '#059669', fontWeight: 600 }}>{importedSummaryModal.years_of_experience} años de experiencia</span>
+                          ) : (
+                            <em style={{ color: '#796c6e', fontStyle: 'italic', fontWeight: 400 }}>Sin definir (Paso 4)</em>
+                          )}
                         </span>
                       </div>
                     </div>
@@ -1080,41 +1082,55 @@ export default function LawyerOnboardingDashboard({
                   <div className="summary-subcard full-width">
                     <span className="summary-subcard-title">
                       <Building2 size={14} className="text-[#68232c]" />
-                      <span>Empresas y Trayectoria Laboral ({importedSummaryModal.positions?.length || 2} cargos registrados)</span>
+                      <span>Empresas y Trayectoria Laboral</span>
                     </span>
-                    <div className="summary-positions-list">
-                      {(importedSummaryModal.positions || workExperience).map((pos: any, idx: number) => (
-                        <div key={idx} className="summary-position-item">
-                          <div className="summary-position-top">
-                            <span className="summary-position-title">{pos.title}</span>
-                            <span className="summary-position-dates">
-                              {pos.start_date || '2021'} – {pos.end_date || 'Actualidad'}
+                    {importedSummaryModal.positions && importedSummaryModal.positions.length > 0 ? (
+                      <div className="summary-positions-list">
+                        {importedSummaryModal.positions.map((pos: any, idx: number) => (
+                          <div key={idx} className="summary-position-item">
+                            <div className="summary-position-top">
+                              <span className="summary-position-title">{pos.title}</span>
+                              {pos.start_date && (
+                                <span className="summary-position-dates">
+                                  {pos.start_date} – {pos.end_date || 'Actualidad'}
+                                </span>
+                              )}
+                            </div>
+                            <span className="summary-position-company">
+                              <Briefcase size={12} /> {pos.company}
                             </span>
+                            {pos.description && (
+                              <p className="summary-position-desc">{pos.description}</p>
+                            )}
                           </div>
-                          <span className="summary-position-company">
-                            <Briefcase size={12} /> {pos.company}
-                          </span>
-                          {pos.description && (
-                            <p className="summary-position-desc">{pos.description}</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
+                        ℹ️ Por políticas de privacidad de LinkedIn, la API pública estándar no comparte tu historial de empresas. Podrás ingresar tu trayectoria profesional en el <strong>Paso 4</strong>.
+                      </div>
+                    )}
                   </div>
 
                   {/* Specialties Card (Full Width) */}
                   <div className="summary-subcard full-width">
                     <span className="summary-subcard-title">
                       <Scale size={14} className="text-[#68232c]" />
-                      <span>Especialidades Jurídicas Asignadas ({importedSummaryModal.specialties?.length || 3})</span>
+                      <span>Especialidades Jurídicas</span>
                     </span>
-                    <div className="summary-specialties-wrap">
-                      {(importedSummaryModal.specialties || profileForm.specialties || ['Derecho Comercial', 'Derecho Laboral', 'Derecho Civil']).map((spec: string, idx: number) => (
-                        <span key={idx} className="summary-specialty-chip">
-                          ✓ {spec}
-                        </span>
-                      ))}
-                    </div>
+                    {importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0 ? (
+                      <div className="summary-specialties-wrap">
+                        {importedSummaryModal.specialties.map((spec: string, idx: number) => (
+                          <span key={idx} className="summary-specialty-chip">
+                            ✓ {spec}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ background: '#faf8f5', border: '1px solid #ebdccc', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#685e5f' }}>
+                        ℹ️ No se detectaron especialidades jurídicas en tu cuenta de LinkedIn. Podrás seleccionar tus ramas del Derecho en el <strong>Paso 3</strong>.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1127,14 +1143,14 @@ export default function LawyerOnboardingDashboard({
                 </span>
 
                 <div className="summary-checklist-container">
-                  {/* Left Column: 4 Completed Points */}
+                  {/* Left Column: Completed Points */}
                   <div className="summary-checklist-col completed">
                     <div className="checklist-col-header">
                       <span className="checklist-col-title">
                         <Check size={15} strokeWidth={3} />
-                        <span>Puntos Completados (4 de 6)</span>
+                        <span>Puntos Completados con LinkedIn</span>
                       </span>
-                      <span className="checklist-badge">✓ 66% Listo</span>
+                      <span className="checklist-badge">✓ Verificado</span>
                     </div>
 
                     <ul className="checklist-items-list">
@@ -1144,48 +1160,42 @@ export default function LawyerOnboardingDashboard({
                         </span>
                         <div className="checklist-item-text">
                           <strong>Paso 1: Foto Oficial e Identidad</strong>
-                          <span>Nombre completo y fotografía HD sincronizados de LinkedIn.</span>
+                          <span>Nombre completo y fotografía HD importados y verificados con tu cuenta de LinkedIn.</span>
                         </div>
                       </li>
 
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet done">
-                          <Check size={12} strokeWidth={3} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 3: Áreas de Práctica</strong>
-                          <span>Especialidades sugeridas y asociadas a tu perfil según experiencia.</span>
-                        </div>
-                      </li>
+                      {importedSummaryModal.specialties && importedSummaryModal.specialties.length > 0 && (
+                        <li className="checklist-item">
+                          <span className="checklist-item-bullet done">
+                            <Check size={12} strokeWidth={3} />
+                          </span>
+                          <div className="checklist-item-text">
+                            <strong>Paso 3: Áreas de Práctica</strong>
+                            <span>{importedSummaryModal.specialties.length} especialidades detectadas.</span>
+                          </div>
+                        </li>
+                      )}
 
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet done">
-                          <Check size={12} strokeWidth={3} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 4: Experiencia y Empresas</strong>
-                          <span>Cargos, firmas/empresas, formación y años de ejercicio importados.</span>
-                        </div>
-                      </li>
-
-                      <li className="checklist-item">
-                        <span className="checklist-item-bullet done">
-                          <Check size={12} strokeWidth={3} />
-                        </span>
-                        <div className="checklist-item-text">
-                          <strong>Paso 6: Biografía Profesional</strong>
-                          <span>Extracto y presentación redactada para clientes potenciales.</span>
-                        </div>
-                      </li>
+                      {importedSummaryModal.positions && importedSummaryModal.positions.length > 0 && (
+                        <li className="checklist-item">
+                          <span className="checklist-item-bullet done">
+                            <Check size={12} strokeWidth={3} />
+                          </span>
+                          <div className="checklist-item-text">
+                            <strong>Paso 4: Experiencia y Empresas</strong>
+                            <span>{importedSummaryModal.positions.length} cargos importados.</span>
+                          </div>
+                        </li>
+                      )}
                     </ul>
                   </div>
 
-                  {/* Right Column: 2 Pending Points */}
+                  {/* Right Column: Pending Legal Points */}
                   <div className="summary-checklist-col pending">
                     <div className="checklist-col-header">
                       <span className="checklist-col-title">
                         <Clock size={15} strokeWidth={2.5} />
-                        <span>Puntos Faltantes (2 pasos)</span>
+                        <span>Puntos Pendientes por Completar</span>
                       </span>
                       <span className="checklist-badge">⏳ Acción Requerida</span>
                     </div>
@@ -1197,10 +1207,33 @@ export default function LawyerOnboardingDashboard({
                         </span>
                         <div className="checklist-item-text">
                           <strong>Paso 2: Tarjeta Profesional CSJ</strong>
-                          <span>Por normativa legal, debes indicar tu número oficial ante el Registro Nacional de Abogados (SIRNA).</span>
-                          <em>⚠️ Ninguna red social almacena tu matrícula judicial oficial.</em>
+                          <span>Ingresa tu número oficial ante el Registro Nacional de Abogados (SIRNA) para habilitar litigio.</span>
                         </div>
                       </li>
+
+                      {(!importedSummaryModal.specialties || importedSummaryModal.specialties.length === 0) && (
+                        <li className="checklist-item">
+                          <span className="checklist-item-bullet todo">
+                            <AlertCircle size={12} strokeWidth={2.8} />
+                          </span>
+                          <div className="checklist-item-text">
+                            <strong>Paso 3: Áreas de Práctica</strong>
+                            <span>Selecciona tus especialidades jurídicas (Laboral, Comercial, Civil, etc.).</span>
+                          </div>
+                        </li>
+                      )}
+
+                      {(!importedSummaryModal.positions || importedSummaryModal.positions.length === 0) && (
+                        <li className="checklist-item">
+                          <span className="checklist-item-bullet todo">
+                            <AlertCircle size={12} strokeWidth={2.8} />
+                          </span>
+                          <div className="checklist-item-text">
+                            <strong>Paso 4: Experiencia y Formación</strong>
+                            <span>Indica tus años de ejercicio, universidad y trayectoria jurídica.</span>
+                          </div>
+                        </li>
+                      )}
 
                       <li className="checklist-item">
                         <span className="checklist-item-bullet todo">
@@ -1208,8 +1241,7 @@ export default function LawyerOnboardingDashboard({
                         </span>
                         <div className="checklist-item-text">
                           <strong>Paso 5: Honorarios y Modalidad</strong>
-                          <span>Define tu tarifa estimada por hora/caso y si atiendes de forma virtual, presencial o ambas.</span>
-                          <em>⚠️ Se requiere para enviarte casos acordes a tu rango de cobro.</em>
+                          <span>Define tu tarifa estimada por hora/caso y tu tipo de atención (virtual o presencial).</span>
                         </div>
                       </li>
                     </ul>
@@ -1237,7 +1269,7 @@ export default function LawyerOnboardingDashboard({
                   setIsWizardOpen(true);
                 }}
               >
-                <span>Completar Tarjeta Profesional (Paso 2)</span>
+                <span>Continuar con mi perfil (Paso 2)</span>
                 <ArrowRight size={17} strokeWidth={2.2} />
               </button>
             </div>
