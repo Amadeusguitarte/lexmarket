@@ -30,6 +30,7 @@ import {
   Clock,
   Scale,
   RotateCcw,
+  Link2,
 } from 'lucide-react';
 import { type LinkedInProfileData } from '@/lib/linkedin';
 import { openLinkedInOAuthPopup } from '@/lib/oauth';
@@ -139,6 +140,10 @@ export default function LawyerOnboardingDashboard({
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
+  const [modalLinkedInUrl, setModalLinkedInUrl] = useState('');
+  const [isEditingInlineLinkedIn, setIsEditingInlineLinkedIn] = useState(false);
+  const [inlineLinkedInUrl, setInlineLinkedInUrl] = useState('');
+
   const [connectedLinkedInPresentation, setConnectedLinkedInPresentation] = useState<{
     name: string;
     avatar_url: string;
@@ -264,6 +269,8 @@ export default function LawyerOnboardingDashboard({
       ? profileData.positions
       : [];
     const importedLinkedInUrl = profileData.linkedin_url || customLinkedInUrl.trim() || profileForm.linkedin_url || '';
+    setModalLinkedInUrl(importedLinkedInUrl);
+    setInlineLinkedInUrl(importedLinkedInUrl);
 
     setLawyerName(importedName);
     if (importedAvatar) setAvatarUrl(importedAvatar);
@@ -332,6 +339,9 @@ export default function LawyerOnboardingDashboard({
     setCurrentStep(1);
     setWorkExperience([]);
     setCustomLinkedInUrl('');
+    setModalLinkedInUrl('');
+    setIsEditingInlineLinkedIn(false);
+    setInlineLinkedInUrl('');
     setConnectedLinkedInPresentation(null);
 
     const resetForm = {
@@ -360,6 +370,44 @@ export default function LawyerOnboardingDashboard({
 
     showToast('Proceso reiniciado. Puedes comenzar desde el Paso 1.');
   }, [onSaveProfile]);
+
+  const handleConfirmLinkedInPresentation = async () => {
+    const finalUrl = modalLinkedInUrl.trim();
+    const updatedForm = {
+      ...profileForm,
+      ...(finalUrl ? { linkedin_url: finalUrl } : {}),
+    };
+    if (finalUrl) {
+      setProfileForm(updatedForm);
+    }
+    setConnectedLinkedInPresentation(null);
+    setCurrentStep(2);
+
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+        linkedInSynced: true,
+        lawyerName,
+        avatarUrl,
+        currentStep: 2,
+        profileForm: updatedForm,
+        workExperience,
+      }));
+    } catch {}
+
+    if (onSaveProfile) {
+      try {
+        await onSaveProfile({
+          ...updatedForm,
+          avatar_url: avatarUrl,
+          role: 'lawyer',
+        });
+      } catch {}
+    }
+
+    if (finalUrl) {
+      showToast('Enlace de LinkedIn vinculado con éxito.');
+    }
+  };
 
   // Dedicated client-side hydration effect to restore saved state from localStorage
   const isHydratedRef = React.useRef(false);
@@ -829,23 +877,147 @@ export default function LawyerOnboardingDashboard({
                           ✓ Verificado con LinkedIn
                         </span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '3px', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '12.5px', color: '#15803d' }}>
-                          Identidad y foto vinculadas. Continúa con tu biografía en el Paso 2.
+                          Identidad y foto vinculadas.
                         </span>
-                        {profileForm.linkedin_url ? (
-                          <a
-                            href={profileForm.linkedin_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#0077b5', fontWeight: 600, textDecoration: 'none' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                          >
-                            <span>Ver perfil de LinkedIn</span>
-                            <ExternalLink size={12} />
-                          </a>
-                        ) : null}
+
+                        {!isEditingInlineLinkedIn ? (
+                          profileForm.linkedin_url ? (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <a
+                                href={profileForm.linkedin_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#0077b5', fontWeight: 600, textDecoration: 'none' }}
+                                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                              >
+                                <span>Ver perfil de LinkedIn</span>
+                                <ExternalLink size={12} />
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setInlineLinkedInUrl(profileForm.linkedin_url);
+                                  setIsEditingInlineLinkedIn(true);
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: '#64748b',
+                                  fontSize: '11px',
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline',
+                                  padding: '0 2px',
+                                }}
+                              >
+                                (cambiar)
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInlineLinkedInUrl('');
+                                setIsEditingInlineLinkedIn(true);
+                              }}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                fontSize: '11.5px',
+                                color: '#0077b5',
+                                background: '#e0f2fe',
+                                border: '1px solid #bae6fd',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <Link2 size={12} />
+                              <span>+ Pegar enlace de LinkedIn</span>
+                            </button>
+                          )
+                        ) : (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            <input
+                              type="url"
+                              value={inlineLinkedInUrl}
+                              onChange={(e) => setInlineLinkedInUrl(e.target.value)}
+                              placeholder="https://www.linkedin.com/in/tu-perfil"
+                              style={{
+                                padding: '3px 8px',
+                                fontSize: '12px',
+                                borderRadius: '6px',
+                                border: '1px solid #86efac',
+                                background: '#fff',
+                                width: '230px',
+                                outline: 'none',
+                              }}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const trimmed = inlineLinkedInUrl.trim();
+                                const updatedForm = { ...profileForm, linkedin_url: trimmed };
+                                setProfileForm(updatedForm);
+                                setIsEditingInlineLinkedIn(false);
+                                try {
+                                  localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+                                    linkedInSynced: true,
+                                    lawyerName,
+                                    avatarUrl,
+                                    currentStep,
+                                    profileForm: updatedForm,
+                                    workExperience,
+                                  }));
+                                } catch {}
+                                if (onSaveProfile) {
+                                  try {
+                                    await onSaveProfile({
+                                      ...updatedForm,
+                                      avatar_url: avatarUrl,
+                                      role: 'lawyer',
+                                    });
+                                  } catch {}
+                                }
+                                showToast(trimmed ? 'Enlace de LinkedIn guardado' : 'Enlace eliminado');
+                              }}
+                              style={{
+                                padding: '3px 9px',
+                                fontSize: '11.5px',
+                                fontWeight: 600,
+                                background: '#166534',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInlineLinkedInUrl(profileForm.linkedin_url || '');
+                                setIsEditingInlineLinkedIn(false);
+                              }}
+                              style={{
+                                padding: '3px 6px',
+                                fontSize: '11.5px',
+                                background: 'transparent',
+                                color: '#64748b',
+                                border: 'none',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1587,17 +1759,72 @@ export default function LawyerOnboardingDashboard({
                 </div>
               </div>
 
-              {/* Single primary button: Aceptar */}
+              {/* Option to paste LinkedIn profile URL right here */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '12px',
+                padding: '13px 15px',
+                marginBottom: '18px',
+              }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#0f172a',
+                  marginBottom: '6px',
+                }}>
+                  <LinkedInOfficialIcon size={14} />
+                  <span>Pega el enlace a tu perfil de LinkedIn (opcional):</span>
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    value={modalLinkedInUrl}
+                    onChange={(e) => setModalLinkedInUrl(e.target.value)}
+                    placeholder="https://www.linkedin.com/in/tu-perfil"
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      fontSize: '13px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      outline: 'none',
+                      background: '#ffffff',
+                    }}
+                  />
+                  {modalLinkedInUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setModalLinkedInUrl('')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                        padding: '0 4px',
+                      }}
+                      title="Borrar enlace"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+                <p style={{ fontSize: '11.5px', color: '#64748b', margin: '6px 0 0', lineHeight: 1.4 }}>
+                  Quedará vinculado directamente para que tus clientes puedan consultar tu trayectoria oficial.
+                </p>
+              </div>
+
+              {/* Single primary button: Aceptar y continuar */}
               <button
                 type="button"
                 className="wizard-continue-btn"
                 style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: '14px', borderRadius: '10px' }}
-                onClick={() => {
-                  setConnectedLinkedInPresentation(null);
-                  setCurrentStep(2);
-                }}
+                onClick={handleConfirmLinkedInPresentation}
               >
-                <span>Aceptar</span>
+                <span>Aceptar y continuar</span>
                 <ArrowRight size={16} strokeWidth={2.4} />
               </button>
             </div>
