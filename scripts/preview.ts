@@ -395,7 +395,7 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
       backdrop.remove();
 
-      showToast('¡LinkedIn conectado exitosamente! Ahora ingresa manualmente tu Tarjeta Profesional en el Paso 2.');
+      showToast('¡LinkedIn conectado exitosamente! Sigue con tu biografía en el Paso 2.');
       openWizardModal(2, importedName);
     };
 
@@ -425,10 +425,10 @@ document.querySelectorAll('.example-pill').forEach(button => {
 
     const steps = [
       'Datos básicos',
-      'Tarjeta profesional',
+      'Biografía y experiencia',
       'Áreas de práctica',
-      'Experiencia',
-      'Honorarios y preferencias',
+      'Honorarios y modalidad',
+      'Tarjeta profesional CSJ',
       'Verificación'
     ];
 

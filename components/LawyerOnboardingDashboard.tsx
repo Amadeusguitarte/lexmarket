@@ -94,6 +94,12 @@ export default function LawyerOnboardingDashboard({
   // Wizard modal state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
+  const [connectedLinkedInPresentation, setConnectedLinkedInPresentation] = useState<{
+    name: string;
+    avatar_url: string;
+    email?: string;
+    linkedin_url: string;
+  } | null>(null);
   const [workExperience, setWorkExperience] = useState<Array<{
     title: string;
     company: string;
@@ -110,13 +116,14 @@ export default function LawyerOnboardingDashboard({
   const [profileForm, setProfileForm] = useState({
     name: initialLawyerName && initialLawyerName !== 'Juan Pérez' ? initialLawyerName : 'Abogado',
     city: 'Bogotá, D.C.',
-    license: '', // EMPTY! Requires manual entry
-    specialties: [] as string[], // EMPTY! Requires manual selection
+    license: '', // EMPTY! Requires manual entry in Step 5
+    specialties: [] as string[], // EMPTY! Requires manual selection in Step 3
     years_of_experience: 0,
     education: '',
     bio: '',
-    rate_hourly: '', // STRICTLY EMPTY! Requires manual entry in Step 5
-    modality: '', // STRICTLY EMPTY! Requires manual selection in Step 5
+    rate_hourly: '', // STRICTLY EMPTY! Requires manual entry in Step 4
+    modality: '', // STRICTLY EMPTY! Requires manual selection in Step 4
+    linkedin_url: '',
   });
 
   const [oauthAvailable, setOauthAvailable] = useState<boolean>(false);
@@ -137,26 +144,25 @@ export default function LawyerOnboardingDashboard({
     setTimeout(() => setToastMessage(''), 5500);
   };
 
-  // Stepper completion checks based on actual fields
+  // Stepper completion checks based on updated step order:
+  // 1: Datos básicos | 2: Biografía y experiencia | 3: Áreas | 4: Honorarios | 5: Tarjeta profesional CSJ | 6: Verificación
   const isStepCompleted = (num: number): boolean => {
     switch (num) {
       case 1:
         return Boolean(profileForm.name.trim() && profileForm.name !== 'Abogado' && profileForm.city.trim());
       case 2:
-        // Tarjeta profesional CSJ: strictly manual, minimum 4 characters
-        return Boolean(profileForm.license.trim().length >= 4);
-      case 3:
-        // Specialties: requires manual selection
-        return profileForm.specialties.length > 0;
-      case 4:
         return Boolean(
           profileForm.years_of_experience > 0 ||
           profileForm.education.trim().length > 0 ||
           profileForm.bio.trim().length > 0
         );
-      case 5:
-        // Honorarios y preferencias: requires both rate and modality
+      case 3:
+        return profileForm.specialties.length > 0;
+      case 4:
         return Boolean(profileForm.rate_hourly.trim().length > 0 && profileForm.modality.trim().length > 0);
+      case 5:
+        // Tarjeta profesional CSJ: strictly manual, minimum 4 characters
+        return Boolean(profileForm.license.trim().length >= 4);
       case 6:
         return false;
       default:
@@ -191,6 +197,7 @@ export default function LawyerOnboardingDashboard({
     const positions = (profileData.positions && Array.isArray(profileData.positions) && profileData.positions.length > 0)
       ? profileData.positions
       : [];
+    const importedLinkedInUrl = profileData.linkedin_url || customLinkedInUrl.trim() || profileForm.linkedin_url || (importedName && importedName !== 'Abogado' ? `https://www.linkedin.com/in/${encodeURIComponent(importedName.toLowerCase().trim().replace(/[^a-z0-9]/g, '-'))}` : 'https://www.linkedin.com');
 
     setLawyerName(importedName);
     if (importedAvatar) setAvatarUrl(importedAvatar);
@@ -203,15 +210,20 @@ export default function LawyerOnboardingDashboard({
       education: importedEducation,
       years_of_experience: importedYears,
       specialties: importedSpecialties,
+      linkedin_url: importedLinkedInUrl,
     };
 
     setProfileForm(updatedForm);
     setLinkedInSynced(true);
     setIsLinkedInModalOpen(false);
 
-    // Seamless progression: directly open wizard at Step 2 (Tarjeta Profesional)
-    setCurrentStep(2);
-    setIsWizardOpen(true);
+    // Present clean presentation modal with verified photo, name, and clickable link to LinkedIn
+    setConnectedLinkedInPresentation({
+      name: importedName,
+      avatar_url: importedAvatar,
+      email: profileData.email,
+      linkedin_url: importedLinkedInUrl,
+    });
 
     if (onSaveProfile) {
       try {
@@ -223,7 +235,7 @@ export default function LawyerOnboardingDashboard({
       } catch {}
     }
 
-    showToast(`✓ LinkedIn vinculado: foto y nombre de ${importedName.split(' ')[0]} asociados`);
+    showToast(`✓ LinkedIn conectado: foto y nombre de ${importedName.split(' ')[0]} asociados`);
   };
 
   // Official LinkedIn OAuth: opens centered popup window without losing dashboard state
@@ -317,12 +329,8 @@ export default function LawyerOnboardingDashboard({
         avatar_url: importedAvatar,
         bio: importedBio,
         education: importedEducation,
+        linkedin_url: urlToFetch,
       });
-
-      // Immediately guide lawyer to Step 2 (Tarjeta profesional)
-      setCurrentStep(2);
-      setIsWizardOpen(true);
-      showToast('Perfil de LinkedIn importado con éxito. Ahora ingresa manualmente tu Tarjeta Profesional (CSJ) en el Paso 2.');
     } catch {
       showToast('Hubo un inconveniente al conectar con LinkedIn. Puedes completar tus datos manualmente.');
     } finally {
@@ -331,6 +339,18 @@ export default function LawyerOnboardingDashboard({
   };
 
   const handleSaveStep = async () => {
+    if (currentStep === 6) {
+      setIsWizardOpen(false);
+      showToast('¡Perfil enviado a verificación exitosamente!');
+      if (onSaveProfile) {
+        await onSaveProfile({
+          ...profileForm,
+          role: 'lawyer',
+        });
+      }
+      return;
+    }
+
     const nextStep = Math.min(currentStep + 1, 6);
     setCurrentStep(nextStep);
     
@@ -340,19 +360,14 @@ export default function LawyerOnboardingDashboard({
         role: 'lawyer',
       });
     }
-
-    if (nextStep === 6) {
-      setIsWizardOpen(false);
-      showToast('¡Perfil enviado a verificación exitosamente!');
-    }
   };
 
   const stepsList = [
     { num: 1, label: 'Datos básicos' },
-    { num: 2, label: 'Tarjeta profesional' },
+    { num: 2, label: 'Biografía y experiencia' },
     { num: 3, label: 'Áreas de práctica' },
-    { num: 4, label: 'Experiencia' },
-    { num: 5, label: 'Honorarios y preferencias' },
+    { num: 4, label: 'Honorarios y modalidad' },
+    { num: 5, label: 'Tarjeta profesional CSJ' },
     { num: 6, label: 'Verificación' },
   ];
 
@@ -586,9 +601,24 @@ export default function LawyerOnboardingDashboard({
                           ✓ Verificado con LinkedIn
                         </span>
                       </div>
-                      <span style={{ fontSize: '12.5px', color: '#15803d' }}>
-                        Identidad vinculada. Continúa con tu Tarjeta Profesional en el Paso 2.
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '12.5px', color: '#15803d' }}>
+                          Identidad y foto vinculadas. Continúa con tu biografía en el Paso 2.
+                        </span>
+                        {profileForm.linkedin_url && (
+                          <a
+                            href={profileForm.linkedin_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#0077b5', fontWeight: 600, textDecoration: 'none' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                          >
+                            <span>Ver perfil de LinkedIn</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -598,7 +628,7 @@ export default function LawyerOnboardingDashboard({
                     style={{ padding: '8px 18px', fontSize: '12.5px', borderRadius: '8px' }}
                     onClick={() => { setCurrentStep(2); setIsWizardOpen(true); }}
                   >
-                    <span>Completar Tarjeta Profesional (Paso 2)</span>
+                    <span>Completar biografía (Paso 2)</span>
                     <ArrowRight size={14} strokeWidth={2.5} />
                   </button>
                 </div>
@@ -857,13 +887,10 @@ export default function LawyerOnboardingDashboard({
                   ¿Qué información verificamos con LinkedIn?
                 </span>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', color: '#334155', lineHeight: '1.6' }}>
-                  <li><strong>Fotografía de perfil oficial HD:</strong> tu imagen visible en MatchJurídico.</li>
+                  <li><strong>Fotografía oficial HD:</strong> tu imagen visible en MatchJurídico.</li>
                   <li><strong>Nombre completo verificado:</strong> tu identidad legal validada.</li>
-                  <li><strong>Correo electrónico autenticado:</strong> tu canal de notificaciones seguras.</li>
+                  <li><strong>Enlace a tu perfil de LinkedIn:</strong> visible y redirigido en tu cuenta.</li>
                 </ul>
-                <div style={{ marginTop: '10px', fontSize: '12px', color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
-                  ⚖️ <em>Nota regulatoria: La <strong>Tarjeta Profesional CSJ</strong> y tus <strong>especialidades jurídicas</strong> se configuran en los siguientes pasos conforme a la ley colombiana.</em>
-                </div>
               </div>
 
               {/* Option 1: Official Popup Button */}
@@ -914,9 +941,130 @@ export default function LawyerOnboardingDashboard({
                   </button>
                 </div>
                 <small className="text-xs text-[#796c6e] mt-2 block" style={{ lineHeight: '1.45' }}>
-                  Extraeremos tu fotografía y nombre público. Tu tarjeta profesional (CSJ) y especialidades se configuran en el asistente.
+                  Importaremos tu fotografía, nombre y enlace directo a tu perfil de LinkedIn.
                 </small>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LinkedIn Connected Presentation Modal: Clean, concise confirmation with redirect link */}
+      {connectedLinkedInPresentation && (
+        <div className="lawyer-modal-backdrop" onClick={() => setConnectedLinkedInPresentation(null)}>
+          <div
+            className="lawyer-modal-content"
+            style={{ maxWidth: '440px', padding: 0, overflow: 'hidden' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="lawyer-modal-close"
+              onClick={() => setConnectedLinkedInPresentation(null)}
+              aria-label="Cerrar presentación"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Header */}
+            <div style={{ textAlign: 'center', padding: '28px 24px 20px', background: 'linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%)', borderBottom: '1px solid #e0edff' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '52px', height: '52px', borderRadius: '50%', background: '#e0f2fe', color: '#0077b5', marginBottom: '12px', boxShadow: '0 4px 12px rgba(0, 119, 181, 0.15)' }}>
+                <LinkedInOfficialIcon size={30} />
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>
+                ¡Conexión con LinkedIn exitosa!
+              </h3>
+              <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
+                Tu cuenta ha quedado vinculada y tu perfil público está conectado.
+              </p>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '22px 24px 26px' }}>
+              {/* Profile Card Preview */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '14px 16px', marginBottom: '16px' }}>
+                <div style={{ position: 'relative', width: '60px', height: '60px', flexShrink: 0 }}>
+                  {connectedLinkedInPresentation.avatar_url ? (
+                    <img
+                      src={connectedLinkedInPresentation.avatar_url}
+                      alt={connectedLinkedInPresentation.name}
+                      style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2.5px solid #0077b5' }}
+                    />
+                  ) : (
+                    <div className="lawyer-avatar-circle lawyer-avatar-fallback" style={{ width: '60px', height: '60px', fontSize: '20px' }}>
+                      {getInitials(connectedLinkedInPresentation.name)}
+                    </div>
+                  )}
+                  <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', background: '#0077b5', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>
+                    <LinkedInOfficialIcon size={11} />
+                  </span>
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <strong style={{ fontSize: '15px', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {connectedLinkedInPresentation.name}
+                    </strong>
+                    <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', border: '1px solid #86efac', padding: '1px 7px', borderRadius: '10px', fontWeight: 600 }}>
+                      ✓ Verificado
+                    </span>
+                  </div>
+                  {connectedLinkedInPresentation.email && (
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block', margin: '2px 0 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {connectedLinkedInPresentation.email}
+                    </span>
+                  )}
+                  {connectedLinkedInPresentation.linkedin_url && (
+                    <a
+                      href={connectedLinkedInPresentation.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12.5px', color: '#0077b5', fontWeight: 600, textDecoration: 'none' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                      onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                    >
+                      <span>Ver perfil en LinkedIn</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Synchronized items summary */}
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '12px 14px', marginBottom: '20px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#15803d', display: 'block', marginBottom: '6px' }}>
+                  Datos vinculados a tu cuenta:
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '12.5px', color: '#166534' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                    <span>Fotografía de perfil oficial en alta resolución</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                    <span>Nombre completo validado</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
+                    <span>Enlace directo a tu perfil de LinkedIn</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Single primary button: Aceptar y continuar */}
+              <button
+                type="button"
+                className="wizard-continue-btn"
+                style={{ width: '100%', justifyContent: 'center', padding: '12px 20px', fontSize: '14px', borderRadius: '10px' }}
+                onClick={() => {
+                  setConnectedLinkedInPresentation(null);
+                  setCurrentStep(2); // Go straight to Biografía y Experiencia!
+                  setIsWizardOpen(true);
+                }}
+              >
+                <span>Aceptar y continuar a Biografía y Experiencia</span>
+                <ArrowRight size={16} strokeWidth={2.4} />
+              </button>
             </div>
           </div>
         </div>
@@ -961,61 +1109,50 @@ export default function LawyerOnboardingDashboard({
                       placeholder="Ej. Bogotá, D.C."
                     />
                   </div>
+                  <div className="wizard-field">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ margin: 0 }}>Enlace a perfil de LinkedIn</label>
+                      {profileForm.linkedin_url && (
+                        <a
+                          href={profileForm.linkedin_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '12px', color: '#0077b5', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontWeight: 600 }}
+                        >
+                          <span>Probar enlace</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="url"
+                        value={profileForm.linkedin_url}
+                        onChange={(e) => setProfileForm({ ...profileForm, linkedin_url: e.target.value })}
+                        placeholder="https://www.linkedin.com/in/tu-perfil"
+                        style={{ flex: 1 }}
+                      />
+                      {profileForm.linkedin_url && (
+                        <a
+                          href={profileForm.linkedin_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="wizard-back-btn"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '0 14px', textDecoration: 'none', fontSize: '13px', background: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd' }}
+                        >
+                          <ExternalLink size={14} />
+                          <span>Abrir</span>
+                        </a>
+                      )}
+                    </div>
+                    <small style={{ color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                      Este enlace redirigido quedará visible en tu perfil para que tus clientes puedan consultar tu trayectoria oficial.
+                    </small>
+                  </div>
                 </div>
               )}
 
               {currentStep === 2 && (
-                <div className="wizard-form-step">
-                  <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '10px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                    <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
-                    <span><strong>Requisito legal indispensable:</strong> La tarjeta profesional no se obtiene de LinkedIn. Ingrésala para validar tu matrícula judicial ante el Consejo Superior de la Judicatura (CSJ / SIRNA).</span>
-                  </div>
-                  <div className="wizard-field">
-                    <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
-                    <input
-                      type="text"
-                      value={profileForm.license}
-                      onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
-                      placeholder="Ej. 294.180 CSJ"
-                      required
-                    />
-                    <small>Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
-                  </div>
-                  <div className="wizard-file-dropzone">
-                    <Upload size={24} className="text-gray-400" />
-                    <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)</span>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="wizard-form-step">
-                  <label className="wizard-section-label">Selecciona tus áreas principales:</label>
-                  <div className="wizard-specialties-chips">
-                    {['Derecho Laboral', 'Derecho Comercial', 'Derecho Civil', 'Derecho de Familia', 'Derecho Penal', 'Derecho Administrativo', 'Tutelas y Derechos de Petición'].map(spec => (
-                      <button
-                        key={spec}
-                        type="button"
-                        className={`specialty-chip ${profileForm.specialties.includes(spec) ? 'selected' : ''}`}
-                        onClick={() => {
-                          const exists = profileForm.specialties.includes(spec);
-                          setProfileForm({
-                            ...profileForm,
-                            specialties: exists
-                              ? profileForm.specialties.filter(s => s !== spec)
-                              : [...profileForm.specialties, spec]
-                          });
-                        }}
-                      >
-                        {profileForm.specialties.includes(spec) && <Check size={14} />}
-                        <span>{spec}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 4 && (
                 <div className="wizard-form-step">
                   <div className="wizard-field">
                     <label>Años de experiencia profesional</label>
@@ -1051,7 +1188,7 @@ export default function LawyerOnboardingDashboard({
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                         <LinkedInOfficialIcon size={16} />
                         <span style={{ fontSize: '12px', fontWeight: 700, color: '#064e3b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                          Trayectoria en empresas importada de LinkedIn ({workExperience.length})
+                          Trayectoria profesional importada de LinkedIn ({workExperience.length})
                         </span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1079,12 +1216,35 @@ export default function LawyerOnboardingDashboard({
                 </div>
               )}
 
-              {currentStep === 5 && (
+              {currentStep === 3 && (
                 <div className="wizard-form-step">
-                  <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '10px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                    <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
-                    <span><strong>Paso 2 de 2 pendientes:</strong> Define tus honorarios y modalidad para recibir solicitudes y casos afines a tus tarifas.</span>
+                  <label className="wizard-section-label">Selecciona tus áreas principales de práctica:</label>
+                  <div className="wizard-specialties-chips">
+                    {['Derecho Laboral', 'Derecho Comercial', 'Derecho Civil', 'Derecho de Familia', 'Derecho Penal', 'Derecho Administrativo', 'Tutelas y Derechos de Petición'].map(spec => (
+                      <button
+                        key={spec}
+                        type="button"
+                        className={`specialty-chip ${profileForm.specialties.includes(spec) ? 'selected' : ''}`}
+                        onClick={() => {
+                          const exists = profileForm.specialties.includes(spec);
+                          setProfileForm({
+                            ...profileForm,
+                            specialties: exists
+                              ? profileForm.specialties.filter(s => s !== spec)
+                              : [...profileForm.specialties, spec]
+                          });
+                        }}
+                      >
+                        {profileForm.specialties.includes(spec) && <Check size={14} />}
+                        <span>{spec}</span>
+                      </button>
+                    ))}
                   </div>
+                </div>
+              )}
+
+              {currentStep === 4 && (
+                <div className="wizard-form-step">
                   <div className="wizard-field">
                     <label>Rango de honorarios estimado</label>
                     <input
@@ -1105,6 +1265,30 @@ export default function LawyerOnboardingDashboard({
                       <option value="Solo Virtual">Solo Virtual</option>
                       <option value="Solo Presencial">Solo Presencial</option>
                     </select>
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 5 && (
+                <div className="wizard-form-step">
+                  <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', padding: '12px 14px', borderRadius: '10px', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                    <AlertCircle size={18} className="text-amber-600 flex-shrink-0" />
+                    <span><strong>Paso legal indispensable:</strong> Tu Tarjeta Profesional valida tu matrícula judicial ante el Consejo Superior de la Judicatura (CSJ / SIRNA) para autorizarte a atender casos.</span>
+                  </div>
+                  <div className="wizard-field">
+                    <label>Número de Tarjeta Profesional (CSJ / SIRNA) *</label>
+                    <input
+                      type="text"
+                      value={profileForm.license}
+                      onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
+                      placeholder="Ej. 294.180 CSJ"
+                      required
+                    />
+                    <small>Dato obligatorio para litigar. Se verificará ante el Registro Nacional de Abogados (SIRNA).</small>
+                  </div>
+                  <div className="wizard-file-dropzone">
+                    <Upload size={24} className="text-gray-400" />
+                    <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)</span>
                   </div>
                 </div>
               )}
