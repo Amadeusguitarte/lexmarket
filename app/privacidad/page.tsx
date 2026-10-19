@@ -166,8 +166,8 @@ export default function PrivacidadPage() {
                     <strong>Canal oficial de atención para privacidad y protección de datos:</strong>
                     <br />
                     Correo electrónico:{' '}
-                    <a href="mailto:privacidad@matchjuridico.com" className="privacy-inline-link">
-                      privacidad@matchjuridico.com
+                    <a href="mailto:contacto@matchjuridico.com" className="privacy-inline-link">
+                      contacto@matchjuridico.com
                     </a>{' '}
                     / Sede digital: República de Colombia.
                   </div>
@@ -305,8 +305,8 @@ export default function PrivacidadPage() {
                 </div>
                 <p style={{ marginTop: '20px' }}>
                   Para radicar una solicitud de Hábeas Data, puedes enviar una comunicación formal a{' '}
-                  <a href="mailto:privacidad@matchjuridico.com" className="privacy-inline-link">
-                    privacidad@matchjuridico.com
+                  <a href="mailto:contacto@matchjuridico.com" className="privacy-inline-link">
+                    contacto@matchjuridico.com
                   </a>{' '}
                   indicando tu nombre, correo asociado a tu cuenta y la descripción de la consulta o reclamo. Atenderemos tu solicitud
                   dentro de los plazos máximos fijados por la Ley 1581 de 2012 (10 a 15 días hábiles).
@@ -350,8 +350,8 @@ export default function PrivacidadPage() {
                   <div>
                     <h4>Oficina de Privacidad y Cumplimiento</h4>
                     <p>MatchJurídico · Plataforma de Servicios Legales</p>
-                    <a href="mailto:privacidad@matchjuridico.com" className="privacy-contact-email">
-                      privacidad@matchjuridico.com
+                    <a href="mailto:contacto@matchjuridico.com" className="privacy-contact-email">
+                      contacto@matchjuridico.com
                     </a>
                   </div>
                 </div>
