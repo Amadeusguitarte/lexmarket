@@ -527,7 +527,7 @@ const adjustedMarkup = markup
 
 
 const html =
-  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MatchJurídico · Vista de diseño</title><style>' +
+  '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" sizes="32x32" href="../public/favicon-32x32.png"><link rel="apple-touch-icon" sizes="180x180" href="../public/apple-touch-icon.png"><title>MatchJurídico · Vista de diseño</title><style>' +
   css +
   '</style></head><body>' +
   adjustedMarkup +
