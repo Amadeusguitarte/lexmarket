@@ -1409,7 +1409,7 @@ export default function LawyerOnboardingDashboard({
                       </div>
                       <div className="wizard-file-dropzone">
                         <Upload size={24} className="text-gray-400" />
-                        <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional en beta)</span>
+                        <span>Adjuntar copia escaneada de Tarjeta Profesional (Opcional)</span>
                       </div>
                     </div>
                   )}

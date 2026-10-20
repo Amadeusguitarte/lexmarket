@@ -539,7 +539,7 @@ export default function ParaAbogadosPage() {
             </div>
 
             {/* Right Column: Cascading UI Mockup Cards with Organic Floating Motion */}
-            <div className="workflow-cascade-stage" aria-label="Simulación visual del flujo operativo">
+            <div className="workflow-cascade-stage" aria-label="Visualización interactiva del flujo operativo">
               {/* Soft ambient background glow */}
               <div className="workflow-ambient-glow" aria-hidden="true" />
 

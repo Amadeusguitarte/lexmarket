@@ -781,7 +781,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     const bytes=Buffer.from(await file.arrayBuffer());let mime:string;
     try{mime=validateFile(file.name,bytes);}catch(e){throw new HttpError(400,(e as Error).message);}
     const docId=form.get('document_id')?uuid.parse(form.get('document_id')):crypto.randomUUID(),storagePath=id+'/'+docId;const existing=result(await client.from('documents').select('id,case_id').eq('id',docId).maybeSingle());if(existing){if(existing.case_id!==id)throw new HttpError(409,'No se pudo recuperar el archivo.');return json({ok:true});}
-    const count=await client.from('documents').select('id',{count:'exact',head:true}).eq('case_id',id);if(count.error) throw new HttpError(503,'No se pudo comprobar el espacio.');if((count.count||0)>=30) throw new HttpError(409,'Este caso alcanzó los 30 archivos de la beta.');
+    const count=await client.from('documents').select('id',{count:'exact',head:true}).eq('case_id',id);if(count.error) throw new HttpError(503,'No se pudo comprobar el espacio.');if((count.count||0)>=30) throw new HttpError(409,'Este caso alcanzó el límite máximo de 30 archivos.');
     let uploadRes=await client.storage.from('case-files').upload(storagePath,bytes,{contentType:mime,upsert:false});
     if(uploadRes.error && (uploadRes.error.message?.toLowerCase().includes('bucket') || (uploadRes.error as any).statusCode===404 || (uploadRes.error as any).status===404)){
      await ensureCaseFilesBucket(client);

@@ -3,7 +3,7 @@ import { canReadPrivate } from './shared';
 export class HttpError extends Error { constructor(public status:number,message:string){super(message);} }
 export function db() {
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;
- if(!url||!key) throw new HttpError(503,'Estamos preparando la apertura. Vuelve pronto.');
+ if(!url||!key) throw new HttpError(503,'Servicio temporalmente no disponible. Intenta de nuevo más tarde.');
  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 }
 export function result<T>(r:{data:T;error:unknown}):T {

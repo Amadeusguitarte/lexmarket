@@ -1425,7 +1425,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
               )}
 
               <p className="microcopy">
-                Los archivos son opcionales. Para traer una conversación de ChatGPT u otra IA, guárdala como PDF/TXT o pega los fragmentos relevantes al editar el caso. Esta beta no accede a tus cuentas ni importa enlaces de chats.
+                Los archivos son opcionales. Para adjuntar una conversación o análisis previo de IA, puedes guardarla en formato PDF/TXT o incluir los fragmentos relevantes al editar el caso.
               </p>
 
               {uploadProgress && <p role="status" className="upload-progress-text">{uploadProgress}</p>}

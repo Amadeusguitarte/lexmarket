@@ -176,7 +176,7 @@ export default function Landing({
     ['¿MatchJurídico presenta mi caso automáticamente?','La presentación corresponde al profesional que asuma la actuación, o a quien esté habilitado para hacerlo. La plataforma facilita el encuentro y el seguimiento.'],
    ].map(([q,a])=><details key={q}><summary>{q}<Plus size={18}/></summary><p>{a}</p></details>)}</div></section>
    <section className="final-cta wrap"><Sparkles size={24}/><h2>Lo que sigue, empieza con un paso.</h2><button className="button" onClick={onStart}>Empezar mi caso <ArrowRight size={17}/></button></section>
-  </main><footer className="wrap"><Brand/><span>Hecho para avanzar con más tranquilidad.</span><div><a href="/privacidad">Privacidad</a><button onClick={()=>onInfo('terms')}>Condiciones de la beta</button><button onClick={()=>onInfo('help')}>Ayuda</button></div></footer>
+  </main><footer className="wrap"><Brand/><span>Hecho para avanzar con más tranquilidad.</span><div><a href="/privacidad">Privacidad</a><button onClick={()=>onInfo('terms')}>Términos del servicio</button><button onClick={()=>onInfo('help')}>Ayuda</button></div></footer>
  </div>;
 }
 

@@ -244,7 +244,7 @@ export default function Home() {
  async function continueWithGoogle(){
   await run(async()=>{
    const db=browserDB();
-   if(!db){setInfo('setup');return;}
+   if(!db){throw new Error('El servicio de acceso seguro se encuentra en mantenimiento temporal. Por favor intenta más tarde.');}
    if(!await googleAvailable()){
     setGoogleReady(false);
     throw new Error('Google aún no está disponible. Puedes continuar con tu correo; tu borrador sigue guardado.');
@@ -261,7 +261,7 @@ export default function Home() {
    });
   });
  }
- async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){setInfo('setup');return;}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:getAuthOrigin()}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:getAuthOrigin()}});if(err2)throw error;}});}
+ async function continueWithLinkedIn(){await run(async()=>{const db=browserDB();if(!db){throw new Error('El servicio de acceso seguro se encuentra en mantenimiento temporal. Por favor intenta más tarde.');}localStorage.setItem('lexmarket.intendedRole',role);const {error}=await db.auth.signInWithOAuth({provider:'linkedin_oidc',options:{redirectTo:getAuthOrigin()}});if(error){const {error:err2}=await db.auth.signInWithOAuth({provider:'linkedin' as any,options:{redirectTo:getAuthOrigin()}});if(err2)throw error;}});}
  async function saveProfile(data:Row){await api('me','PUT',data);updateMe(await api('me'));}
  async function importDraft(){await run(async()=>{if(!session)return;await importIntake(session.user.id,setNotice,pendingCase);setPendingCase(null);setWorkspaceVersion(v=>v+1);setNotice('Tu caso y sus documentos están guardados en privado.');});}
  useEffect(()=>{
@@ -273,17 +273,17 @@ export default function Home() {
    }).catch(()=>{});
   }
  },[session,me?.profile,pendingCase]);
- const authSubmit=(form:HTMLFormElement)=>run(async()=>{const data=new FormData(form),db=browserDB();if(!db){setInfo('setup');return;}const email=String(data.get('email')||''),password=String(data.get('password')||'');
+ const authSubmit=(form:HTMLFormElement)=>run(async()=>{const data=new FormData(form),db=browserDB();if(!db){throw new Error('El servicio de acceso seguro se encuentra en mantenimiento temporal. Por favor intenta más tarde.');}const email=String(data.get('email')||''),password=String(data.get('password')||'');
   if(authMode==='signup'){const {error}=await db.auth.signUp({email,password,options:{data:{intended_role:role},emailRedirectTo:getAuthOrigin()}});if(error)throw error;setNotice('Revisa tu correo para confirmar la cuenta. Si ya tenías una, puedes entrar.');setAuthMode('login');}
   else if(authMode==='reset'){const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:getAuthOrigin()});if(error)throw error;setNotice('Si hay una cuenta con ese correo, recibirás un enlace para cambiar la contraseña.');setAuthMode('login');}
   else if(authMode==='update'){const {error}=await db.auth.updateUser({password});if(error)throw error;setAuthMode('');setNotice('Contraseña actualizada.');}
   else {const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;setAuthMode('');}
  });
  const infoText:Record<string,{title:string;paragraphs:string[]}>= {
-  setup:{title:'Estamos preparando la apertura',paragraphs:['La interfaz ya está disponible. Para crear cuentas y guardar casos es necesario conectar los servicios de la plataforma. Esta pantalla no guarda ni simula una cuenta.']},
-  privacy:{title:'Tus documentos, bajo tu control',paragraphs:['El título, la ciudad, la categoría y el resumen aprobado se comparten con abogados verificados. El relato privado y los documentos requieren tu autorización de acceso.','Puedes retirar accesos desde cada caso. Esto impide nuevas consultas en la plataforma, pero no elimina las copias que alguien haya descargado.','La organización asistida es opcional. Solo se envían textos al proveedor de IA cuando lo autorizas. Puedes trabajar sin ella.','Esta versión está destinada a una beta por invitación. Antes de abrir el servicio al público, el operador debe publicar su identificación, la política de tratamiento, los plazos de conservación y los canales para ejercer derechos.']},
-  terms:{title:'Sobre esta beta',paragraphs:['MatchJurídico facilita el encuentro entre clientes y profesionales. Publicar o recibir propuestas no crea una representación automática. El encargo y los poderes que correspondan se acuerdan con el abogado.','Los honorarios se pactan directamente con el profesional. Esta versión no procesa pagos, no radica documentos ante autoridades y no calcula plazos judiciales.','La verificación profesional requiere una revisión del equipo. Las actualizaciones del proceso las registran las personas participantes; no son un reporte oficial de un juzgado.','Las condiciones definitivas de contratación y operación deben ser publicadas por el operador antes del lanzamiento abierto.']},
-  help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue preparándose, espera a que termine antes de pedir una organización asistida.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'El canal de soporte se habilitará antes de abrir la beta.']},
+  setup:{title:'Servicio de acceso',paragraphs:['El servicio de registro y autenticación se encuentra en mantenimiento temporal. Por favor intenta de nuevo en unos minutos o contáctanos a soporte@matchjuridico.com.']},
+  privacy:{title:'Tus documentos, bajo tu control',paragraphs:['El título, la ciudad, la categoría y el resumen aprobado se comparten con abogados verificados. El relato privado y los documentos requieren tu autorización de acceso.','Puedes retirar accesos desde cada caso. Esto impide nuevas consultas en la plataforma, pero no elimina las copias que alguien haya descargado.','La organización asistida es opcional. Solo se envían textos al proveedor de IA cuando lo autorizas. Puedes trabajar sin ella.','Tus datos y documentos son tratados bajo los más rigurosos estándares de confidencialidad y protección de datos personales.']},
+  terms:{title:'Términos del servicio',paragraphs:['MatchJurídico facilita el encuentro entre clientes y profesionales del derecho. Publicar un caso o recibir propuestas no crea una representación automática. El encargo profesional y los poderes que correspondan se acuerdan directamente con el abogado.','Los honorarios se pactan directamente con el profesional según las condiciones y etapas acordadas para cada caso.','La verificación profesional requiere la validación de la tarjeta profesional ante el Consejo Superior de la Judicatura (CSJ - SIRNA).']},
+  help:{title:'¿En qué podemos ayudarte?',paragraphs:['Puedes empezar con un relato y agregar archivos desde tu espacio. Si un documento sigue preparándose, espera a que termine antes de pedir una organización asistida.','Para compartir tu caso, prepara el resumen, revisa que no revele información sensible y confirma la publicación. Podrás autorizar a cada abogado que solicite acceso.',process.env.NEXT_PUBLIC_SUPPORT_EMAIL?'Escríbenos a '+process.env.NEXT_PUBLIC_SUPPORT_EMAIL:'Escríbenos a soporte@matchjuridico.com para resolver cualquier duda.']},
  };
 
  if (isPopupCallback) {

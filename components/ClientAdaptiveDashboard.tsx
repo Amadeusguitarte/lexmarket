@@ -1134,7 +1134,7 @@ function MatchAssistantWidget({
         <div className="assistant-brand-badge">
           <Sparkles size={16} className="coral-icon" />
           <span className="assistant-name">MatchAsistente</span>
-          <span className="beta-badge">Beta</span>
+          <span className="assistant-card-badge">Inteligencia Jurídica</span>
         </div>
       </div>
 
