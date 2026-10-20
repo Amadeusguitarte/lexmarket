@@ -5791,9 +5791,21 @@ input.auth-input-control.with-trailing {
 }
 
 .lawyer-sidebar-logo {
-  padding-left: 10px;
   display: flex;
   align-items: center;
+}
+
+.lawyer-sidebar-logo .sidebar-brand {
+  padding-left: 12px;
+  margin-bottom: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.lawyer-sidebar-logo .brand {
+  font-size: 26px;
+  letter-spacing: -1.3px;
 }
 
 .lawyer-sidebar-nav {

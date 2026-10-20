@@ -35,6 +35,7 @@ import {
 import { type LinkedInProfileData } from '@/lib/linkedin';
 import { openLinkedInOAuthPopup } from '@/lib/oauth';
 import Toast from './Toast';
+import { Brand } from './Landing';
 
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
@@ -626,7 +627,9 @@ export default function LawyerOnboardingDashboard({
       <aside className="lawyer-dash-sidebar">
         <div className="lawyer-sidebar-top">
           <div className="lawyer-sidebar-logo">
-            <MatchJuridicoScaleLogo size={32} />
+            <a href="/" className="sidebar-brand" aria-label="Inicio" style={{ textDecoration: 'none' }}>
+              <Brand />
+            </a>
           </div>
 
           <nav className="lawyer-sidebar-nav" aria-label="Menú principal de abogado">
