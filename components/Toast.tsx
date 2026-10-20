@@ -25,78 +25,122 @@ export function Toast({
   className = 'toast',
   style,
 }: ToastProps) {
-  const [activeMessage, setActiveMessage] = useState(message);
-  const [activeError, setActiveError] = useState(isError);
-  const [isExiting, setIsExiting] = useState(false);
+  const [displayedMessage, setDisplayedMessage] = useState<string>(message);
+  const [displayedError, setDisplayedError] = useState<boolean>(isError);
+  const [isExiting, setIsExiting] = useState<boolean>(false);
+
+  // Keep track of dismissed message so it never resurrects in a loop
+  const dismissedRef = useRef<string | null>(null);
   const exitTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const dismissTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const triggerExit = useCallback(() => {
-    setIsExiting(true);
-    if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-    exitTimerRef.current = setTimeout(() => {
-      setActiveMessage('');
-      setIsExiting(false);
-      onClose?.();
-    }, 350); // Matches CSS fade-out animation duration
-  }, [onClose]);
+  // Up-to-date refs for stable callback
+  const messageRef = useRef(message);
+  messageRef.current = message;
+  const displayedMessageRef = useRef(displayedMessage);
+  displayedMessageRef.current = displayedMessage;
+  const isExitingRef = useRef(isExiting);
+  isExitingRef.current = isExiting;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  // When message changes, reset and show, or initiate smooth fade-out if cleared
-  useEffect(() => {
-    if (message) {
-      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-      setActiveMessage(message);
-      setActiveError(isError);
-      setIsExiting(false);
-    } else if (activeMessage && !isExiting) {
-      triggerExit();
+  const handleDismiss = useCallback(() => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
     }
-  }, [message, isError, activeMessage, isExiting, triggerExit]);
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current);
+      exitTimerRef.current = null;
+    }
 
-  // Auto-dismiss countdown
+    dismissedRef.current = displayedMessageRef.current || messageRef.current;
+    setIsExiting(true);
+
+    exitTimerRef.current = setTimeout(() => {
+      setDisplayedMessage('');
+      setIsExiting(false);
+      onCloseRef.current?.();
+    }, 350); // Matches CSS fade-out transition duration
+  }, []);
+
+  // Listen strictly to incoming message / error changes
   useEffect(() => {
-    if (!activeMessage || isExiting) return;
-    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
-    dismissTimerRef.current = setTimeout(() => {
-      triggerExit();
+    if (!message) {
+      // Parent cleared message
+      dismissedRef.current = null;
+      if (displayedMessageRef.current && !isExitingRef.current) {
+        setIsExiting(true);
+        if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = setTimeout(() => {
+          setDisplayedMessage('');
+          setIsExiting(false);
+        }, 350);
+      }
+      return;
+    }
+
+    // If this message was already dismissed, do not resurrect it
+    if (dismissedRef.current === message) {
+      return;
+    }
+
+    // Brand new message
+    dismissedRef.current = null;
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current);
+      exitTimerRef.current = null;
+    }
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
+
+    setDisplayedMessage(message);
+    setDisplayedError(isError);
+    setIsExiting(false);
+
+    autoCloseTimerRef.current = setTimeout(() => {
+      handleDismiss();
     }, duration);
 
     return () => {
-      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
     };
-  }, [activeMessage, isExiting, duration, triggerExit]);
+  }, [message, isError, duration, handleDismiss]);
 
-  // Cleanup on unmount
+  // Clean up timers on unmount
   useEffect(() => {
     return () => {
       if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
     };
   }, []);
 
-  if (!activeMessage) return null;
+  if (!displayedMessage) return null;
 
   const isLawyerToast = className.includes('lawyer-dash-toast');
   const exitClass = isLawyerToast ? 'lawyer-dash-toast-exiting toast-exiting' : 'toast-exiting';
 
   const content = (
     <div
-      className={`${className} ${activeError ? 'error' : ''} ${isExiting ? exitClass : 'toast-entering'}`}
-      role={activeError ? 'alert' : 'status'}
+      className={`${className} ${displayedError ? 'error' : ''} ${isExiting ? exitClass : 'toast-entering'}`}
+      role={displayedError ? 'alert' : 'status'}
       style={style}
     >
-      {activeError ? (
+      {displayedError ? (
         <AlertCircle size={18} />
       ) : (
         <CheckCircle2 size={18} className={isLawyerToast ? 'text-emerald-600' : undefined} />
       )}
-      <span>{activeMessage}</span>
+      <span>{displayedMessage}</span>
       <button
         aria-label="Cerrar notificación"
         type="button"
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
-          triggerExit();
+          handleDismiss();
         }}
       >
         <X size={isLawyerToast ? 15 : 18} />
