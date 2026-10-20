@@ -36,6 +36,7 @@ import { type LinkedInProfileData } from '@/lib/linkedin';
 import { openLinkedInOAuthPopup } from '@/lib/oauth';
 import Toast from './Toast';
 import { Brand } from './Landing';
+import LawyerSidebar from './LawyerSidebar';
 
 export interface LawyerOnboardingProps {
   initialLawyerName?: string;
@@ -624,94 +625,19 @@ export default function LawyerOnboardingDashboard({
       />
 
       {/* Left Sidebar */}
-      <aside className="lawyer-dash-sidebar">
-        <div className="lawyer-sidebar-top">
-          <div className="lawyer-sidebar-logo">
-            <a href="/" className="sidebar-brand" aria-label="Inicio" style={{ textDecoration: 'none' }}>
-              <Brand />
-            </a>
-          </div>
-
-          <nav className="lawyer-sidebar-nav" aria-label="Menú principal de abogado">
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'inicio' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('inicio'); onNavigate?.('inicio'); }}
-            >
-              <Home size={19} strokeWidth={2} />
-              <span>Inicio</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'casos' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('casos'); onNavigate?.('casos'); }}
-            >
-              <FileText size={19} strokeWidth={1.8} />
-              <span>Casos disponibles</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'propuestas' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('propuestas'); onNavigate?.('propuestas'); }}
-            >
-              <MessageSquare size={19} strokeWidth={1.8} />
-              <span>Mis propuestas</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'mis-casos' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('mis-casos'); onNavigate?.('mis-casos'); }}
-            >
-              <Folder size={19} strokeWidth={1.8} />
-              <span>Mis casos</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'pagos' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('pagos'); onNavigate?.('pagos'); }}
-            >
-              <CreditCard size={19} strokeWidth={1.8} />
-              <span>Pagos</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'perfil' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveMenu('perfil');
-                document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <User size={19} strokeWidth={1.8} />
-              <span>Perfil profesional</span>
-            </button>
-
-            <button
-              type="button"
-              className={`lawyer-nav-item ${activeMenu === 'configuracion' ? 'active' : ''}`}
-              onClick={() => { setActiveMenu('configuracion'); onNavigate?.('configuracion'); }}
-            >
-              <Settings size={19} strokeWidth={1.8} />
-              <span>Configuración</span>
-            </button>
-          </nav>
-        </div>
-
-        <div className="lawyer-sidebar-bottom">
-          <button
-            type="button"
-            className="lawyer-nav-item help-link"
-            onClick={() => onNavigate?.('help')}
-          >
-            <HelpCircle size={19} strokeWidth={1.8} />
-            <span>Centro de ayuda</span>
-          </button>
-        </div>
-      </aside>
+      <LawyerSidebar
+        activeMenu={activeMenu}
+        onNavigate={(route) => {
+          setActiveMenu(route);
+          if (route === 'inicio') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            onNavigate?.(route);
+          }
+        }}
+        isAdmin={Boolean(initialProfile?.admin)}
+        onHelp={() => onNavigate?.('help')}
+      />
 
       {/* Main Container */}
       <div className="lawyer-dash-main-area">
@@ -738,7 +664,8 @@ export default function LawyerOnboardingDashboard({
               className="lawyer-user-profile-menu"
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                document.getElementById('lawyer-wizard-card')?.scrollIntoView({ behavior: 'smooth' });
+                setActiveMenu('perfil');
+                onNavigate?.('perfil');
               }}
             >
               {avatarUrl ? (

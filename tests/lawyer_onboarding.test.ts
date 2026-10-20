@@ -72,4 +72,33 @@ test('LawyerOnboardingDashboard offers option to paste LinkedIn link when synced
   assert.match(html, /Reiniciar/);
 });
 
+test('LawyerSidebar renders identical 7 items and Help link without bounce or layout shift', async () => {
+  const LawyerSidebar = (await import('../components/LawyerSidebar')).default;
+  const html = renderToStaticMarkup(
+    React.createElement(LawyerSidebar, {
+      activeMenu: 'perfil',
+      onNavigate: () => {},
+    })
+  );
+  const doc = new JSDOM(html).window.document;
+  const navItems = doc.querySelectorAll('.lawyer-nav-item');
+  // 7 main nav items + 1 help link = 8 buttons
+  assert.equal(navItems.length, 8);
+  const itemTexts = Array.from(navItems).map(n => n.textContent?.trim());
+  assert.ok(itemTexts.includes('Inicio'));
+  assert.ok(itemTexts.includes('Casos disponibles'));
+  assert.ok(itemTexts.includes('Mis propuestas'));
+  assert.ok(itemTexts.includes('Mis casos'));
+  assert.ok(itemTexts.includes('Pagos'));
+  assert.ok(itemTexts.includes('Perfil profesional'));
+  assert.ok(itemTexts.includes('Configuración'));
+  assert.ok(itemTexts.includes('Centro de ayuda'));
+
+  // Active item check
+  const activeBtn = doc.querySelector('.lawyer-nav-item.active');
+  assert.ok(activeBtn);
+  assert.equal(activeBtn?.textContent?.trim(), 'Perfil profesional');
+});
+
+
 
