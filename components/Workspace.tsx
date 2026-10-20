@@ -35,7 +35,9 @@ import Notifications from './Notifications';
 import Messenger, { type ChatTarget } from './Messenger';
 import LawyerSidebar from './LawyerSidebar';
 import LawyerOnboardingDashboard from './LawyerOnboardingDashboard';
+import LawyerHomeDashboard from './LawyerHomeDashboard';
 import ClientAdaptiveDashboard from './ClientAdaptiveDashboard';
+import { calculateProfileProgress, getFirstIncompleteStep } from '@/lib/lawyer-profile';
 import { draftStore } from '@/lib/intake';
 
 export type Run = (fn: () => Promise<void>) => Promise<void>;
@@ -49,6 +51,7 @@ export type WorkProps = {
   onRefreshMe: () => Promise<void>;
   onLogout: () => void;
   onChat?: (caseId: string, lawyerId: string) => void;
+  onGoToProfile?: (step?: number) => void;
   initialCaseId?: string;
   initialView?: string;
 };
@@ -89,10 +92,43 @@ export default function Workspace(props: WorkProps) {
   const googleAvatar = safeAvatar(props.session.user.user_metadata?.avatar_url || props.session.user.user_metadata?.picture);
   const avatar = p.avatar_url !== undefined && p.avatar_url !== null ? (p.avatar_url === '' ? '' : p.avatar_url) : (googleAvatar || '');
 
+  const [profileTargetStep, setProfileTargetStep] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedStep = localStorage.getItem('lexmarket.lawyer_current_step');
+        if (savedStep) return parseInt(savedStep, 10) || 1;
+      } catch {}
+    }
+    return 1;
+  });
+  const [unreadMsgCount, setUnreadMsgCount] = useState<number>(0);
+
   function openChat(cId: string, lawyerId: string) {
     setChatTarget({ case_id: cId, lawyer_id: lawyerId });
     setChatOpen(true);
   }
+
+  const handleGoToProfile = (step?: number) => {
+    if (typeof step === 'number' && step >= 1 && step <= 6) {
+      setProfileTargetStep(step);
+    } else {
+      setProfileTargetStep(getFirstIncompleteStep(p));
+    }
+    navigate('profile');
+  };
+
+  useEffect(() => {
+    if (isLawyer) {
+      api('chats')
+        .then((d) => {
+          if (d?.items && Array.isArray(d.items)) {
+            const unread = d.items.reduce((acc: number, item: any) => acc + (item.unread || 0), 0);
+            setUnreadMsgCount(unread);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isLawyer, view]);
 
   useEffect(() => {
     let active = true;
@@ -101,20 +137,15 @@ export default function Workspace(props: WorkProps) {
       setLoading(false);
       return;
     }
-    if (view === 'marketplace' && p.verification !== 'verified') {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
     setLoading(true);
-    api(view === 'admin' ? 'admin' : view === 'marketplace' ? 'marketplace' : 'cases')
+    api(view === 'admin' ? 'admin' : view === 'marketplace' ? 'marketplace' : view === 'propuestas' ? 'proposals' : 'cases')
       .then((data) => {
         if (!active) return;
         if (view === 'admin') setAdmin(data);
         else {
-          setItems(data.items);
+          setItems(data?.items || []);
           try {
-            sessionStorage.setItem('lexmarket.user_cases', JSON.stringify(data.items));
+            sessionStorage.setItem('lexmarket.user_cases', JSON.stringify(data?.items || []));
           } catch {}
         }
         setInitialLoaded(true);
@@ -157,12 +188,13 @@ export default function Workspace(props: WorkProps) {
     if (cid) return `/casos/${cid}`;
     if (v === 'cases') return '/mis-casos';
     if (v === 'messages') return '/mensajes';
+    if (v === 'propuestas') return '/propuestas';
     if (v === 'marketplace') return '/casos';
-    if (v === 'profile') return '/mi-perfil';
+    if (v === 'profile') return isLawyer ? '/dashboard/perfil' : '/mi-perfil';
     if (v === 'configuracion') return '/configuracion';
     if (v === 'pagos') return '/pagos';
     if (v === 'admin') return '/admin';
-    return isLawyer ? '/inicio' : '/explorar';
+    return isLawyer ? '/dashboard' : '/explorar';
   }
 
   function navigate(v: string, newCaseId: string = '') {
@@ -197,7 +229,10 @@ export default function Workspace(props: WorkProps) {
       } else if (path === '/mensajes') {
         setCaseId('');
         setView('messages');
-      } else if (path === '/mi-perfil' || path === '/perfil') {
+      } else if (path === '/propuestas') {
+        setCaseId('');
+        setView('propuestas');
+      } else if (path === '/mi-perfil' || path === '/perfil' || path === '/dashboard/perfil') {
         setCaseId('');
         setView('profile');
       } else if (path === '/configuracion') {
@@ -227,7 +262,39 @@ export default function Workspace(props: WorkProps) {
       [c.title, c.city, c.summary].join(' ').toLocaleLowerCase().includes(query.toLocaleLowerCase())
   );
 
-  if (isLawyer && view === 'welcome') {
+  if (isLawyer && view === 'welcome' && !caseId) {
+    return (
+      <LawyerHomeDashboard
+        initialLawyerName={p.name}
+        initialAvatar={avatar || ''}
+        initialProfile={p}
+        unreadMessages={unreadMsgCount}
+        onNavigate={(route) => {
+          if (route === 'inicio') navigate('welcome');
+          else if (route === 'casos') navigate('marketplace');
+          else if (route === 'propuestas') navigate('propuestas');
+          else if (route === 'mis-casos') navigate('cases');
+          else if (route === 'mensajes') navigate('messages');
+          else if (route === 'pagos') navigate('pagos');
+          else if (route === 'perfil') handleGoToProfile(profileTargetStep);
+          else if (route === 'configuracion') navigate('configuracion');
+          else if (route === 'admin') navigate('admin');
+          else if (route === 'help') props.onInfo('help');
+          else navigate('welcome');
+        }}
+        onOpenCase={(cId) => {
+          setCaseId(cId);
+          setView('marketplace');
+        }}
+        onGoToProfile={(step?: number) => {
+          handleGoToProfile(step);
+        }}
+        onLogout={props.onLogout}
+      />
+    );
+  }
+
+  if (isLawyer && view === 'profile' && !caseId) {
     return (
       <LawyerOnboardingDashboard
         initialLawyerName={p.name}
@@ -240,10 +307,14 @@ export default function Workspace(props: WorkProps) {
             (localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
               localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')))
         )}
+        targetStep={profileTargetStep}
+        activeMenu="perfil"
         onNavigate={(route) => {
-          if (route === 'casos') navigate('marketplace');
-          else if (route === 'propuestas') navigate('messages');
+          if (route === 'inicio') navigate('welcome');
+          else if (route === 'casos') navigate('marketplace');
+          else if (route === 'propuestas') navigate('propuestas');
           else if (route === 'mis-casos') navigate('cases');
+          else if (route === 'mensajes') navigate('messages');
           else if (route === 'pagos') navigate('pagos');
           else if (route === 'perfil') navigate('profile');
           else if (route === 'configuracion') navigate('configuracion');
@@ -266,8 +337,10 @@ export default function Workspace(props: WorkProps) {
       ? 'inicio'
       : view === 'marketplace'
       ? 'casos'
-      : view === 'messages'
+      : view === 'propuestas'
       ? 'propuestas'
+      : view === 'messages'
+      ? 'mensajes'
       : view === 'cases'
       ? 'mis-casos'
       : view === 'pagos'
@@ -285,13 +358,15 @@ export default function Workspace(props: WorkProps) {
       {isLawyer ? (
         <LawyerSidebar
           activeMenu={lawyerActiveMenu}
+          unreadMessages={unreadMsgCount}
           onNavigate={(route) => {
             if (route === 'inicio') navigate('welcome');
             else if (route === 'casos') navigate('marketplace');
-            else if (route === 'propuestas') navigate('messages');
+            else if (route === 'propuestas') navigate('propuestas');
             else if (route === 'mis-casos') navigate('cases');
+            else if (route === 'mensajes') navigate('messages');
             else if (route === 'pagos') navigate('pagos');
-            else if (route === 'perfil') navigate('profile');
+            else if (route === 'perfil') handleGoToProfile(profileTargetStep);
             else if (route === 'configuracion') navigate('configuracion');
             else if (route === 'admin') navigate('admin');
             else if (route === 'help') props.onInfo('help');
@@ -401,14 +476,75 @@ export default function Workspace(props: WorkProps) {
               {...props}
               onChat={openChat}
               id={caseId}
+              onGoToProfile={handleGoToProfile}
               onBack={() => {
-                navigate('cases', '');
+                navigate(isLawyer ? 'marketplace' : 'cases', '');
                 setRevision((n) => n + 1);
               }}
             />
           ) : (
             <>
-              {view === 'messages' ? (
+              {view === 'propuestas' ? (
+                <div className="lawyer-proposals-container" style={{ padding: '12px 16px' }}>
+                  <div className="page-heading">
+                    <div>
+                      <span className="overline">SEGUIMIENTO DE POSTULACIONES</span>
+                      <h1>Mis propuestas</h1>
+                      <p>
+                        Revisa el estado de las propuestas que has enviado a clientes y continúa las conversaciones activas.
+                      </p>
+                    </div>
+                  </div>
+                  {items.length === 0 ? (
+                    <div className="editorial-empty-state" style={{ background: '#ffffff', border: '1px solid #ebdccc', borderRadius: '18px', padding: '48px 28px', textAlign: 'center', margin: '24px 0' }}>
+                      <div className="empty-state-icon" style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f5eee5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#722f37' }}>
+                        <FileText size={28} />
+                      </div>
+                      <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#1e191a', marginBottom: '8px' }}>
+                        Todavía no has enviado ninguna propuesta
+                      </h3>
+                      <p style={{ color: '#6a5e60', fontSize: '14px', maxWidth: '440px', margin: '0 auto 20px', lineHeight: '1.5' }}>
+                        Encuentra casos que coincidan con tu experiencia y postúlate para conectar con clientes.
+                      </p>
+                      <button
+                        type="button"
+                        className="button button-burgundy"
+                        onClick={() => navigate('marketplace')}
+                      >
+                        Explorar casos disponibles →
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="proposals-list-table">
+                      {items.map((propItem: any) => (
+                        <div key={propItem.id} className="proposal-row-item">
+                          <div className="proposal-info">
+                            <h4 className="proposal-case-title">{propItem.case?.title || propItem.case_title || 'Asunto legal'}</h4>
+                            <span className="proposal-date">
+                              Enviada el {propItem.created_at ? new Date(propItem.created_at).toLocaleDateString('es-CO') : 'Reciente'}
+                              {propItem.fee ? ` · Honorarios: $${propItem.fee}` : ''}
+                            </span>
+                          </div>
+                          <div className="proposal-status-col">
+                            <span className={`proposal-status-pill ${propItem.status || 'sent'}`}>
+                              {propItem.status === 'accepted' ? '✓ Aceptada' : propItem.status === 'viewed' ? 'Vista por cliente' : propItem.status === 'replied' ? 'Cliente respondió' : 'Enviada'}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="proposal-action-btn"
+                            onClick={() => {
+                              if (propItem.case_id) navigate('marketplace', propItem.case_id);
+                            }}
+                          >
+                            Ver caso →
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : view === 'messages' ? (
                 <Messenger
                   mode="page"
                   userId={props.session.user.id}

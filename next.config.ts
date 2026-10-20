@@ -19,9 +19,12 @@ const config: NextConfig = {
   async rewrites() {
     return [
       { source: '/inicio', destination: '/' },
+      { source: '/dashboard', destination: '/' },
+      { source: '/dashboard/perfil', destination: '/' },
       { source: '/configuracion', destination: '/' },
       { source: '/pagos', destination: '/' },
       { source: '/perfil', destination: '/' },
+      { source: '/propuestas', destination: '/' },
       { source: '/admin', destination: '/' },
       { source: '/explorar', destination: '/' },
       { source: '/mis-casos', destination: '/' },

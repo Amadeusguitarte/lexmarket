@@ -43,6 +43,8 @@ export interface LawyerOnboardingProps {
   initialAvatar?: string;
   initialProfile?: any;
   initialLinkedInSynced?: boolean;
+  targetStep?: number;
+  activeMenu?: string;
   onNavigate?: (route: string) => void;
   onSaveProfile?: (profileData: any) => Promise<void>;
   onOpenCase?: (caseId: string) => void;
@@ -96,13 +98,15 @@ export default function LawyerOnboardingDashboard({
   initialAvatar = '',
   initialProfile,
   initialLinkedInSynced = false,
+  targetStep,
+  activeMenu: activeMenuProp = 'perfil',
   onNavigate,
   onSaveProfile,
   onOpenCase,
   onLogout,
 }: LawyerOnboardingProps) {
   // State for active sidebar menu
-  const [activeMenu, setActiveMenu] = useState('inicio');
+  const [activeMenu, setActiveMenu] = useState(activeMenuProp);
 
   // Load saved state once
   const [lawyerName, setLawyerName] = useState<string>(() => {
@@ -174,12 +178,21 @@ export default function LawyerOnboardingDashboard({
   const [toastMessage, setToastMessage] = useState('');
 
   const [currentStep, setCurrentStep] = useState<number>(() => {
+    if (typeof targetStep === 'number' && targetStep >= 1 && targetStep <= 6) {
+      return targetStep;
+    }
     const saved = loadSavedOnboardingState();
     if (typeof saved?.currentStep === 'number' && saved.currentStep >= 1 && saved.currentStep <= 6) {
       return saved.currentStep;
     }
     return 1;
   });
+
+  React.useEffect(() => {
+    if (typeof targetStep === 'number' && targetStep >= 1 && targetStep <= 6) {
+      setCurrentStep(targetStep);
+    }
+  }, [targetStep]);
 
   // Form step data: License & Honorarios are strictly EMPTY until manually provided!
   const [profileForm, setProfileForm] = useState(() => {
@@ -603,10 +616,29 @@ export default function LawyerOnboardingDashboard({
   const handleSaveStep = async () => {
     if (currentStep === 6) {
       showToast('¡Perfil enviado a verificación exitosamente!');
+      try {
+        localStorage.setItem('lexmarket.lawyer_current_step', '6');
+        localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+          ...loadSavedOnboardingState(),
+          currentStep: 6,
+          profileForm,
+          linkedInSynced,
+          lawyerName,
+          avatarUrl,
+          workExperience,
+        }));
+      } catch {}
+
       if (onSaveProfile) {
         await onSaveProfile({
           ...profileForm,
           role: 'lawyer',
+          profileCompletionPercentage: 100,
+          profileCurrentStep: 6,
+          completedProfileSteps: [1, 2, 3, 4, 5, 6],
+          verificationStatus: 'pending',
+          profileStatus: 'submitted',
+          verification_submitted: true,
         });
       }
       return;
@@ -615,11 +647,32 @@ export default function LawyerOnboardingDashboard({
     const nextStep = Math.min(currentStep + 1, 6);
     setCurrentStep(nextStep);
     showToast(`Paso ${currentStep} completado`);
-    
+
+    try {
+      localStorage.setItem('lexmarket.lawyer_current_step', String(nextStep));
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify({
+        ...loadSavedOnboardingState(),
+        currentStep: nextStep,
+        profileForm,
+        linkedInSynced,
+        lawyerName,
+        avatarUrl,
+        workExperience,
+      }));
+    } catch {}
+
+    const progressPct = calculateProgress();
+    const completedSteps = [1, 2, 3, 4, 5, 6].filter((n) => isStepCompleted(n));
+
     if (onSaveProfile) {
       await onSaveProfile({
         ...profileForm,
         role: 'lawyer',
+        profileCompletionPercentage: progressPct,
+        profileCurrentStep: nextStep,
+        completedProfileSteps: completedSteps,
+        verificationStatus: profileForm.license ? 'pending' : 'unverified',
+        profileStatus: 'in_progress',
       });
     }
   };
@@ -646,10 +699,10 @@ export default function LawyerOnboardingDashboard({
 
       {/* Left Sidebar */}
       <LawyerSidebar
-        activeMenu={activeMenu}
+        activeMenu={activeMenuProp || activeMenu}
         onNavigate={(route) => {
           setActiveMenu(route);
-          if (route === 'inicio') {
+          if (route === 'perfil') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
             onNavigate?.(route);
@@ -713,18 +766,17 @@ export default function LawyerOnboardingDashboard({
           {/* Greeting Hero */}
           <section className="lawyer-welcome-hero">
             <h1 className="lawyer-welcome-title">
-              Hola, {lawyerName.split(' ')[0]}. <br />
-              <em>Empecemos por preparar tu perfil profesional.</em>
+              Tu perfil profesional {lawyerName && lawyerName !== 'Abogado' ? `· ${lawyerName}` : ''}
             </h1>
             <p className="lawyer-welcome-desc">
-              Completa tu perfil y verifícalo para acceder a los casos, enviar propuestas y conectar con clientes que necesitan tu experiencia.
+              Completa y verifica tu trayectoria, áreas de práctica y tarjeta profesional para enviar propuestas a clientes en MatchJurídico.
             </p>
           </section>
 
           {/* Middle 2-Column Grid */}
           <div className="lawyer-onboarding-grid">
             {/* Left Card: Tu perfil profesional */}
-            <div className="lawyer-profile-wizard-card">
+            <div id="lawyer-wizard-card" className="lawyer-profile-wizard-card">
               <div className="wizard-card-header">
                 <h2 className="wizard-card-title">Tu perfil profesional</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1072,6 +1124,91 @@ export default function LawyerOnboardingDashboard({
                 <div className="wizard-inline-form-body" style={{ marginTop: '4px' }}>
                   {currentStep === 1 && (
                     <div className="wizard-form-step">
+                      {/* Photo management for lawyers */}
+                      <div className="profile-photo-manager" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: '#faf6f0', border: '1px solid #ebdccc', borderRadius: '12px', marginBottom: '18px' }}>
+                        <div className="profile-avatar-preview">
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt={lawyerName} style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #722f37' }} />
+                          ) : (
+                            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#722f37', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 600 }}>
+                              {getInitials(lawyerName)}
+                            </div>
+                          )}
+                        </div>
+                        <div className="profile-avatar-details" style={{ flex: 1 }}>
+                          <div className="profile-avatar-title" style={{ fontSize: '13.5px', fontWeight: 600, color: '#1e191a', marginBottom: '3px' }}>
+                            Foto de perfil profesional
+                          </div>
+                          <p className="profile-avatar-hint" style={{ fontSize: '12px', color: '#6a5e60', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+                            Una foto profesional transmite confianza a tus clientes. Te recomendamos subir una fotografía clara y formal.
+                          </p>
+                          <div className="profile-avatar-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <label
+                              className="button small outline profile-upload-label"
+                              style={{ cursor: 'pointer', margin: 0, padding: '5px 12px', fontSize: '12px', borderRadius: '7px', border: '1px solid #722f37', color: '#722f37', background: '#fff', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            >
+                              <span>Subir foto</span>
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                hidden
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  if (file.size > 2 * 1024 * 1024) {
+                                    showToast('La foto debe pesar menos de 2 MB.');
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onload = () => {
+                                    const base64 = reader.result as string;
+                                    setAvatarUrl(base64);
+                                    setProfileForm((prev) => ({ ...prev, avatar_url: base64 }));
+                                    try {
+                                      const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+                                      const parsed = raw ? JSON.parse(raw) : {};
+                                      parsed.avatarUrl = base64;
+                                      if (!parsed.profileForm) parsed.profileForm = {};
+                                      parsed.profileForm.avatar_url = base64;
+                                      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(parsed));
+                                    } catch {}
+                                    if (onSaveProfile) {
+                                      void onSaveProfile({ ...profileForm, avatar_url: base64, role: 'lawyer' });
+                                    }
+                                    showToast('Foto de perfil actualizada.');
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                              />
+                            </label>
+                            {avatarUrl ? (
+                              <button
+                                type="button"
+                                className="text-button profile-anon-btn"
+                                style={{ background: 'none', border: 'none', color: '#b91c1c', fontSize: '12px', cursor: 'pointer', padding: '4px 6px', textDecoration: 'underline' }}
+                                onClick={() => {
+                                  setAvatarUrl('');
+                                  setProfileForm((prev) => ({ ...prev, avatar_url: '' }));
+                                  try {
+                                    const raw = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+                                    const parsed = raw ? JSON.parse(raw) : {};
+                                    parsed.avatarUrl = '';
+                                    if (parsed.profileForm) parsed.profileForm.avatar_url = '';
+                                    localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(parsed));
+                                  } catch {}
+                                  if (onSaveProfile) {
+                                    void onSaveProfile({ ...profileForm, avatar_url: '', role: 'lawyer' });
+                                  }
+                                  showToast('Foto de perfil eliminada.');
+                                }}
+                              >
+                                Eliminar foto
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="wizard-field">
                         <label>Nombre y Apellidos</label>
                         <input
@@ -1390,116 +1527,6 @@ export default function LawyerOnboardingDashboard({
               </div>
             </div>
           </div>
-
-          {/* Bottom Section: Casos recientes en tu área de práctica */}
-          <section className="lawyer-recent-cases-section">
-            <div className="recent-cases-header">
-              <h2 className="recent-cases-title">Casos recientes en tu área de práctica</h2>
-              <button
-                type="button"
-                className="recent-cases-see-all"
-                onClick={() => { setActiveMenu('casos'); onNavigate?.('casos'); }}
-              >
-                <span>Ver todos los casos</span>
-                <ArrowRight size={16} strokeWidth={2} />
-              </button>
-            </div>
-
-            <div className="recent-cases-grid">
-              {/* Card 1: Laboral */}
-              <div className="recent-case-card">
-                <div className="case-card-header">
-                  <span className="case-category-pill">Derecho laboral</span>
-                  <button type="button" className="case-bookmark-btn" aria-label="Guardar caso">
-                    <Bookmark size={18} strokeWidth={1.8} />
-                  </button>
-                </div>
-
-                <h3 className="case-card-title">Terminación sin justa causa</h3>
-                <span className="case-card-location">📍 Bogotá, D.C.</span>
-
-                {/* Simulated blurred text behind privacy lock */}
-                <div className="case-card-blurred-body" aria-hidden="true">
-                  <p>
-                    El cliente laboró durante 4 años en el sector telecomunicaciones mediante contrato a término indefinido. Se le notificó despido sin aducir justa causa legal comprobable ni liquidación debida de indemnización.
-                  </p>
-                  <p>Cuenta con soporte de nóminas, certificados laborales y carta de despido.</p>
-                </div>
-
-                {/* Centered Lock Overlay */}
-                <div className="case-lock-overlay">
-                  <div className="case-lock-box">
-                    <div className="case-lock-icon">
-                      <Lock size={20} strokeWidth={1.9} />
-                    </div>
-                    <p className="case-lock-text">
-                      Completa tu perfil y verifícalo para ver los detalles de este caso.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Comercial */}
-              <div className="recent-case-card">
-                <div className="case-card-header">
-                  <span className="case-category-pill">Derecho comercial</span>
-                  <button type="button" className="case-bookmark-btn" aria-label="Guardar caso">
-                    <Bookmark size={18} strokeWidth={1.8} />
-                  </button>
-                </div>
-
-                <h3 className="case-card-title">Disputa contractual entre socios</h3>
-                <span className="case-card-location">📍 Medellín, Antioquia</span>
-
-                <div className="case-card-blurred-body" aria-hidden="true">
-                  <p>
-                    Sociedad por acciones simplificada (S.A.S.) con desacuerdo en distribución de utilidades de los periodos 2023 y 2024. Se requiere mediación societaria o inicio de acción judicial ante la Superintendencia de Sociedades.
-                  </p>
-                </div>
-
-                <div className="case-lock-overlay">
-                  <div className="case-lock-box">
-                    <div className="case-lock-icon">
-                      <Lock size={20} strokeWidth={1.9} />
-                    </div>
-                    <p className="case-lock-text">
-                      Completa tu perfil y verifícalo para ver los detalles de este caso.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Familia */}
-              <div className="recent-case-card">
-                <div className="case-card-header">
-                  <span className="case-category-pill">Derecho de familia</span>
-                  <button type="button" className="case-bookmark-btn" aria-label="Guardar caso">
-                    <Bookmark size={18} strokeWidth={1.8} />
-                  </button>
-                </div>
-
-                <h3 className="case-card-title">Sucesión y partición de bienes</h3>
-                <span className="case-card-location">📍 Cali, Valle del Cauca</span>
-
-                <div className="case-card-blurred-body" aria-hidden="true">
-                  <p>
-                    Proceso de sucesión intestada que incluye dos bienes inmuebles y cuentas bancarias entre tres herederos con acuerdo preliminar sobre inventarios y avalúos de activos.
-                  </p>
-                </div>
-
-                <div className="case-lock-overlay">
-                  <div className="case-lock-box">
-                    <div className="case-lock-icon">
-                      <Lock size={20} strokeWidth={1.9} />
-                    </div>
-                    <p className="case-lock-text">
-                      Completa tu perfil y verifícalo para ver los detalles de este caso.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
         </main>
       </div>
 

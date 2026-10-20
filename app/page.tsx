@@ -134,24 +134,31 @@ export default function Home() {
       window.history.replaceState(null,'',window.location.pathname+window.location.search);
      }
     }
-    const path=window.location.pathname;
-    if(path==='/mis-casos'||path==='/casos'){
-     setWorkspaceInitialView('cases');
-    }else if(path==='/mensajes'){
-     setWorkspaceInitialView('messages');
-    }else if(path==='/mi-perfil'||path==='/perfil'){
-     setWorkspaceInitialView('profile');
-    }else if(path==='/configuracion'){
-     setWorkspaceInitialView('configuracion');
-    }else if(path==='/pagos'){
-     setWorkspaceInitialView('pagos');
-    }else if(path==='/admin'){
-     setWorkspaceInitialView('admin');
-    }else if(path==='/explorar'||path==='/inicio'){
-     setWorkspaceInitialView('welcome');
-    }else if(path.startsWith('/casos/')){
-     const cid=path.replace('/casos/','');
-     if(cid){setWorkspaceInitialView('cases');setTargetCaseId(cid);}
+    const path = window.location.pathname;
+    if (path === '/mis-casos') {
+      setWorkspaceInitialView('cases');
+    } else if (path === '/casos') {
+      setWorkspaceInitialView('marketplace');
+    } else if (path === '/mensajes') {
+      setWorkspaceInitialView('messages');
+    } else if (path === '/propuestas') {
+      setWorkspaceInitialView('propuestas');
+    } else if (path === '/mi-perfil' || path === '/perfil' || path === '/dashboard/perfil') {
+      setWorkspaceInitialView('profile');
+    } else if (path === '/configuracion') {
+      setWorkspaceInitialView('configuracion');
+    } else if (path === '/pagos') {
+      setWorkspaceInitialView('pagos');
+    } else if (path === '/admin') {
+      setWorkspaceInitialView('admin');
+    } else if (path === '/explorar' || path === '/inicio' || path === '/dashboard') {
+      setWorkspaceInitialView('welcome');
+    } else if (path.startsWith('/casos/')) {
+      const cid = path.replace('/casos/', '');
+      if (cid) {
+        setWorkspaceInitialView('cases');
+        setTargetCaseId(cid);
+      }
     }
     const sp=new URLSearchParams(window.location.search);
     const qAuth=sp.get('auth');
@@ -294,38 +301,51 @@ export default function Home() {
  if (session && isLawyerAccount && !me?.profile) {
    const lawyerName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Abogado';
    const lawyerAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '';
+   const tempMe: Row = {
+     id: session.user.id,
+     email: session.user.email,
+     profile: {
+       role: 'lawyer',
+       name: lawyerName,
+       avatar_url: lawyerAvatar,
+       city: 'Bogotá, D.C.',
+       verification: 'unverified',
+     },
+   };
    return (
      <>
-       <LawyerOnboardingDashboard
-         initialLawyerName={lawyerName}
-         initialAvatar={lawyerAvatar}
-         initialProfile={me?.profile}
-         initialLinkedInSynced={Boolean(
-           typeof window !== 'undefined' &&
-           localStorage.getItem('lexmarket.lawyer_onboarding_reset') !== 'true' &&
-           (
-             localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
-             localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')
-           )
-         )}
-         onNavigate={() => {}}
-         onSaveProfile={async (data) => {
-           await saveProfile({ ...data, role: 'lawyer' });
-           setNotice('Perfil profesional guardado.');
-         }}
-         onLogout={() => run(async () => {
-           const { error } = await browserDB()!.auth.signOut();
-           if (error) throw error;
-           updateMe(null);
-           setSession(null);
-           try { sessionStorage.removeItem('lexmarket.user_cases'); } catch {}
-         })}
+       <Workspace
+         initialCaseId={targetCaseId}
+         initialView={workspaceInitialView || 'welcome'}
+         key={workspaceVersion}
+         me={tempMe}
+         session={session}
+         run={run}
+         busy={busy}
+         onNotice={setNotice}
+         onInfo={setInfo}
+         onRefreshMe={async () => updateMe(await api('me'))}
+         onLogout={() =>
+           run(async () => {
+             const { error } = await browserDB()!.auth.signOut();
+             if (error) throw error;
+             updateMe(null);
+             setSession(null);
+             try {
+               sessionStorage.removeItem('lexmarket.user_cases');
+             } catch {}
+             if (typeof window !== 'undefined') window.history.pushState(null, '', '/');
+           })
+         }
        />
        <Toast
          message={error || notice}
          isError={Boolean(error)}
          duration={error ? 5000 : 4000}
-         onClose={() => { setError(''); setNotice(''); }}
+         onClose={() => {
+           setError('');
+           setNotice('');
+         }}
          portalTarget={typeof document !== 'undefined' ? document.body : null}
        />
      </>

@@ -82,13 +82,14 @@ test('LawyerSidebar renders identical 7 items and Help link without bounce or la
   );
   const doc = new JSDOM(html).window.document;
   const navItems = doc.querySelectorAll('.lawyer-nav-item');
-  // 7 main nav items + 1 help link = 8 buttons
-  assert.equal(navItems.length, 8);
+  // 8 main nav items + 1 help link = 9 buttons
+  assert.equal(navItems.length, 9);
   const itemTexts = Array.from(navItems).map(n => n.textContent?.trim());
   assert.ok(itemTexts.includes('Inicio'));
   assert.ok(itemTexts.includes('Casos disponibles'));
   assert.ok(itemTexts.includes('Mis propuestas'));
   assert.ok(itemTexts.includes('Mis casos'));
+  assert.ok(itemTexts.includes('Mensajes'));
   assert.ok(itemTexts.includes('Pagos'));
   assert.ok(itemTexts.includes('Perfil profesional'));
   assert.ok(itemTexts.includes('Configuración'));

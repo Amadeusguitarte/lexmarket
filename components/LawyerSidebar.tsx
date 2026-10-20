@@ -4,6 +4,7 @@ import {
   Home,
   FileText,
   MessageSquare,
+  MessageCircle,
   Folder,
   CreditCard,
   User,
@@ -18,6 +19,7 @@ export type LawyerNavOption =
   | 'casos'
   | 'propuestas'
   | 'mis-casos'
+  | 'mensajes'
   | 'pagos'
   | 'perfil'
   | 'configuracion'
@@ -28,6 +30,7 @@ export interface LawyerSidebarProps {
   activeMenu: string;
   onNavigate: (route: LawyerNavOption) => void;
   isAdmin?: boolean;
+  unreadMessages?: number;
   onHelp?: () => void;
 }
 
@@ -35,6 +38,7 @@ export default function LawyerSidebar({
   activeMenu,
   onNavigate,
   isAdmin = false,
+  unreadMessages = 0,
   onHelp,
 }: LawyerSidebarProps) {
   return (
@@ -81,6 +85,31 @@ export default function LawyerSidebar({
           >
             <Folder size={19} strokeWidth={1.8} />
             <span>Mis casos</span>
+          </button>
+
+          <button
+            type="button"
+            className={`lawyer-nav-item ${activeMenu === 'mensajes' ? 'active' : ''}`}
+            onClick={() => onNavigate('mensajes')}
+          >
+            <MessageCircle size={19} strokeWidth={1.8} />
+            <span>Mensajes</span>
+            {Boolean(unreadMessages && unreadMessages > 0) && (
+              <span
+                style={{
+                  marginLeft: 'auto',
+                  background: '#722f37',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  lineHeight: '1.3',
+                }}
+              >
+                {unreadMessages}
+              </span>
+            )}
           </button>
 
           <button

@@ -478,8 +478,16 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     if(method==='PATCH'){const p=z.object({ids:z.array(uuid).min(1).max(100)}).parse(await body(req));result(await client.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',user.id).in('id',p.ids).is('read_at',null));return json({ok:true});}
    }
    if(path[0]==='chats'||path[0]==='chat-files'){const response=await chatApi(req,path,ctx,body,readLimited);if(response)return response;}
+   if(path[0]==='proposals'&&method==='GET') {
+    if(profile.role!=='lawyer') throw new HttpError(403,'Solo abogados pueden consultar sus propuestas.');
+    const proposals=result(await client.from('proposals').select('*').eq('lawyer_id',user.id).order('created_at',{ascending:false}))||[];
+    const caseIds=Array.from(new Set(proposals.map((p:any)=>p.case_id)));
+    const cases=caseIds.length?(result(await client.from('cases').select('id,title,category,city,status,created_at').in('id',caseIds))||[]):[];
+    const casesMap=Object.fromEntries(cases.map((c:any)=>[c.id,c]));
+    return json({items:proposals.map((p:any)=>({...p,case:casesMap[p.case_id]||null}))});
+   }
    if(path[0]==='marketplace'&&method==='GET') {
-    lawyer(ctx);
+    if(profile.role!=='lawyer') throw new HttpError(403,'Acceso exclusivo para abogados.');
     const url=new URL(req.url),category=url.searchParams.get('category');
     let q=client.from('listings').select('*').order('created_at',{ascending:false}).limit(100);
     if(category) q=q.eq('category',category);
@@ -693,7 +701,8 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
     const requests=result(await client.from('access_requests').select('*').eq('case_id',id).match(owner?{}:{lawyer_id:user.id}))||[];
     const privateAccess=owner||(profile.role==='lawyer'&&profile.verification==='verified'&&requests[0]?.state==='granted');
     if(!privateAccess) {
-     lawyer(ctx);const listing=result(await client.from('listings').select('*').eq('case_id',id).maybeSingle());
+     if(profile.role!=='lawyer') throw new HttpError(403,'Acceso exclusivo para abogados.');
+     const listing=result(await client.from('listings').select('*').eq('case_id',id).maybeSingle());
      if(!listing) throw new HttpError(403,'El caso no está disponible para tu cuenta.');
      return json({case:{...listing,id,public_summary:listing.summary,status:'published'},private:false,owner:false,requests,documents:result(await client.from('documents').select('id,name,mime,size,state,preview_shared').eq('case_id',id).eq('preview_shared',true).eq('state','clean')),proposals:[],messages:[],events:[],jobs:[],professionals:[]});
     }

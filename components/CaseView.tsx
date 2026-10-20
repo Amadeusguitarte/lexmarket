@@ -35,6 +35,7 @@ import IntakeProgress from './intake/IntakeProgress';
 import CasePermissionsManager from './intake/CasePermissionsManager';
 import { CaseForm, Field, Modal, UploadBox, type Row } from './Forms';
 import { Empty, type WorkProps } from './Workspace';
+import { calculateProfileProgress, getFirstIncompleteStep } from '@/lib/lawyer-profile';
 
 const STAGE_ASIDE_INFO: Record<
   string,
@@ -178,6 +179,7 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
   const [editDescription, setEditDescription] = useState('');
   const [editCounterparty, setEditCounterparty] = useState('');
   const [modal, setModal] = useState('');
+  const [showVerificationGuard, setShowVerificationGuard] = useState(false);
   const [selected, setSelected] = useState<Row | null>(null);
   const [professional, setProfessional] = useState<Row | null>(null);
   const [lawyerId, setLawyerId] = useState('');
@@ -358,7 +360,13 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                   <button
                     type="button"
                     className="button button-burgundy small"
-                    onClick={() => props.onChat?.(id, session.user.id)}
+                    onClick={() => {
+                      if (props.me?.profile?.role === 'lawyer' && props.me?.profile?.verification !== 'verified') {
+                        setShowVerificationGuard(true);
+                      } else {
+                        props.onChat?.(id, session.user.id);
+                      }
+                    }}
                   >
                     Conversar
                   </button>
@@ -368,7 +376,13 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
               <button
                 type="button"
                 className="button button-burgundy"
-                onClick={() => setModal('access')}
+                onClick={() => {
+                  if (props.me?.profile?.role === 'lawyer' && props.me?.profile?.verification !== 'verified') {
+                    setShowVerificationGuard(true);
+                  } else {
+                    setModal('access');
+                  }
+                }}
               >
                 Me interesa este caso <ArrowRight size={16} />
               </button>
@@ -1589,7 +1603,13 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
                   <button
                     type="button"
                     className="button button-burgundy"
-                    onClick={() => setModal('proposal')}
+                    onClick={() => {
+                      if (props.me?.profile?.role === 'lawyer' && props.me?.profile?.verification !== 'verified') {
+                        setShowVerificationGuard(true);
+                      } else {
+                        setModal('proposal');
+                      }
+                    }}
                   >
                     Preparar propuesta <Plus size={16} />
                   </button>
@@ -2304,6 +2324,73 @@ export default function CaseView(props: WorkProps & { id: string; onBack: () => 
             </div>
           )}
         </Modal>
+      )}
+
+      {showVerificationGuard && (
+        <div
+          className="lawyer-modal-backdrop"
+          onClick={() => setShowVerificationGuard(false)}
+        >
+          <div
+            className="lawyer-modal-content verification-guard-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="lawyer-modal-close"
+              onClick={() => setShowVerificationGuard(false)}
+            >
+              <X size={20} />
+            </button>
+
+            <div className="guard-modal-icon">
+              <ShieldCheck size={42} strokeWidth={1.8} />
+            </div>
+
+            <h3 className="guard-modal-title">Completa tu perfil para enviar propuestas</h3>
+            <p className="guard-modal-desc">
+              Antes de contactar clientes necesitamos validar tu información profesional.
+            </p>
+
+            <div className="guard-progress-box">
+              <div className="guard-progress-header">
+                <span>Tu progreso</span>
+                <strong>{calculateProfileProgress(props.me?.profile)}%</strong>
+              </div>
+              <div className="guard-progress-track">
+                <div
+                  className="guard-progress-fill"
+                  style={{ width: `${Math.max(12, calculateProfileProgress(props.me?.profile))}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="guard-modal-actions">
+              <button
+                type="button"
+                className="guard-btn-primary"
+                onClick={() => {
+                  try {
+                    localStorage.setItem('lexmarket.returnToCaseId', id);
+                  } catch {}
+                  setShowVerificationGuard(false);
+                  if (props.onGoToProfile) {
+                    props.onGoToProfile(getFirstIncompleteStep(props.me?.profile));
+                  }
+                }}
+              >
+                Continuar mi perfil →
+              </button>
+              <button
+                type="button"
+                className="guard-btn-secondary"
+                onClick={() => setShowVerificationGuard(false)}
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
