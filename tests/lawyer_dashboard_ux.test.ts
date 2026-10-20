@@ -136,4 +136,48 @@ test('LawyerHomeDashboard renders verified badge when lawyer is verified', () =>
   assert.match(html, /Perfil verificado/);
   assert.match(html, /Disponible para recibir nuevos casos/);
   assert.doesNotMatch(html, /Completa tu perfil profesional/);
+  // Verified lawyer sees honest personalized match heading
+  assert.match(html, /Casos que encajan contigo/);
 });
+
+test('LawyerHomeDashboard case section title adapts honestly based on profile stage', () => {
+  // Stage 1: No specialties configured -> "Casos recientes"
+  const htmlStage1 = renderToStaticMarkup(
+    React.createElement(LawyerHomeDashboard, {
+      lawyerName: 'Louis Arteaga',
+      profile: { name: 'Louis Arteaga', city: 'Bogotá' },
+    })
+  );
+  assert.match(htmlStage1, /Casos recientes/);
+  assert.doesNotMatch(htmlStage1, /Casos que encajan contigo/);
+  assert.doesNotMatch(htmlStage1, /Casos en tus áreas de práctica/);
+
+  // Stage 2: Specialties configured, but not verified -> "Casos en tus áreas de práctica"
+  const htmlStage2 = renderToStaticMarkup(
+    React.createElement(LawyerHomeDashboard, {
+      lawyerName: 'Louis Arteaga',
+      profile: {
+        name: 'Louis Arteaga',
+        city: 'Bogotá',
+        specialties: ['Derecho Civil', 'Derecho Comercial'],
+      },
+    })
+  );
+  assert.match(htmlStage2, /Casos en tus áreas de práctica/);
+  assert.doesNotMatch(htmlStage2, /Casos que encajan contigo/);
+
+  // Stage 3: Verified -> "Casos que encajan contigo"
+  const htmlStage3 = renderToStaticMarkup(
+    React.createElement(LawyerHomeDashboard, {
+      lawyerName: 'Louis Arteaga',
+      profile: {
+        name: 'Louis Arteaga',
+        city: 'Bogotá',
+        specialties: ['Derecho Civil', 'Derecho Comercial'],
+        verification: 'verified',
+      },
+    })
+  );
+  assert.match(htmlStage3, /Casos que encajan contigo/);
+});
+

@@ -223,6 +223,7 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
   // Profile calculations
   const progress = calculateProfileProgress(profile);
   const profileState = getLawyerProfileState(profile);
+  const isVerified = profileState === 'PROFILE_VERIFIED' || profileState === 'verified' || profile.verification === 'verified';
   const pendingSteps = getPendingSteps(profile);
   const firstIncomplete = getFirstIncompleteStep(profile);
 
@@ -687,11 +688,17 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
                 <div className="editorial-section-header">
                   <div>
                     <h2 className="editorial-section-title">
-                      {hasSpecialties ? 'Casos que encajan contigo' : 'Casos recientes'}
+                      {isVerified
+                        ? 'Casos que encajan contigo'
+                        : hasSpecialties
+                        ? 'Casos en tus áreas de práctica'
+                        : 'Casos recientes'}
                     </h2>
                     <p className="editorial-section-subtitle">
-                      {hasSpecialties
-                        ? 'Oportunidades seleccionadas según tus áreas de práctica y ubicación.'
+                      {isVerified
+                        ? 'Oportunidades seleccionadas según tus áreas de práctica, modalidad y ubicación.'
+                        : hasSpecialties
+                        ? 'Oportunidades correspondientes a las especialidades que seleccionaste.'
                         : 'Oportunidades legales activas recientemente publicadas por clientes en Colombia.'}
                     </p>
                   </div>
