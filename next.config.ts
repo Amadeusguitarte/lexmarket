@@ -18,6 +18,11 @@ const config: NextConfig = {
   },
   async rewrites() {
     return [
+      { source: '/inicio', destination: '/' },
+      { source: '/configuracion', destination: '/' },
+      { source: '/pagos', destination: '/' },
+      { source: '/perfil', destination: '/' },
+      { source: '/admin', destination: '/' },
       { source: '/explorar', destination: '/' },
       { source: '/mis-casos', destination: '/' },
       { source: '/mensajes', destination: '/' },

@@ -134,12 +134,16 @@ export default function LawyerOnboardingDashboard({
         if (flag === 'false') return false;
         const saved = loadSavedOnboardingState();
         if (saved?.linkedInSynced) return true;
+        if (saved?.profileForm?.linkedin_url) return true;
         const imported = localStorage.getItem('lexmarket.imported_linkedin_profile');
         if (imported) return true;
       } catch {}
     }
+    if (initialProfile?.linkedin_url) return true;
     return Boolean(initialLinkedInSynced);
   });
+
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
@@ -196,6 +200,22 @@ export default function LawyerOnboardingDashboard({
   });
 
   const [oauthAvailable, setOauthAvailable] = useState<boolean>(false);
+
+  const isLinkedInConnected = Boolean(
+    linkedInSynced ||
+    (profileForm.linkedin_url && profileForm.linkedin_url.trim().length > 0) ||
+    (initialProfile?.linkedin_url && initialProfile.linkedin_url.trim().length > 0) ||
+    (typeof window !== 'undefined' && (
+      localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
+      localStorage.getItem('lexmarket.imported_linkedin_profile') !== null
+    ))
+  );
+
+  React.useEffect(() => {
+    if (initialProfile?.avatar_url !== undefined) {
+      setAvatarUrl(initialProfile.avatar_url || '');
+    }
+  }, [initialProfile?.avatar_url]);
 
   React.useEffect(() => {
     fetch('/api/linkedin/auth')
@@ -708,28 +728,30 @@ export default function LawyerOnboardingDashboard({
               <div className="wizard-card-header">
                 <h2 className="wizard-card-title">Tu perfil profesional</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <button
-                    type="button"
-                    onClick={handleResetOnboarding}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#8c7e72',
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      padding: '3px 8px',
-                      borderRadius: '6px',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#722f37')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#8c7e72')}
-                    title="Reiniciar onboarding para volver a empezar desde cero"
-                  >
-                    <RotateCcw size={12} />
-                    <span>Reiniciar proceso</span>
-                  </button>
+                  {currentStep === 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowResetConfirm(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#8c7e72',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#722f37')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#8c7e72')}
+                      title="Reiniciar onboarding para volver a empezar desde cero"
+                    >
+                      <RotateCcw size={12} />
+                      <span>Reiniciar proceso</span>
+                    </button>
+                  )}
                   <span className="wizard-progress-percent">{progress}% completo</span>
                 </div>
               </div>
@@ -1304,8 +1326,8 @@ export default function LawyerOnboardingDashboard({
                 </div>
               </div>
 
-              {/* Bottom Quick Tip */}
-              {!linkedInSynced && (
+              {/* Bottom Quick Tip: Only shown when LinkedIn is NOT yet connected and user is on Step 1 */}
+              {!isLinkedInConnected && currentStep === 1 && (
                 <div className="wizard-speed-tip">
                   <span className="speed-tip-bolt">⚡</span>
                   <span className="speed-tip-text">¿Quieres avanzar más rápido?</span>
@@ -1743,6 +1765,101 @@ export default function LawyerOnboardingDashboard({
               >
                 <span>Aceptar</span>
                 <Check size={16} strokeWidth={2.4} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog for Reset Onboarding */}
+      {showResetConfirm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 12, 10, 0.65)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px',
+          }}
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '26px 28px',
+              maxWidth: '420px',
+              width: '100%',
+              boxShadow: '0 20px 45px rgba(0, 0, 0, 0.28)',
+              border: '1px solid #ebdccc',
+              textAlign: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '50%',
+                background: '#fef2f2',
+                color: '#b91c1c',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 14px',
+              }}
+            >
+              <RotateCcw size={22} />
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1e191a', margin: '0 0 8px', fontFamily: 'Georgia, serif' }}>
+              ¿Reiniciar el proceso?
+            </h3>
+            <p style={{ fontSize: '13.5px', color: '#6a5e60', lineHeight: '1.5', margin: '0 0 22px' }}>
+              ¿Estás seguro de que deseas reiniciar el proceso? Se restablecerán los datos del formulario para que puedas comenzar de nuevo desde el Paso 1.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  borderRadius: '9px',
+                  border: '1px solid #dcd3c8',
+                  background: '#ffffff',
+                  color: '#493f3c',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowResetConfirm(false);
+                  await handleResetOnboarding();
+                }}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  borderRadius: '9px',
+                  border: 'none',
+                  background: '#722f37',
+                  color: '#ffffff',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Sí, reiniciar
               </button>
             </div>
           </div>

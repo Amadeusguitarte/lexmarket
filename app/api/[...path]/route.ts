@@ -389,7 +389,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
            verified_at: data.verified_at ?? null,
            verification_note: data.verification_note ?? null,
          };
-         if (data.avatar_url) baseData.avatar_url = data.avatar_url;
+         if (data.avatar_url !== undefined) baseData.avatar_url = data.avatar_url;
          const res2 = await client.from('profiles').upsert(baseData);
          if (!res2.error) return res2.data;
          if (res2.error.message?.includes('avatar_url')) {
@@ -424,7 +424,7 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
      }
      if(method==='GET') {
        const avatar=safeAvatar(user.user_metadata?.avatar_url||user.user_metadata?.picture);
-       if(profile&&avatar&&(profile.avatar_url===null||profile.avatar_url===undefined)){
+       if(profile&&avatar&&(profile.avatar_url===null||profile.avatar_url===undefined)&&!profile.name){
          result(await client.from('profiles').update({avatar_url:avatar}).eq('id',user.id));
          profile.avatar_url=avatar;
        }

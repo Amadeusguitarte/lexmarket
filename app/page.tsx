@@ -141,7 +141,13 @@ export default function Home() {
      setWorkspaceInitialView('messages');
     }else if(path==='/mi-perfil'||path==='/perfil'){
      setWorkspaceInitialView('profile');
-    }else if(path==='/explorar'){
+    }else if(path==='/configuracion'){
+     setWorkspaceInitialView('configuracion');
+    }else if(path==='/pagos'){
+     setWorkspaceInitialView('pagos');
+    }else if(path==='/admin'){
+     setWorkspaceInitialView('admin');
+    }else if(path==='/explorar'||path==='/inicio'){
      setWorkspaceInitialView('welcome');
     }else if(path.startsWith('/casos/')){
      const cid=path.replace('/casos/','');
@@ -154,6 +160,7 @@ export default function Home() {
     if(qAuth==='signup'||qAuth==='login'||qAuth==='reset'){setAuthMode(qAuth);}
     if(sp.get('linkedin_connected')==='true'){
      const lName=sp.get('linkedin_name');
+     try{localStorage.setItem('lexmarket.lawyer_linkedin_connected','true');}catch{}
      setNotice(`¡Perfil de LinkedIn conectado exitosamente${lName?` (${lName})`:''}!`);
      const cleanUrl=new URL(window.location.href);
      cleanUrl.searchParams.delete('linkedin_connected');

@@ -100,5 +100,68 @@ test('LawyerSidebar renders identical 7 items and Help link without bounce or la
   assert.equal(activeBtn?.textContent?.trim(), 'Perfil profesional');
 });
 
+test('LawyerOnboardingDashboard hides speed tip when LinkedIn is connected', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(LawyerOnboardingDashboard, {
+      initialLawyerName: 'Louis Arteaga',
+      initialAvatar: 'https://media.licdn.com/dms/image/v2/test.jpg',
+      initialLinkedInSynced: true,
+      initialProfile: { linkedin_url: 'https://www.linkedin.com/in/louis-arteaga' },
+    })
+  );
+  assert.doesNotMatch(html, /¿Quieres avanzar más rápido\?/);
+  assert.doesNotMatch(html, /Conecta tu LinkedIn ↗/);
+});
+
+test('Lawyer profile view in Workspace does NOT offer anonymity for lawyers and provides photo deletion', async () => {
+  const Workspace = (await import('../components/Workspace')).default;
+  const html = renderToStaticMarkup(
+    React.createElement(Workspace, {
+      initialView: 'profile',
+      me: {
+        profile: {
+          id: 'lawyer-1',
+          name: 'Dra. María Casas',
+          role: 'lawyer',
+          avatar_url: 'https://lh3.googleusercontent.com/a/lawyer-pic',
+          verification: 'verified',
+        },
+      },
+      session: {
+        user: {
+          id: 'lawyer-1',
+          email: 'maria@example.com',
+          user_metadata: { avatar_url: 'https://lh3.googleusercontent.com/a/lawyer-pic' },
+        },
+      } as any,
+      busy: false,
+      run: async (fn: any) => { await fn(); },
+      onNotice: () => {},
+      onInfo: () => {},
+      onRefreshMe: async () => {},
+      onLogout: () => {},
+    })
+  );
+  // Lawyers must NEVER have the option to be anonymous
+  assert.doesNotMatch(html, /Dejar anónimo/);
+  assert.doesNotMatch(html, /Tu perfil se muestra anónimo/);
+  // Lawyers should have photo deletion and replacement options
+  assert.match(html, /Eliminar foto/);
+  assert.match(html, /Subir foto/);
+});
+
+test('next.config.ts rewrites include /inicio, /configuracion, and /pagos', async () => {
+  const nextConfig = (await import('../next.config')).default;
+  if (typeof nextConfig.rewrites === 'function') {
+    const rewrites = await nextConfig.rewrites();
+    const list = Array.isArray(rewrites) ? rewrites : rewrites.beforeFiles || [];
+    const sources = list.map((r: any) => r.source);
+    assert.ok(sources.includes('/inicio'), 'Missing rewrite for /inicio');
+    assert.ok(sources.includes('/configuracion'), 'Missing rewrite for /configuracion');
+    assert.ok(sources.includes('/pagos'), 'Missing rewrite for /pagos');
+  }
+});
+
+
 
 

@@ -234,10 +234,11 @@ export default function Workspace(props: WorkProps) {
         initialAvatar={avatar || ''}
         initialProfile={p}
         initialLinkedInSynced={Boolean(
-          typeof window !== 'undefined' &&
+          (p.linkedin_url && p.linkedin_url.trim().length > 0) ||
+          (typeof window !== 'undefined' &&
             localStorage.getItem('lexmarket.lawyer_onboarding_reset') !== 'true' &&
             (localStorage.getItem('lexmarket.lawyer_linkedin_connected') === 'true' ||
-              localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true'))
+              localStorage.getItem('lexmarket.lawyer_onboarding_state')?.includes('"linkedInSynced":true')))
         )}
         onNavigate={(route) => {
           if (route === 'casos') navigate('marketplace');
@@ -464,6 +465,8 @@ export default function Workspace(props: WorkProps) {
                         <p className="profile-avatar-hint">
                           {avatar
                             ? 'Esta imagen identifica tu cuenta y tus conversaciones.'
+                            : isLawyer
+                            ? 'Una foto profesional transmite confianza a tus clientes. Te recomendamos subir una fotografía clara y formal.'
                             : 'Tu perfil se muestra anónimo, identificado únicamente con tu inicial.'}
                         </p>
                         <div className="profile-avatar-actions">
@@ -488,6 +491,15 @@ export default function Workspace(props: WorkProps) {
                                   const base64 = reader.result as string;
                                   void run(async () => {
                                     await api('me', 'PUT', { ...p, avatar_url: base64 });
+                                    try {
+                                      const raw = localStorage.getItem('lexmarket.lawyer_onboarding_state');
+                                      if (raw) {
+                                        const parsed = JSON.parse(raw);
+                                        parsed.avatarUrl = base64;
+                                        if (parsed.profileForm) parsed.profileForm.avatar_url = base64;
+                                        localStorage.setItem('lexmarket.lawyer_onboarding_state', JSON.stringify(parsed));
+                                      }
+                                    } catch {}
                                     await props.onRefreshMe();
                                     onNotice('Foto de perfil actualizada.');
                                   });
@@ -497,19 +509,44 @@ export default function Workspace(props: WorkProps) {
                             />
                           </label>
                           {avatar ? (
-                            <button
-                              type="button"
-                              className="text-button profile-anon-btn"
-                              onClick={() =>
-                                void run(async () => {
-                                  await api('me', 'PUT', { ...p, avatar_url: '' });
-                                  await props.onRefreshMe();
-                                  onNotice('Tu foto ha sido removida. Ahora tu perfil es anónimo.');
-                                })
-                              }
-                            >
-                              Dejar anónimo
-                            </button>
+                            isLawyer ? (
+                              <button
+                                type="button"
+                                className="text-button profile-anon-btn"
+                                onClick={() =>
+                                  void run(async () => {
+                                    await api('me', 'PUT', { ...p, avatar_url: '' });
+                                    try {
+                                      const raw = localStorage.getItem('lexmarket.lawyer_onboarding_state');
+                                      if (raw) {
+                                        const parsed = JSON.parse(raw);
+                                        parsed.avatarUrl = '';
+                                        if (parsed.profileForm) parsed.profileForm.avatar_url = '';
+                                        localStorage.setItem('lexmarket.lawyer_onboarding_state', JSON.stringify(parsed));
+                                      }
+                                    } catch {}
+                                    await props.onRefreshMe();
+                                    onNotice('Foto de perfil eliminada.');
+                                  })
+                                }
+                              >
+                                Eliminar foto
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="text-button profile-anon-btn"
+                                onClick={() =>
+                                  void run(async () => {
+                                    await api('me', 'PUT', { ...p, avatar_url: '' });
+                                    await props.onRefreshMe();
+                                    onNotice('Tu foto ha sido removida. Ahora tu perfil es anónimo.');
+                                  })
+                                }
+                              >
+                                Dejar anónimo
+                              </button>
+                            )
                           ) : googleAvatar ? (
                             <button
                               type="button"
