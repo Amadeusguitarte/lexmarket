@@ -112,6 +112,9 @@ test('LawyerHomeDashboard renders compact profile banner without full wizard in 
   assert.ok(doc.querySelector('.proposals-section'));
   assert.ok(doc.querySelector('.lawyer-dash-aside'));
   assert.ok(doc.querySelector('.match-assistant-card'));
+  assert.ok(doc.querySelector('.assistant-card-input-row'));
+  assert.ok(doc.querySelector('.assistant-card-input'));
+  assert.ok(doc.querySelector('.assistant-card-submit-btn'));
 });
 
 test('LawyerHomeDashboard renders verified badge when lawyer is verified', () => {

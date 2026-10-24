@@ -201,6 +201,8 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
   const [assistantPrompt, setAssistantPrompt] = useState('');
   const [assistantResponse, setAssistantResponse] = useState('');
   const [assistantBusy, setAssistantBusy] = useState(false);
+  const [assistantInput, setAssistantInput] = useState('');
+  const [assistantHistory, setAssistantHistory] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
   const [blockedCaseTarget, setBlockedCaseTarget] = useState<CaseItem | null>(null);
 
@@ -438,35 +440,53 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
     });
   };
 
-  // MatchAsistente Quick Queries
-  const handleAssistantQuery = (query: string) => {
-    setAssistantPrompt(query);
+  // MatchAsistente Real Contextual Query
+  const handleAssistantQuery = async (queryText: string) => {
+    const trimmed = queryText.trim();
+    if (!trimmed) return;
+
+    setAssistantPrompt(trimmed);
+    setAssistantInput('');
     setAssistantModalOpen(true);
     setAssistantBusy(true);
-    setAssistantResponse('');
 
-    setTimeout(() => {
-      setAssistantBusy(false);
-      if (query.toLowerCase().includes('resume este caso') || query.toLowerCase().includes('caso')) {
-        setAssistantResponse(
-          'En el asunto de restitución comercial: El arrendador reporta mora de 3 meses. El paso clave consiste en verificar si se notificó el requerimiento para constituir en mora según art. 2007 C.C. o si hubo renuncia expresa en el contrato.'
-        );
-      } else if (query.toLowerCase().includes('propuesta')) {
-        setAssistantResponse(
-          'Estructura recomendada para tu propuesta:\n1. Diagnóstico preliminar en 2 líneas.\n2. Alcance exacto (extrajudicial o demanda).\n3. Honorario fijo sugerido + comisión por éxito.\n4. Tiempos estimados y primer entregable en 48 horas.'
-        );
-      } else if (query.toLowerCase().includes('mensajes') || query.toLowerCase().includes('pendiente')) {
-        setAssistantResponse(
-          unreadMessages > 0
-            ? `Tienes ${unreadMessages} mensaje(s) sin leer de clientes interesados. Te recomendamos responder dentro de las primeras 2 horas para maximizar la tasa de contratación.`
-            : 'No tienes mensajes pendientes en este momento. Tu próxima acción recomendada es completar tu perfil para activar las postulaciones.'
-        );
-      } else {
-        setAssistantResponse(
-          `Para "${query}": Como abogado en MatchJurídico, puedes destacar tu tarjeta profesional validada y tu experiencia en litigio para obtener mayor visibilidad en el marketplace.`
-        );
+    const updatedHistory = [...assistantHistory, { role: 'user' as const, content: trimmed }];
+    setAssistantHistory(updatedHistory);
+
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: trimmed,
+          history: assistantHistory.slice(-6),
+          context: {
+            role: 'lawyer',
+            lawyerName,
+            lawyerSpecialties: profile?.specialties || [],
+            pendingMessages: unreadMessages,
+            caseTitle: cases[0]?.title,
+            caseCategory: cases[0]?.category,
+            caseSummary: cases[0]?.summary,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al conectar con MatchAsistente');
       }
-    }, 700);
+
+      const data = await res.json();
+      const reply = data.reply || 'Sin respuesta disponible en este momento.';
+      setAssistantResponse(reply);
+      setAssistantHistory([...updatedHistory, { role: 'assistant' as const, content: reply }]);
+    } catch {
+      const fallbackMsg = 'Hubo una dificultad de conexión con MatchAsistente. Intenta de nuevo en unos segundos.';
+      setAssistantResponse(fallbackMsg);
+      setAssistantHistory([...updatedHistory, { role: 'assistant' as const, content: fallbackMsg }]);
+    } finally {
+      setAssistantBusy(false);
+    }
   };
 
   return (
@@ -948,6 +968,29 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
                     <ArrowRight size={13} />
                   </button>
                 </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const form = e.currentTarget;
+                    const input = form.elements.namedItem('cardAssistantQuery') as HTMLInputElement;
+                    if (input?.value?.trim()) {
+                      handleAssistantQuery(input.value.trim());
+                      input.value = '';
+                    }
+                  }}
+                  className="assistant-card-input-row"
+                >
+                  <input
+                    name="cardAssistantQuery"
+                    type="text"
+                    className="assistant-card-input"
+                    placeholder="Consulta libre o borrador..."
+                  />
+                  <button type="submit" className="assistant-card-submit-btn" title="Preguntar a la IA">
+                    <Send size={13} />
+                  </button>
+                </form>
               </div>
 
               {/* Actividad Reciente */}
@@ -1087,12 +1130,36 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
             </div>
 
             <div className="assistant-modal-body">
-              <div className="assistant-prompt-bubble">
-                <small>Tu consulta:</small>
-                <p>"{assistantPrompt}"</p>
-              </div>
+              {assistantHistory.length > 0 ? (
+                assistantHistory.map((item, idx) =>
+                  item.role === 'user' ? (
+                    <div key={idx} className="assistant-prompt-bubble">
+                      <small>Tu consulta:</small>
+                      <p>"{item.content}"</p>
+                    </div>
+                  ) : (
+                    <div key={idx} className="assistant-response-bubble">
+                      <small>Respuesta jurídica:</small>
+                      <p style={{ whiteSpace: 'pre-line' }}>{item.content}</p>
+                    </div>
+                  )
+                )
+              ) : (
+                <>
+                  <div className="assistant-prompt-bubble">
+                    <small>Tu consulta:</small>
+                    <p>"{assistantPrompt}"</p>
+                  </div>
+                  {assistantResponse && (
+                    <div className="assistant-response-bubble">
+                      <small>Respuesta jurídica:</small>
+                      <p style={{ whiteSpace: 'pre-line' }}>{assistantResponse}</p>
+                    </div>
+                  )}
+                </>
+              )}
 
-              {assistantBusy ? (
+              {assistantBusy && (
                 <div className="assistant-loading-box">
                   <div className="typing-dots">
                     <span />
@@ -1101,21 +1168,57 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
                   </div>
                   <p>Analizando precedentes y estructurando recomendación…</p>
                 </div>
-              ) : (
-                <div className="assistant-response-bubble">
-                  <small>Respuesta jurídica:</small>
-                  <p style={{ whiteSpace: 'pre-line' }}>{assistantResponse}</p>
-                </div>
               )}
             </div>
 
+            <form
+              className="assistant-modal-input-row"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (assistantInput.trim() && !assistantBusy) {
+                  handleAssistantQuery(assistantInput);
+                }
+              }}
+            >
+              <input
+                type="text"
+                className="assistant-modal-input"
+                placeholder="Escribe una pregunta de seguimiento o consulta..."
+                value={assistantInput}
+                onChange={(e) => setAssistantInput(e.target.value)}
+                disabled={assistantBusy}
+              />
+              <button
+                type="submit"
+                className="assistant-modal-send-btn"
+                disabled={assistantBusy || !assistantInput.trim()}
+                title="Enviar consulta"
+              >
+                <Send size={15} />
+              </button>
+            </form>
+
             <div className="assistant-modal-footer">
+              {assistantHistory.length > 1 && (
+                <button
+                  type="button"
+                  className="assistant-clear-btn"
+                  onClick={() => {
+                    setAssistantHistory([]);
+                    setAssistantPrompt('');
+                    setAssistantResponse('');
+                  }}
+                  disabled={assistantBusy}
+                >
+                  Nueva consulta
+                </button>
+              )}
               <button
                 type="button"
                 className="assistant-close-btn"
                 onClick={() => setAssistantModalOpen(false)}
               >
-                Entendido
+                Cerrar
               </button>
             </div>
           </div>

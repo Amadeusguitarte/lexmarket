@@ -325,6 +325,132 @@ async function handler(req:Request,{params}:{params:Promise<{path:string[]}>}) {
       return json(heuristic);
     }
 
+    if(path[0]==='assistant'&&method==='POST') {
+      const b=await body(req);
+      const query=String(b.query||b.prompt||'').trim();
+      if(!query) throw new HttpError(400,'Por favor incluye una consulta para MatchAsistente.');
+      
+      const history=Array.isArray(b.history)?b.history.slice(-8):[];
+      const context=b.context||{};
+      const isClientRole = context.role === 'client';
+
+      const ASSISTANT_SYSTEM_PROMPT = isClientRole
+        ? `Eres MatchAsistente, el copiloto de orientación jurídica de MatchJurídico en Colombia.
+Tu función es guiar y orientar a ciudadanos y clientes que buscan asistencia legal en Colombia.
+Principios clave:
+1. Claridad pedagógica: Explica conceptos jurídicos de forma sencilla, empática y sin tecnicismos innecesarios.
+2. Marco legal colombiano: Orienta sobre cómo funciona la justicia en Colombia (derecho de petición, tutela, conciliación, juzgados civiles/laborales/familia, tiempos y trámites).
+3. Transparencia y límites: Orienta sin emitir dictámenes vinculantes; recomienda siempre consultar y contratar formalmente a un abogado especializado a través del marketplace de MatchJurídico.
+4. Consejos prácticos: Indica qué documentos o pruebas debe reunir el cliente para sustentar su caso.`
+        : `Eres MatchAsistente, el copiloto de inteligencia jurídica de MatchJurídico para abogados en Colombia.
+Tu función es asistir a profesionales del derecho de forma ejecutiva, técnica, ética y rigurosamente fundamentada en el marco legal colombiano (Código General del Proceso - CGP, Código Sustantivo del Trabajo - CST, CPACA, Código Civil, Código de Comercio y Constitución Política).
+
+Principios clave:
+1. Precisión jurídica colombiana: Cita normas, términos procesales y recursos vigentes en Colombia (fijación en lista, recurso de reposición/apelación, radicación en Tyba o Samai, medidas cautelares, conciliación prejudicial según Ley 2220 de 2022, excepciones previas y de mérito, caducidad, prescripción).
+2. Tono profesional y ejecutivo: Claro, conciso, directo, fundamentado, sin rodeos innecesarios ni saludos vacíos. Si el usuario solicita un borrador, propuesta comercial o mensaje al cliente, entrégalo redactado y listo para usar o enviar.
+3. Enfoque estratégico: Cuando analices casos o propuestas de honorarios, estructura la recomendación (fase preventiva o extrajudicial, fijación de honorario base + cuota litis razonable conforme a tarifas orientativas del Colegio de Abogados / CONALBOS, plazos estimados y próximos pasos procesales).
+4. Veracidad: No inventes hechos no aportados. Si falta información procesal o fáctica relevante, indícale qué documento o dato clave debe requerir al cliente.`;
+
+      let contextSummary = '';
+      if(context.caseTitle || context.caseSummary) {
+        contextSummary += `\n[Caso en consulta]: Título: "${context.caseTitle || ''}". Resumen/Hechos: "${context.caseSummary || ''}". Categoría: "${context.caseCategory || ''}".`;
+      }
+      if(Array.isArray(context.lawyerSpecialties) && context.lawyerSpecialties.length > 0) {
+        contextSummary += `\n[Especialidades del abogado]: ${context.lawyerSpecialties.join(', ')}.`;
+      }
+      if(context.lawyerName) {
+        contextSummary += `\n[Nombre del usuario]: ${context.lawyerName}.`;
+      }
+      if(typeof context.pendingMessages === 'number') {
+        contextSummary += `\n[Mensajes pendientes por responder]: ${context.pendingMessages}.`;
+      }
+
+      const openAiMessages: Array<{role: 'system'|'user'|'assistant', content: string}> = [
+        { role: 'system', content: ASSISTANT_SYSTEM_PROMPT }
+      ];
+
+      if(contextSummary) {
+        openAiMessages.push({
+          role: 'system',
+          content: `Información de contexto de la sesión actual:\n${contextSummary}\nUsa este contexto para personalizar tu respuesta.`
+        });
+      }
+
+      for(const item of history) {
+        if((item.role === 'user' || item.role === 'assistant') && typeof item.content === 'string') {
+          openAiMessages.push({
+            role: item.role,
+            content: item.content.slice(0, 1500)
+          });
+        }
+      }
+
+      openAiMessages.push({
+        role: 'user',
+        content: query.slice(0, 2500)
+      });
+
+      const key=process.env.OPENAI_API_KEY;
+      const model=process.env.OPENAI_MODEL||'gpt-4o-mini';
+
+      if(key) {
+        try {
+          const aiResponse=await fetch('https://api.openai.com/v1/chat/completions',{
+            method:'POST',
+            signal:AbortSignal.timeout(25000),
+            headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},
+            body:JSON.stringify({
+              model,
+              messages: openAiMessages,
+              temperature: 0.3,
+              max_tokens: 950
+            })
+          });
+
+          if(aiResponse.ok) {
+            const aiData=await aiResponse.json();
+            const reply=aiData.choices?.[0]?.message?.content?.trim();
+            if(reply) {
+              return json({ ok:true, reply, model, provider: 'openai' });
+            }
+          }
+        } catch(e) {
+          console.error('OpenAI assistant error:', e);
+        }
+      }
+
+      // Robust fallback when OPENAI_API_KEY is not set or in test environments
+      let fallbackReply = '';
+      const q = query.toLowerCase();
+      if(isClientRole) {
+        if(q.includes('documento') || q.includes('adjunt')) {
+          fallbackReply = 'Te recomendamos adjuntar contratos, recibos de pago, capturas de chats o correos relacionados con tu caso. Esto permite al abogado evaluar tu situación con mucha más precisión.';
+        } else if(q.includes('precio') || q.includes('costar') || q.includes('honorario')) {
+          fallbackReply = 'Los honorarios se pactan directamente con el abogado según la complejidad del asunto. Muchos abogados ofrecen una consulta inicial o trabajan bajo un esquema de anticipo y cuota según resultados.';
+        } else if(q.includes('tiempo') || q.includes('demor') || q.includes('plazo')) {
+          fallbackReply = 'Los tiempos varían según el trámite: una tutela se resuelve en 10 días hábiles, un derecho de petición en 15 días, mientras que un proceso judicial ordinario suele tomar entre 8 y 24 meses.';
+        } else {
+          fallbackReply = `Para tu consulta sobre "${query}": Puedes comparar los perfiles de los abogados en MatchJurídico, revisar sus credenciales verificadas y enviarles un mensaje o solicitar una propuesta detallada.`;
+        }
+      } else {
+        if(q.includes('propuesta')) {
+          fallbackReply = `Estructura recomendada para tu propuesta en MatchJurídico:\n\n1. Diagnóstico preliminar: Resumen del asunto en 2 líneas demostrando entendimiento del problema del cliente.\n2. Alcance procesal: Delimitar claramente la fase extrajudicial (conciliación prejudicial) o judicial (demanda/contestación).\n3. Esquema de honorarios: Fijar un valor fijo por etapas procesales o honorario base + cuota litis según tarifas orientativas de CONALBOS.\n4. Tiempos y compromisos: Estimación de radicación inicial y primer reporte formal en 48-72 horas.`;
+        } else if(q.includes('caso') || q.includes('resum')) {
+          const caseTitle = context.caseTitle || 'este asunto';
+          fallbackReply = `Análisis preliminar para ${caseTitle}:\n\n• Enfoque procesal: Verificar términos de prescripción/caducidad de la acción y agotar requisito de procedibilidad (conciliación extrajudicial en derecho según Ley 2220 de 2022).\n• Documentación clave: Recaudar contratos, soportes de pago, comunicaciones cruzadas y poderes especiales.\n• Recomendación para propuesta: Presentar al cliente un plan de trabajo claro con hitos medibles.`;
+        } else if(q.includes('mensaje') || q.includes('pendiente') || q.includes('hoy')) {
+          const unread = typeof context.pendingMessages === 'number' ? context.pendingMessages : 0;
+          fallbackReply = unread > 0
+            ? `Tienes ${unread} mensaje(s) de clientes pendientes de respuesta. Te sugerimos contestar de inmediato para mantener alta tu tasa de conversión y agendar una llamada de valoración.`
+            : `No registras mensajes atrasados. Tu prioridad recomendada hoy es revisar las oportunidades recientes en tu área de práctica y postular propuestas en los casos afines.`;
+        } else {
+          fallbackReply = `Para tu consulta sobre "${query}":\n\nEn la legislación colombiana es fundamental revisar los presupuestos fácticos y la vía procesal idónea (CGP, CST o CPACA). Te sugerimos corroborar la legitimación en la causa y aportar medios probatorios conducentes y pertinentes.`;
+        }
+      }
+
+      return json({ ok: true, reply: fallbackReply, model: 'local-fallback', provider: 'local' });
+    }
+
    const ctx=await auth(req),{client,user,profile}=ctx;
    await rate(ctx,'api',180);
 

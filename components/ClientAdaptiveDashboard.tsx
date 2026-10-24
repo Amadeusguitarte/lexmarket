@@ -1107,24 +1107,44 @@ function MatchAssistantWidget({
 }) {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const askAssistant = async (queryText: string) => {
+    const q = queryText.trim();
+    if (!q) return;
+    setQuestion(q);
+    setLoading(true);
+    setAnswer('');
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: q,
+          context: { role: 'client' },
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAnswer(data.reply || 'No se obtuvo respuesta.');
+      } else {
+        throw new Error();
+      }
+    } catch {
+      setAnswer('Puedes comparar los perfiles de los abogados en MatchJurídico y solicitarles una orientación detallada.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChipClick = (c: string) => {
-    setQuestion(c);
-    if (c.includes('empiezo') || c.includes('falta')) {
-      setAnswer('Para iniciar o continuar, solo ingresa a tu caso y responde las preguntas guía.');
-    } else if (c.includes('documentos')) {
-      setAnswer('Adjuntar documentos es opcional, pero puedes incluir contratos o comunicaciones clave.');
-    } else if (c.includes('costar') || c.includes('precio')) {
-      setAnswer('Los honorarios se pactan libremente con el abogado según el alcance acordado.');
-    } else {
-      setAnswer('Puedes comparar los perfiles de los abogados y agendar una llamada inicial.');
-    }
+    askAssistant(c);
   };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (question.trim()) {
-      setAnswer('Gracias por tu consulta. Puedes conversar directamente con los abogados o en tu caso.');
+    if (question.trim() && !loading) {
+      askAssistant(question);
     }
   };
 
@@ -1149,10 +1169,22 @@ function MatchAssistantWidget({
               type="button"
               className="assistant-prompt-pill"
               onClick={() => handleChipClick(c)}
+              disabled={loading}
             >
               {c}
             </button>
           ))}
+        </div>
+      )}
+
+      {loading && (
+        <div className="assistant-loading-box" style={{ padding: '12px' }}>
+          <div className="typing-dots">
+            <span />
+            <span />
+            <span />
+          </div>
+          <p style={{ margin: 0 }}>Consultando a MatchAsistente…</p>
         </div>
       )}
 
@@ -1169,8 +1201,9 @@ function MatchAssistantWidget({
           placeholder="Pregúntame lo que necesites..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
+          disabled={loading}
         />
-        <button type="submit" className="assistant-send-btn" aria-label="Enviar pregunta">
+        <button type="submit" className="assistant-send-btn" aria-label="Enviar pregunta" disabled={loading || !question.trim()}>
           <Send size={15} />
         </button>
       </form>
