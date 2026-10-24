@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, FileText, FolderOpen, HeartHandshake, Laptop, ListFilter, LockKeyhole, MessageCircle, Paperclip, Plus, Scale, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import LawyerFeaturedSection from './LawyerFeaturedSection';
 import ProtectedFeesSection from './ProtectedFeesSection';

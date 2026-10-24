@@ -220,7 +220,10 @@ export default function LawyerHomeDashboard(props: LawyerHomeDashboardProps) {
     'Abogado';
 
   const avatarUrl = propAvatarUrl || profile.avatar_url || initialAvatar || '';
-  const firstName = lawyerName.split(' ')[0] || 'Abogado';
+  const rawPrefix = lawyerName.match(/^(Dr\.|Dra\.)\s*/i)?.[1];
+  const strippedName = lawyerName.replace(/^(Dr\.|Dra\.)\s*/i, '').trim();
+  const rawFirst = strippedName.split(' ')[0] || '';
+  const firstName = rawPrefix ? `${rawPrefix} ${rawFirst}`.trim() : (rawFirst || 'Abogado');
 
   // Profile calculations
   const progress = calculateProfileProgress(profile);

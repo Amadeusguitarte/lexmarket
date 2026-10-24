@@ -5,6 +5,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import Landing from '../components/Landing';
 import AuthModal from '../components/AuthModal';
 import LawyerOnboardingDashboard from '../components/LawyerOnboardingDashboard';
+import LawyerHomeDashboard from '../components/LawyerHomeDashboard';
 
 const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
 
@@ -39,7 +40,24 @@ const lawyerMarkup = renderToStaticMarkup(
   })
 );
 
+const lawyerHomeMarkup = renderToStaticMarkup(
+  React.createElement(LawyerHomeDashboard, {
+    lawyerName: 'Dr. Alejandro Morales',
+    initialAvatar: '',
+    profile: {
+      name: 'Dr. Alejandro Morales',
+      city: 'Bogotá D.C.',
+      specialties: ['Derecho Civil', 'Derecho Comercial'],
+      verification: 'verified',
+    },
+    cases: [],
+  })
+);
+
 const markup = `
+<div id="lawyer-home-view" class="preview-switch-view" style="display:none">
+  ${lawyerHomeMarkup}
+</div>
 <div id="lawyer-dashboard-view" class="preview-switch-view" style="display:none">
   ${lawyerMarkup}
 </div>
@@ -48,9 +66,10 @@ const markup = `
   ${authMarkup}
 </div>
 <div class="preview-nav-floater" style="position:fixed;bottom:18px;left:18px;z-index:99999;display:flex;gap:8px;background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);padding:8px 12px;border-radius:28px;box-shadow:0 8px 30px rgba(0,0,0,0.18);border:1px solid #ebdccc;">
-  <a href="#landing" id="btn-show-landing" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Landing Principal</a>
-  <a href="#registro" id="btn-show-registro" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Modal Registro</a>
-  <a href="#abogado" id="btn-show-abogado" style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:18px;text-decoration:none;color:#ffffff;background:#68232c;display:inline-flex;align-items:center;gap:6px;">⚖️ Dashboard Abogado</a>
+  <a href="#landing" id="btn-show-landing" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Landing</a>
+  <a href="#registro" id="btn-show-registro" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">Registro</a>
+  <a href="#abogado" id="btn-show-abogado" style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:18px;text-decoration:none;color:#ffffff;background:#68232c;display:inline-flex;align-items:center;gap:6px;">🏠 Inicio Abogado (con IA)</a>
+  <a href="#perfil" id="btn-show-perfil" style="font-size:12px;font-weight:600;padding:6px 14px;border-radius:18px;text-decoration:none;color:#4a4344;background:#f3ede5;display:inline-flex;align-items:center;">⚙️ Wizard Perfil</a>
 </div>
 `;
 
@@ -232,43 +251,42 @@ document.querySelectorAll('.example-pill').forEach(button => {
   });
 
   // View switcher between Landing and Lawyer Dashboard
+  // View switcher between Landing, Lawyer Home, and Wizard
   function updatePreviewView() {
     const hash = window.location.hash;
-    const lawyerView = document.getElementById('lawyer-dashboard-view');
+    const homeView = document.getElementById('lawyer-home-view');
+    const wizardView = document.getElementById('lawyer-dashboard-view');
     const landingView = document.getElementById('landing-view');
     const authDialog = document.getElementById('auth-editorial-modal');
     const btnLanding = document.getElementById('btn-show-landing');
     const btnRegistro = document.getElementById('btn-show-registro');
     const btnAbogado = document.getElementById('btn-show-abogado');
+    const btnPerfil = document.getElementById('btn-show-perfil');
 
-    if (hash === '#abogado' || hash === '#abogado-dashboard') {
-      if (lawyerView) lawyerView.style.display = 'block';
-      if (landingView) landingView.style.display = 'none';
-      if (authDialog && authDialog.open) authDialog.close();
+    if (homeView) homeView.style.display = 'none';
+    if (wizardView) wizardView.style.display = 'none';
+    if (landingView) landingView.style.display = 'none';
+    if (authDialog && authDialog.open) authDialog.close();
 
+    [btnLanding, btnRegistro, btnAbogado, btnPerfil].forEach(b => {
+      if (b) { b.style.background = '#f3ede5'; b.style.color = '#4a4344'; }
+    });
+
+    if (hash === '#perfil' || hash === '#wizard') {
+      if (wizardView) wizardView.style.display = 'block';
+      if (btnPerfil) { btnPerfil.style.background = '#68232c'; btnPerfil.style.color = '#ffffff'; }
+    } else if (hash === '#abogado' || hash === '#inicio' || hash === '#inicio-abogado') {
+      if (homeView) homeView.style.display = 'block';
       if (btnAbogado) { btnAbogado.style.background = '#68232c'; btnAbogado.style.color = '#ffffff'; }
-      if (btnLanding) { btnLanding.style.background = '#f3ede5'; btnLanding.style.color = '#4a4344'; }
-      if (btnRegistro) { btnRegistro.style.background = '#f3ede5'; btnRegistro.style.color = '#4a4344'; }
-    } else {
-      if (lawyerView) lawyerView.style.display = 'none';
+    } else if (hash === '#registro' || hash === '#auth') {
       if (landingView) landingView.style.display = 'block';
-
-      if (hash === '#registro' || hash === '#auth') {
-        if (btnRegistro) { btnRegistro.style.background = '#68232c'; btnRegistro.style.color = '#ffffff'; }
-        if (btnLanding) { btnLanding.style.background = '#f3ede5'; btnLanding.style.color = '#4a4344'; }
-        if (btnAbogado) { btnAbogado.style.background = '#f3ede5'; btnAbogado.style.color = '#4a4344'; }
-        setTimeout(() => {
-          if (authDialog && typeof authDialog.showModal === 'function') {
-            authDialog.showModal();
-            if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-          }
-        }, 120);
-      } else {
-        if (btnLanding) { btnLanding.style.background = '#68232c'; btnLanding.style.color = '#ffffff'; }
-        if (btnRegistro) { btnRegistro.style.background = '#f3ede5'; btnRegistro.style.color = '#4a4344'; }
-        if (btnAbogado) { btnAbogado.style.background = '#f3ede5'; btnAbogado.style.color = '#4a4344'; }
-        if (authDialog && authDialog.open) authDialog.close();
-      }
+      if (btnRegistro) { btnRegistro.style.background = '#68232c'; btnRegistro.style.color = '#ffffff'; }
+      setTimeout(() => {
+        if (authDialog && typeof authDialog.showModal === 'function') authDialog.showModal();
+      }, 120);
+    } else {
+      if (landingView) landingView.style.display = 'block';
+      if (btnLanding) { btnLanding.style.background = '#68232c'; btnLanding.style.color = '#ffffff'; }
     }
   }
 
