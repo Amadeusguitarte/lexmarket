@@ -180,7 +180,7 @@ test('POST /api/assistant calls Google Gemini when GEMINI_API_KEY is configured'
   assert.equal(data.ok, true);
   assert.equal(geminiCalled, true);
   assert.equal(data.provider, 'gemini');
-  assert.match(geminiUrl, /gemini-1\.5-flash/);
+  assert.match(geminiUrl, /gemini-3\.5-flash/);
   assert.match(data.reply, /Respuesta legal gratuita generada por Gemini/);
   assert.ok(receivedPayload.system_instruction.parts[0].text.includes('MatchJurídico'));
 });

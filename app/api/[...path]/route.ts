@@ -438,29 +438,39 @@ Principios clave:
             parts: [{ text: query.slice(0, 2500) }]
           });
 
-          const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-          const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`, {
-            method: 'POST',
-            signal: AbortSignal.timeout(25000),
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: {
-                parts: [{ text: ASSISTANT_SYSTEM_PROMPT + (contextSummary ? `\nInformación de contexto:\n${contextSummary}` : '') }]
-              },
-              contents,
-              generationConfig: {
-                temperature: 0.3,
-                maxOutputTokens: 950
-              }
-            })
-          });
+          const geminiModelsToTry = Array.from(new Set([
+            process.env.GEMINI_MODEL,
+            'gemini-3.5-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-1.5-flash'
+          ].filter(Boolean) as string[]));
 
-          if(geminiRes.ok) {
-            const geminiData = await geminiRes.json();
-            const reply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-            if(reply) {
-              return json({ ok: true, reply, model: geminiModel, provider: 'gemini' });
-            }
+          for (const currentModel of geminiModelsToTry) {
+            try {
+              const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${geminiKey}`, {
+                method: 'POST',
+                signal: AbortSignal.timeout(25000),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: ASSISTANT_SYSTEM_PROMPT + (contextSummary ? `\nInformación de contexto:\n${contextSummary}` : '') }]
+                  },
+                  contents,
+                  generationConfig: {
+                    temperature: 0.3,
+                    maxOutputTokens: 950
+                  }
+                })
+              });
+
+              if(geminiRes.ok) {
+                const geminiData = await geminiRes.json();
+                const reply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                if(reply) {
+                  return json({ ok: true, reply, model: currentModel, provider: 'gemini' });
+                }
+              }
+            } catch {}
           }
         } catch(e) {
           console.error('Gemini assistant error:', e);
