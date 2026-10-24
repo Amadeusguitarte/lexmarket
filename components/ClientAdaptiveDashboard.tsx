@@ -633,6 +633,17 @@ function PublishedStateArea({
         </div>
 
         <div className="assistant-column-content">
+          <MatchAssistantWidget
+            title="¿Tienes propuestas por revisar?"
+            subtitle="Te ayudo a compararlas, entender los honorarios y elegir con calma."
+            chips={[
+              '¿Cómo comparo las propuestas?',
+              '¿Qué debo tener en cuenta?',
+              '¿Puedo negociar el precio?',
+              '¿Qué sigue después de elegir?'
+            ]}
+          />
+
           <div className="landing-activity-box">
             <div className="activity-box-header">
               <h3>Actividad reciente</h3>
@@ -675,17 +686,6 @@ function PublishedStateArea({
               </div>
             </div>
           </div>
-
-          <MatchAssistantWidget
-            title="¿Tienes propuestas por revisar?"
-            subtitle="Te ayudo a compararlas, entender los honorarios y elegir con calma."
-            chips={[
-              '¿Cómo comparo las propuestas?',
-              '¿Qué debo tener en cuenta?',
-              '¿Puedo negociar el precio?',
-              '¿Qué sigue después de elegir?'
-            ]}
-          />
         </div>
       </div>
     </>
@@ -854,8 +854,17 @@ function InProgressStateArea({
           <ResourcesSection onNavigate={onNavigate} count={3} />
         </div>
 
-        {/* Right Column: Actividad reciente + MatchAsistente */}
+        {/* Right Column: MatchAsistente + Actividad reciente */}
         <div className="details-col right-details-col">
+          <MatchAssistantWidget
+            title="¿En qué te puedo apoyar hoy?"
+            chips={[
+              '¿Qué sigue en mi caso?',
+              '¿Qué documentos faltan?',
+              '¿Cómo va el proceso?'
+            ]}
+          />
+
           <div className="landing-activity-box in-progress-activity">
             <div className="activity-box-header">
               <h3>Actividad reciente</h3>
@@ -898,15 +907,6 @@ function InProgressStateArea({
               </div>
             </div>
           </div>
-
-          <MatchAssistantWidget
-            title="¿En qué te puedo apoyar hoy?"
-            chips={[
-              '¿Qué sigue en mi caso?',
-              '¿Qué documentos faltan?',
-              '¿Cómo va el proceso?'
-            ]}
-          />
         </div>
       </div>
     </>
@@ -1149,7 +1149,7 @@ function MatchAssistantWidget({
   };
 
   return (
-    <div className="match-assistant-card" aria-label="Asistente de MatchJurídico">
+    <div className="match-assistant-card" id="match-asistente-box" aria-label="Asistente de MatchJurídico">
       <div className="assistant-header-row">
         <div className="assistant-brand-badge">
           <Sparkles size={16} className="coral-icon" />
@@ -1161,7 +1161,7 @@ function MatchAssistantWidget({
       <h4 className="assistant-title">{title}</h4>
       {subtitle && <p className="assistant-sub">{subtitle}</p>}
 
-      {chips.length > 0 && (
+      {chips.length > 0 && !answer && (
         <div className="assistant-chips-stack">
           {chips.map((c) => (
             <button
@@ -1190,7 +1190,15 @@ function MatchAssistantWidget({
 
       {answer && (
         <div className="assistant-answer-bubble">
-          <p>{answer}</p>
+          <p style={{ whiteSpace: 'pre-line' }}>{answer}</p>
+          <button
+            type="button"
+            className="assistant-clear-btn"
+            style={{ marginTop: '8px', fontSize: '11px', background: 'none', border: 'none', color: '#722f37', cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => { setAnswer(''); setQuestion(''); }}
+          >
+            Hacer otra pregunta
+          </button>
         </div>
       )}
 

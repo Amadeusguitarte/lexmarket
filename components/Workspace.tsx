@@ -20,6 +20,7 @@ import {
   FileText,
   MessageCircle,
   Home,
+  Sparkles,
 } from 'lucide-react';
 import { api } from '@/lib/browser';
 import { categories, statusLabels } from '@/lib/shared';
@@ -383,6 +384,7 @@ export default function Workspace(props: WorkProps) {
           <nav aria-label="Tu espacio">
             {[
               { id: 'welcome', label: 'Explorar', icon: Compass },
+              { id: 'asistente', label: 'MatchAsistente (IA)', icon: Sparkles },
               { id: 'cases', label: 'Mis casos', icon: FolderOpen },
               { id: 'messages', label: 'Mensajes', icon: MessageCircle },
               { id: 'find_lawyers', label: 'Encontrar abogados', icon: Users },
@@ -396,6 +398,16 @@ export default function Workspace(props: WorkProps) {
                 onClick={() => {
                   if (n.id === 'find_lawyers') {
                     window.location.href = '/abogados';
+                  } else if (n.id === 'asistente') {
+                    if (view !== 'welcome' || caseId) navigate('welcome');
+                    setTimeout(() => {
+                      const el = document.getElementById('match-asistente-box') || document.querySelector('.match-assistant-card');
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const input = el.querySelector('input') as HTMLInputElement | null;
+                        if (input) input.focus();
+                      }
+                    }, 120);
                   } else if (n.id === 'legal_resources') {
                     if (view !== 'welcome' || caseId) navigate('welcome');
                     setTimeout(() => {
