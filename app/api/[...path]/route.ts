@@ -419,6 +419,54 @@ Principios clave:
         }
       }
 
+      const geminiKey=process.env.GEMINI_API_KEY;
+      if(geminiKey) {
+        try {
+          const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+          
+          for(const item of history) {
+            if(typeof item.content === 'string') {
+              contents.push({
+                role: item.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: item.content.slice(0, 1500) }]
+              });
+            }
+          }
+
+          contents.push({
+            role: 'user',
+            parts: [{ text: query.slice(0, 2500) }]
+          });
+
+          const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+          const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`, {
+            method: 'POST',
+            signal: AbortSignal.timeout(25000),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: ASSISTANT_SYSTEM_PROMPT + (contextSummary ? `\nInformación de contexto:\n${contextSummary}` : '') }]
+              },
+              contents,
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 950
+              }
+            })
+          });
+
+          if(geminiRes.ok) {
+            const geminiData = await geminiRes.json();
+            const reply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+            if(reply) {
+              return json({ ok: true, reply, model: geminiModel, provider: 'gemini' });
+            }
+          }
+        } catch(e) {
+          console.error('Gemini assistant error:', e);
+        }
+      }
+
       // Robust fallback when OPENAI_API_KEY is not set or in test environments
       let fallbackReply = '';
       const q = query.toLowerCase();

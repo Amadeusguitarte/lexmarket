@@ -118,3 +118,70 @@ test('POST /api/assistant calls OpenAI when OPENAI_API_KEY is configured', async
   assert.ok(receivedPayload.messages.some((m: any) => m.role === 'system' && m.content.includes('MatchJurídico')));
   assert.ok(receivedPayload.messages.some((m: any) => m.content.includes('Tengo un caso de arriendo')));
 });
+
+test('POST /api/assistant calls Google Gemini when GEMINI_API_KEY is configured', async (t) => {
+  const oldGeminiKey = process.env.GEMINI_API_KEY;
+  const oldOpenAiKey = process.env.OPENAI_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  process.env.GEMINI_API_KEY = 'test-gemini-key';
+
+  t.after(() => {
+    if (oldGeminiKey === undefined) delete process.env.GEMINI_API_KEY;
+    else process.env.GEMINI_API_KEY = oldGeminiKey;
+    if (oldOpenAiKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = oldOpenAiKey;
+  });
+
+  let geminiCalled = false;
+  let geminiUrl = '';
+  let receivedPayload: any = null;
+
+  t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = input.toString();
+    if (url.includes('generativelanguage.googleapis.com')) {
+      geminiCalled = true;
+      geminiUrl = url;
+      receivedPayload = JSON.parse(init?.body as string);
+      return new Response(
+        JSON.stringify({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    text: 'Respuesta legal gratuita generada por Gemini 1.5 Flash para MatchJurídico.',
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    throw new Error('Unexpected fetch call to ' + url);
+  });
+
+  const req = new Request('https://lexmarket.test/api/assistant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: 'Explica los términos para contestar demanda en proceso verbal CGP',
+      context: {
+        role: 'lawyer',
+        lawyerName: 'Dr. Alejandro Morales',
+      },
+    }),
+  });
+
+  const res = await POST(req, { params: Promise.resolve({ path: ['assistant'] }) });
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  assert.equal(data.ok, true);
+  assert.equal(geminiCalled, true);
+  assert.equal(data.provider, 'gemini');
+  assert.match(geminiUrl, /gemini-1\.5-flash/);
+  assert.match(data.reply, /Respuesta legal gratuita generada por Gemini/);
+  assert.ok(receivedPayload.system_instruction.parts[0].text.includes('MatchJurídico'));
+});
+
