@@ -17,6 +17,7 @@ export interface MatchAssistantChatProps {
   userRole?: 'client' | 'lawyer';
   onClose?: () => void;
   className?: string;
+  isDockedLeft?: boolean;
 }
 
 const DEFAULT_CLIENT_CHIPS = [
@@ -40,7 +41,8 @@ export default function MatchAssistantChat({
   chips,
   userRole = 'client',
   onClose,
-  className = ''
+  className = '',
+  isDockedLeft = false
 }: MatchAssistantChatProps) {
   const isClient = userRole === 'client';
   const effectiveChips = chips && chips.length > 0 
@@ -146,28 +148,102 @@ export default function MatchAssistantChat({
   };
 
   const renderFormattedText = (content: string) => {
-    // Format bold text **text** and paragraphs
-    const paragraphs = content.split('\n\n');
-    return paragraphs.map((para, pIdx) => {
-      const lines = para.split('\n');
-      return (
-        <p key={pIdx} className="assistant-para">
-          {lines.map((line, lIdx) => {
-            const parts = line.split(/(\*\*.*?\*\*)/g);
-            return (
+    const rawLines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let currentParagraph: string[] = [];
+    let currentList: string[] = [];
+
+    const flushParagraph = (key: string) => {
+      if (currentParagraph.length > 0) {
+        elements.push(
+          <p key={key} className="assistant-para">
+            {currentParagraph.map((line, lIdx) => (
               <span key={lIdx}>
                 {lIdx > 0 && <br />}
-                {parts.map((part, partIdx) => {
-                  if (part.startsWith('**') && part.endsWith('**')) {
-                    return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
-                  }
-                  return part;
-                })}
+                {parseInlineStyles(line)}
               </span>
-            );
-          })}
-        </p>
-      );
+            ))}
+          </p>
+        );
+        currentParagraph = [];
+      }
+    };
+
+    const flushList = (key: string) => {
+      if (currentList.length > 0) {
+        elements.push(
+          <ul key={key} className="assistant-content-list">
+            {currentList.map((item, iIdx) => (
+              <li key={iIdx} className="assistant-content-li">
+                {parseInlineStyles(item)}
+              </li>
+            ))}
+          </ul>
+        );
+        currentList = [];
+      }
+    };
+
+    rawLines.forEach((line, idx) => {
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        flushList(`list-${idx}`);
+        flushParagraph(`para-${idx}`);
+        return;
+      }
+
+      // Divider line: --- or *** or ___
+      if (/^[-*_]{3,}$/.test(trimmed)) {
+        flushList(`list-${idx}`);
+        flushParagraph(`para-${idx}`);
+        elements.push(<div key={`divider-${idx}`} className="assistant-content-divider" />);
+        return;
+      }
+
+      // Heading: #, ##, ###, ####
+      const headingMatch = trimmed.match(/^(#{1,5})\s+(.*)$/);
+      if (headingMatch) {
+        flushList(`list-${idx}`);
+        flushParagraph(`para-${idx}`);
+        const level = Math.min(5, Math.max(1, headingMatch[1].length));
+        const text = headingMatch[2];
+        elements.push(
+          <h5 key={`heading-${idx}`} className={`assistant-content-h${level}`}>
+            {parseInlineStyles(text)}
+          </h5>
+        );
+        return;
+      }
+
+      // Bullet list items: - item, * item, • item, or 1. item
+      const listMatch = trimmed.match(/^([-*•]|\d+\.)\s+(.*)$/);
+      if (listMatch) {
+        flushParagraph(`para-${idx}`);
+        currentList.push(listMatch[2]);
+        return;
+      }
+
+      if (currentList.length > 0) {
+        flushList(`list-${idx}`);
+      }
+
+      currentParagraph.push(line);
+    });
+
+    flushList('list-end');
+    flushParagraph('para-end');
+
+    return elements;
+  };
+
+  const parseInlineStyles = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={idx}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
     });
   };
 
@@ -175,7 +251,7 @@ export default function MatchAssistantChat({
 
   return (
     <div
-      className={`match-assistant-card ${isCard ? 'match-assistant-card-chat' : 'match-assistant-floating-window'} ${className}`}
+      className={`match-assistant-card ${isCard ? 'match-assistant-card-chat' : 'match-assistant-floating-window'} ${isDockedLeft ? 'is-docked-left' : ''} ${className}`}
       id={isCard ? 'match-asistente-box' : undefined}
       aria-label="Asistente de MatchJurídico"
     >

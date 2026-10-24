@@ -1071,7 +1071,15 @@ export default function Workspace(props: WorkProps) {
         <>
           <button
             className="assistant-floating-launcher"
-            onClick={() => setAssistantOpen((o) => !o)}
+            onClick={() => {
+              setAssistantOpen((o) => {
+                const next = !o;
+                if (next && typeof window !== 'undefined' && window.innerWidth < 960) {
+                  setChatOpen(false);
+                }
+                return next;
+              });
+            }}
             aria-label="Abrir MatchAsistente IA"
             title="MatchAsistente: Copiloto Jurídico con IA"
           >
@@ -1082,6 +1090,7 @@ export default function Workspace(props: WorkProps) {
           {assistantOpen && (
             <MatchAssistantChat
               mode="floating"
+              isDockedLeft={chatOpen}
               onClose={() => setAssistantOpen(false)}
               userRole={isLawyer ? 'lawyer' : 'client'}
             />
@@ -1091,7 +1100,12 @@ export default function Workspace(props: WorkProps) {
             userId={props.session.user.id}
             open={chatOpen}
             target={chatTarget}
-            onOpen={() => setChatOpen(true)}
+            onOpen={() => {
+              setChatOpen(true);
+              if (typeof window !== 'undefined' && window.innerWidth < 960) {
+                setAssistantOpen(false);
+              }
+            }}
             onClose={() => setChatOpen(false)}
             onSelect={setChatTarget}
             onCase={(id) => {

@@ -17,7 +17,8 @@ import {
   Send,
   Eye,
   MoreVertical,
-  Bookmark
+  Bookmark,
+  ShieldCheck
 } from 'lucide-react';
 import type { Row } from './Forms';
 import MatchAssistantChat from './MatchAssistantChat';
@@ -514,11 +515,15 @@ function DraftStateArea({
             </div>
           </div>
 
-          <MatchAssistantWidget
-            title="¿Quieres que revisemos tu borrador?"
-            subtitle="Puedo ayudarte a completarlo y sugerirte qué documentos incluir."
-            chips={[]}
-          />
+          <div className="escrow-security-card">
+            <div className="escrow-header-row">
+              <ShieldCheck size={18} className="shield-icon" />
+              <strong>Tu información está protegida</strong>
+            </div>
+            <p>
+              Tus datos y documentos solo se compartirán con los abogados que elijas cuando decidas publicar tu caso.
+            </p>
+          </div>
         </div>
       </div>
     </>
@@ -634,17 +639,6 @@ function PublishedStateArea({
         </div>
 
         <div className="assistant-column-content">
-          <MatchAssistantWidget
-            title="¿Tienes propuestas por revisar?"
-            subtitle="Te ayudo a compararlas, entender los honorarios y elegir con calma."
-            chips={[
-              '¿Cómo comparo las propuestas?',
-              '¿Qué debo tener en cuenta?',
-              '¿Puedo negociar el precio?',
-              '¿Qué sigue después de elegir?'
-            ]}
-          />
-
           <div className="landing-activity-box">
             <div className="activity-box-header">
               <h3>Actividad reciente</h3>
@@ -686,6 +680,16 @@ function PublishedStateArea({
                 <span className="activity-row-time">Hace 1 d</span>
               </div>
             </div>
+          </div>
+
+          <div className="escrow-security-card">
+            <div className="escrow-header-row">
+              <ShieldCheck size={18} className="shield-icon" />
+              <strong>Pagos y acuerdos protegidos</strong>
+            </div>
+            <p>
+              Tus honorarios se acuerdan directamente con el profesional. MatchJurídico custodia el avance y verifica las credenciales de cada abogado.
+            </p>
           </div>
         </div>
       </div>
@@ -855,17 +859,8 @@ function InProgressStateArea({
           <ResourcesSection onNavigate={onNavigate} count={3} />
         </div>
 
-        {/* Right Column: MatchAsistente + Actividad reciente */}
+        {/* Right Column: Actividad reciente + Garantía */}
         <div className="details-col right-details-col">
-          <MatchAssistantWidget
-            title="¿En qué te puedo apoyar hoy?"
-            chips={[
-              '¿Qué sigue en mi caso?',
-              '¿Qué documentos faltan?',
-              '¿Cómo va el proceso?'
-            ]}
-          />
-
           <div className="landing-activity-box in-progress-activity">
             <div className="activity-box-header">
               <h3>Actividad reciente</h3>
