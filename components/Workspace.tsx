@@ -38,6 +38,7 @@ import LawyerSidebar from './LawyerSidebar';
 import LawyerOnboardingDashboard from './LawyerOnboardingDashboard';
 import LawyerHomeDashboard from './LawyerHomeDashboard';
 import ClientAdaptiveDashboard from './ClientAdaptiveDashboard';
+import MatchAssistantChat from './MatchAssistantChat';
 import { calculateProfileProgress, getFirstIncompleteStep } from '@/lib/lawyer-profile';
 import { draftStore } from '@/lib/intake';
 
@@ -82,7 +83,8 @@ export default function Workspace(props: WorkProps) {
     [revision, setRevision] = useState(0),
     [admin, setAdmin] = useState<Row | null>(null);
   const [chatOpen, setChatOpen] = useState(false),
-    [chatTarget, setChatTarget] = useState<ChatTarget | null>(null);
+    [chatTarget, setChatTarget] = useState<ChatTarget | null>(null),
+    [assistantOpen, setAssistantOpen] = useState(false);
   const [draftCase, setDraftCase] = useState<{
     title?: string;
     category?: string;
@@ -399,6 +401,7 @@ export default function Workspace(props: WorkProps) {
                   if (n.id === 'find_lawyers') {
                     window.location.href = '/abogados';
                   } else if (n.id === 'asistente') {
+                    setAssistantOpen(true);
                     if (view !== 'welcome' || caseId) navigate('welcome');
                     setTimeout(() => {
                       const el = document.getElementById('match-asistente-box') || document.querySelector('.match-assistant-card');
@@ -1065,19 +1068,38 @@ export default function Workspace(props: WorkProps) {
         />
       )}
       {(view !== 'messages' || caseId) && (
-        <Messenger
-          onAll={() => navigate('messages')}
-          userId={props.session.user.id}
-          open={chatOpen}
-          target={chatTarget}
-          onOpen={() => setChatOpen(true)}
-          onClose={() => setChatOpen(false)}
-          onSelect={setChatTarget}
-          onCase={(id) => {
-            setChatOpen(false);
-            navigate('cases', id);
-          }}
-        />
+        <>
+          <button
+            className="assistant-floating-launcher"
+            onClick={() => setAssistantOpen((o) => !o)}
+            aria-label="Abrir MatchAsistente IA"
+            title="MatchAsistente: Copiloto Jurídico con IA"
+          >
+            <Sparkles size={18} className="assistant-launcher-sparkle" />
+            <span>MatchAsistente</span>
+            <b className="ai-launcher-pill">IA</b>
+          </button>
+          {assistantOpen && (
+            <MatchAssistantChat
+              mode="floating"
+              onClose={() => setAssistantOpen(false)}
+              userRole={isLawyer ? 'lawyer' : 'client'}
+            />
+          )}
+          <Messenger
+            onAll={() => navigate('messages')}
+            userId={props.session.user.id}
+            open={chatOpen}
+            target={chatTarget}
+            onOpen={() => setChatOpen(true)}
+            onClose={() => setChatOpen(false)}
+            onSelect={setChatTarget}
+            onCase={(id) => {
+              setChatOpen(false);
+              navigate('cases', id);
+            }}
+          />
+        </>
       )}
     </div>
   );

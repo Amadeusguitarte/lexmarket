@@ -20,6 +20,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import type { Row } from './Forms';
+import MatchAssistantChat from './MatchAssistantChat';
 
 export type DashboardMode = 'draft' | 'published' | 'empty' | 'in_progress';
 type NavTarget = 'welcome' | 'messages' | 'cases' | 'documents' | 'profile';
@@ -1105,117 +1106,14 @@ function MatchAssistantWidget({
   subtitle?: string;
   chips: string[];
 }) {
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const askAssistant = async (queryText: string) => {
-    const q = queryText.trim();
-    if (!q) return;
-    setQuestion(q);
-    setLoading(true);
-    setAnswer('');
-    try {
-      const res = await fetch('/api/assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: q,
-          context: { role: 'client' },
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAnswer(data.reply || 'No se obtuvo respuesta.');
-      } else {
-        throw new Error();
-      }
-    } catch {
-      setAnswer('Puedes comparar los perfiles de los abogados en MatchJurídico y solicitarles una orientación detallada.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChipClick = (c: string) => {
-    askAssistant(c);
-  };
-
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (question.trim() && !loading) {
-      askAssistant(question);
-    }
-  };
-
   return (
-    <div className="match-assistant-card" id="match-asistente-box" aria-label="Asistente de MatchJurídico">
-      <div className="assistant-header-row">
-        <div className="assistant-brand-badge">
-          <Sparkles size={16} className="coral-icon" />
-          <span className="assistant-name">MatchAsistente</span>
-          <span className="assistant-card-badge">Inteligencia Jurídica</span>
-        </div>
-      </div>
-
-      <h4 className="assistant-title">{title}</h4>
-      {subtitle && <p className="assistant-sub">{subtitle}</p>}
-
-      {chips.length > 0 && !answer && (
-        <div className="assistant-chips-stack">
-          {chips.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className="assistant-prompt-pill"
-              onClick={() => handleChipClick(c)}
-              disabled={loading}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {loading && (
-        <div className="assistant-loading-box" style={{ padding: '12px' }}>
-          <div className="typing-dots">
-            <span />
-            <span />
-            <span />
-          </div>
-          <p style={{ margin: 0 }}>Consultando a MatchAsistente…</p>
-        </div>
-      )}
-
-      {answer && (
-        <div className="assistant-answer-bubble">
-          <p style={{ whiteSpace: 'pre-line' }}>{answer}</p>
-          <button
-            type="button"
-            className="assistant-clear-btn"
-            style={{ marginTop: '8px', fontSize: '11px', background: 'none', border: 'none', color: '#722f37', cursor: 'pointer', textDecoration: 'underline' }}
-            onClick={() => { setAnswer(''); setQuestion(''); }}
-          >
-            Hacer otra pregunta
-          </button>
-        </div>
-      )}
-
-      <form className="assistant-input-form" onSubmit={handleSend}>
-        <input
-          type="text"
-          className="assistant-text-input"
-          placeholder="Pregúntame lo que necesites..."
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          disabled={loading}
-        />
-        <button type="submit" className="assistant-send-btn" aria-label="Enviar pregunta" disabled={loading || !question.trim()}>
-          <Send size={15} />
-        </button>
-      </form>
-    </div>
+    <MatchAssistantChat
+      mode="card"
+      title={title}
+      subtitle={subtitle}
+      chips={chips}
+      userRole="client"
+    />
   );
 }
 
