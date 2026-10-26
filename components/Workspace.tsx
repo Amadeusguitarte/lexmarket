@@ -1074,8 +1074,9 @@ export default function Workspace(props: WorkProps) {
             onClick={() => {
               setAssistantOpen((o) => {
                 const next = !o;
-                if (next && typeof window !== 'undefined' && window.innerWidth < 960) {
+                if (next) {
                   setChatOpen(false);
+                  setChatTarget(null);
                 }
                 return next;
               });
@@ -1090,7 +1091,6 @@ export default function Workspace(props: WorkProps) {
           {assistantOpen && (
             <MatchAssistantChat
               mode="floating"
-              isDockedLeft={chatOpen}
               onClose={() => setAssistantOpen(false)}
               userRole={isLawyer ? 'lawyer' : 'client'}
             />
@@ -1100,16 +1100,24 @@ export default function Workspace(props: WorkProps) {
             userId={props.session.user.id}
             open={chatOpen}
             target={chatTarget}
+            assistantOpen={assistantOpen}
             onOpen={() => {
+              setAssistantOpen(false);
               setChatOpen(true);
-              if (typeof window !== 'undefined' && window.innerWidth < 960) {
+            }}
+            onClose={() => {
+              setChatOpen(false);
+              setChatTarget(null);
+            }}
+            onSelect={(t) => {
+              setChatTarget(t);
+              if (t) {
                 setAssistantOpen(false);
               }
             }}
-            onClose={() => setChatOpen(false)}
-            onSelect={setChatTarget}
             onCase={(id) => {
               setChatOpen(false);
+              setChatTarget(null);
               navigate('cases', id);
             }}
           />

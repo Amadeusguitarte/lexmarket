@@ -63,6 +63,7 @@ export default function MatchAssistantChat({
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of conversation
@@ -251,9 +252,10 @@ export default function MatchAssistantChat({
 
   return (
     <div
-      className={`match-assistant-card ${isCard ? 'match-assistant-card-chat' : 'match-assistant-floating-window'} ${isDockedLeft ? 'is-docked-left' : ''} ${className}`}
+      className={`match-assistant-card ${isCard ? 'match-assistant-card-chat' : 'match-assistant-floating-window'} ${minimized ? 'is-minimized' : ''} ${className}`}
       id={isCard ? 'match-asistente-box' : undefined}
       aria-label="Asistente de MatchJurídico"
+      onClick={minimized ? () => setMinimized(false) : undefined}
     >
       {/* Header */}
       <div className="assistant-chat-header">
@@ -275,21 +277,40 @@ export default function MatchAssistantChat({
         </div>
 
         <div className="assistant-header-actions">
-          <button
-            type="button"
-            className="assistant-header-btn"
-            onClick={handleReset}
-            title="Nueva consulta (limpiar chat)"
-            aria-label="Nueva consulta"
-          >
-            <RotateCcw size={14} />
-            <span className="hidden sm:inline text-[11px]">Reiniciar</span>
-          </button>
+          {!isCard && (
+            <button
+              type="button"
+              className="assistant-header-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMinimized((m) => !m);
+              }}
+              title={minimized ? "Expandir asistente" : "Minimizar asistente"}
+              aria-label={minimized ? "Expandir asistente" : "Minimizar asistente"}
+            >
+              {minimized ? <Maximize2 size={15} /> : <Minimize2 size={15} />}
+            </button>
+          )}
+          {!minimized && (
+            <button
+              type="button"
+              className="assistant-header-btn"
+              onClick={handleReset}
+              title="Nueva consulta (limpiar chat)"
+              aria-label="Nueva consulta"
+            >
+              <RotateCcw size={14} />
+              <span className="hidden sm:inline text-[11px]">Reiniciar</span>
+            </button>
+          )}
           {!isCard && onClose && (
             <button
               type="button"
               className="assistant-header-btn close-btn"
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
               title="Cerrar ventana"
               aria-label="Cerrar chat"
             >
@@ -299,7 +320,7 @@ export default function MatchAssistantChat({
         </div>
       </div>
 
-      {isCard && title && messages.length <= 1 && (
+      {!minimized && isCard && title && messages.length <= 1 && (
         <div className="assistant-card-lead">
           <h4 className="assistant-title">{title}</h4>
           {subtitle && <p className="assistant-sub">{subtitle}</p>}
@@ -307,7 +328,8 @@ export default function MatchAssistantChat({
       )}
 
       {/* Chronological Chat Timeline */}
-      <div className="assistant-chat-timeline" ref={timelineRef}>
+      {!minimized && (
+        <div className="assistant-chat-timeline" ref={timelineRef}>
         {messages.map((msg) => {
           const isUser = msg.role === 'user';
           return (
@@ -370,34 +392,36 @@ export default function MatchAssistantChat({
           </div>
         )}
       </div>
+      )}
 
-      {/* Footer / Input Composer */}
-      <form
-        className="assistant-composer-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage(input);
-        }}
-      >
-        <input
-          type="text"
-          className="assistant-composer-input"
-          placeholder="Escribe tu consulta jurídica aquí..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={loading}
-          autoFocus={!isCard}
-        />
-        <button
-          type="submit"
-          className="assistant-composer-send-btn"
-          disabled={loading || !input.trim()}
-          aria-label="Enviar mensaje a MatchAsistente"
-          title="Enviar"
+      {!minimized && (
+        <form
+          className="assistant-composer-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendMessage(input);
+          }}
         >
-          <Send size={15} />
-        </button>
-      </form>
+          <input
+            type="text"
+            className="assistant-composer-input"
+            placeholder="Escribe tu consulta jurídica aquí..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+            autoFocus={!isCard}
+          />
+          <button
+            type="submit"
+            className="assistant-composer-send-btn"
+            disabled={loading || !input.trim()}
+            aria-label="Enviar mensaje a MatchAsistente"
+            title="Enviar"
+          >
+            <Send size={15} />
+          </button>
+        </form>
+      )}
     </div>
   );
 }
