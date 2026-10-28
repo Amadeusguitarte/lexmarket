@@ -39,14 +39,14 @@ img{max-width:100%}
 .chat-bubble.outgoing p,.chat-bubble.outgoing small,.chat-bubble.outgoing b,.chat-bubble.outgoing time,.chat-bubble.outgoing footer{color:#fff}.chat-bubble.incoming p{color:#352d40}.retry-message{color:inherit;background:transparent;border:0;text-decoration:underline;margin-top:8px}
 .chat-dock{position:fixed;right:26px;bottom:88px;z-index:67;display:flex;flex-direction:row-reverse;align-items:flex-end;gap:12px;max-width:calc(100vw - 32px);pointer-events:none;transition:right .22s cubic-bezier(0.16,1,0.3,1)}
 .chat-dock > * {pointer-events:auto}
-.chat-dock.dock-offset-inbox{right:390px;max-width:calc(100vw - 410px)}
+.chat-dock.dock-offset-inbox{right:430px;max-width:calc(100vw - 450px)}
 @media(max-width:900px){.chat-dock.dock-offset-inbox{right:26px}}
-.dock-window{width:min(350px,calc(100vw - 32px));flex:0 0 min(350px,calc(100vw - 32px));border:1px solid #e8dfef;background:white;border-radius:20px;box-shadow:0 16px 80px rgba(50,34,64,0.25);overflow:hidden;display:flex;flex-direction:column;transition:width .22s cubic-bezier(0.16,1,0.3,1),flex-basis .22s cubic-bezier(0.16,1,0.3,1),height .22s ease}
-.dock-body{height:min(460px,calc(100dvh - 170px));display:flex;flex-direction:column}
+.dock-window{width:min(330px,calc(100vw - 32px));flex:0 0 min(330px,calc(100vw - 32px));border:1px solid #e8dfef;background:white;border-radius:18px;box-shadow:0 16px 80px rgba(50,34,64,0.25);overflow:hidden;display:flex;flex-direction:column;transition:width .22s cubic-bezier(0.16,1,0.3,1),flex-basis .22s cubic-bezier(0.16,1,0.3,1),height .22s ease}
+.dock-body{height:min(480px,calc(100dvh - 160px));display:flex;flex-direction:column}
 .dock-body[hidden]{display:none !important}
-.dock-window.is-minimized{width:240px !important;flex:0 0 240px !important;flex-basis:240px !important;height:48px !important;border-radius:16px !important;box-shadow:0 8px 30px rgba(50,34,64,0.18) !important;cursor:pointer}
+.dock-window.is-minimized{width:220px !important;flex:0 0 220px !important;flex-basis:220px !important;height:48px !important;border-radius:16px !important;box-shadow:0 8px 30px rgba(50,34,64,0.18) !important;cursor:pointer}
 .chat-dock:has(.dock-window:nth-child(4)){overflow-x:auto}
-.inbox-popover{bottom:88px;right:26px;width:min(350px,calc(100vw - 32px));max-height:min(520px,calc(100dvh - 120px));z-index:70}
+.inbox-popover{bottom:88px;right:26px;width:min(390px,calc(100vw - 32px));height:min(650px,calc(100dvh - 115px));max-height:none;z-index:70;border-radius:22px}
 .inbox-popover>.chat-inbox{flex:1}
 .inbox-popover>.button{margin:12px}
 .sr-only{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;border:0 !important}
