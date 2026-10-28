@@ -1107,7 +1107,6 @@ export default function Workspace(props: WorkProps) {
             }}
             onClose={() => {
               setChatOpen(false);
-              setChatTarget(null);
             }}
             onSelect={(t) => {
               setChatTarget(t);
