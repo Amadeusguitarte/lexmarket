@@ -82,3 +82,70 @@ test('clicking an inbox message seeded without last.id does not crash or duplica
  assert.ok(activityBodies.some(b=>b?.read_ids?.includes('00000000-0000-4000-8000-000000000099')),'marks real message id read');
  await act(async()=>root.unmount());await db.auth.stopAutoRefresh();
 });
+
+test('PDF attachment previews in composer before sending and supports voice/video call triggers',async t=>{
+ process.env.NEXT_PUBLIC_SUPABASE_URL='https://example.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='not-a-real-key';const db=browserDB()!;
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://lexmarket.test',pretendToBeVisual:true});
+ const saved=new Map<string,PropertyDescriptor|undefined>();
+ for(const [key,value] of Object.entries({window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Event:dom.window.Event,sessionStorage:dom.window.sessionStorage,IS_REACT_ACT_ENVIRONMENT:true})){saved.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
+ const origCreateUrl=URL.createObjectURL,origRevokeUrl=URL.revokeObjectURL;
+ (URL as any).createObjectURL=()=>'blob:https://lexmarket.test/pdf-preview-1';
+ (URL as any).revokeObjectURL=()=>{};
+ t.after(()=>{
+  (URL as any).createObjectURL=origCreateUrl;(URL as any).revokeObjectURL=origRevokeUrl;
+  for(const [key,d] of saved){if(d)Object.defineProperty(globalThis,key,d);else delete (globalThis as any)[key];}
+  dom.window.close();
+ });
+ const broadcastHandlers=new Map<string,Function>();
+ const makeChannel=(name:string)=>({
+  on(_type:string,filter:any,cb:Function){if(filter?.event)broadcastHandlers.set(name+':'+filter.event,cb);return this;},
+  subscribe(callback?:Function){callback?.('SUBSCRIBED');return this;},
+  send:async()=>'ok',
+  unsubscribe:async()=>'ok',
+ });
+ t.mock.method(db,'channel',(name:string)=>makeChannel(name));
+ t.mock.method(db,'removeChannel',async()=>'ok');
+ t.mock.method(db.auth,'getSession',async()=>({data:{session:{access_token:'fake'}},error:null}));
+ t.mock.method(dom.window.document,'hasFocus',()=>true);
+ let uploadedFiles=0;
+ t.mock.method(globalThis,'fetch',async(input:any)=>{
+  const path=String(input);
+  if(path==='/api/chats'){
+   return new Response(JSON.stringify({self_call_channel:'call-u-self',items:[{case_id:'c3',lawyer_id:'l3',title:'Contrato laboral',status:'published',peer:{id:'l3',name:'Dr. Mateo',avatar_url:null},peer_call_channel:'call-u-peer',last:null,unread:0}]}),{status:200,headers:{'Content-Type':'application/json'}});
+  }
+  if(path.endsWith('/files')){uploadedFiles++;return new Response(JSON.stringify({id:'f-pdf'}),{status:201,headers:{'Content-Type':'application/json'}});}
+  if(path.endsWith('/activity'))return new Response(JSON.stringify({ok:true}),{status:200,headers:{'Content-Type':'application/json'}});
+  return new Response(JSON.stringify({messages:[],files:[],activity:[],proposals:[],peer:{id:'l3',name:'Dr. Mateo',avatar_url:null},peer_call_channel:'call-u-peer',self_call_channel:'call-u-self',case:{id:'c3',title:'Contrato laboral',status:'published'},owner:true,hasMore:false,access_state:'granted'}),{status:200,headers:{'Content-Type':'application/json'}});
+ });
+ const root=createRoot(dom.window.document.getElementById('root')!);t.after(async()=>{await act(async()=>root.unmount());});
+ await act(async()=>{root.render(React.createElement(Messenger,{userId:'client-pdf',userName:'Ana',open:true,target:{case_id:'c3',lawyer_id:'l3'},onOpen:()=>{},onClose:()=>{},onSelect:()=>{},onCase:()=>{}}));await new Promise(r=>setTimeout(r,30));});
+ const fileInput=dom.window.document.querySelector('input[type="file"]') as HTMLInputElement;
+ const filePropsKey=Object.keys(fileInput).find(k=>k.startsWith('__reactProps$'))!;
+ const pdfFile=new dom.window.File(['%PDF-1.7 test'],'demanda.pdf',{type:'application/pdf'});
+ await act(async()=>{(fileInput as any)[filePropsKey].onChange({target:{files:[pdfFile]}});});
+ assert.equal(uploadedFiles,0,'PDF is staged for preview before uploading');
+ assert.ok(dom.window.document.querySelector('.chat-staged-file'),'staging tray renders');
+ const iframe=dom.window.document.querySelector('.chat-staged-pdf-frame') as HTMLIFrameElement;
+ assert.ok(iframe&&iframe.src.startsWith('blob:https://lexmarket.test/pdf-preview-1'),'inline PDF iframe renders');
+ await act(async()=>{(dom.window.document.querySelector('.chat-staged-action') as HTMLButtonElement).click();});
+ assert.ok(dom.window.document.querySelector('.pdf-preview-modal'),'fullscreen PDF preview modal opens');
+ await act(async()=>{(dom.window.document.querySelector('[aria-label="Cerrar vista previa"]') as HTMLButtonElement).click();});
+ assert.equal(dom.window.document.querySelector('.pdf-preview-modal'),null);
+ const form=dom.window.document.querySelector('.chat-composer')!;
+ await act(async()=>{form.dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));await new Promise(r=>setTimeout(r,30));});
+ assert.equal(uploadedFiles,1,'PDF uploads when user clicks send');
+ assert.equal(dom.window.document.querySelector('.chat-staged-file'),null,'staging tray clears after send');
+ // Incoming call banner via broadcast
+ const inviteHandler=broadcastHandlers.get('call-u-self:call-invite');
+ assert.ok(inviteHandler,'subscribed to self call channel');
+ await act(async()=>{inviteHandler!({payload:{type:'call-invite',callId:'call-1',caseId:'c3',lawyerId:'l3',kind:'video',from:'l3',fromName:'Dr. Mateo',caseTitle:'Contrato laboral'}});});
+ assert.ok(dom.window.document.querySelector('.incoming-call-banner'),'incoming call banner renders');
+ await act(async()=>{(dom.window.document.querySelector('.call-btn.reject') as HTMLButtonElement).click();});
+ assert.equal(dom.window.document.querySelector('.incoming-call-banner'),null,'incoming banner closes on reject');
+ // Outgoing video call button
+ await act(async()=>{(dom.window.document.querySelector('[aria-label="Iniciar videollamada"]') as HTMLButtonElement).click();});
+ assert.ok(dom.window.document.querySelector('.call-overlay'),'call overlay opens on video call click');
+ await act(async()=>{(dom.window.document.querySelector('[aria-label="Colgar llamada"]') as HTMLButtonElement).click();});
+ assert.equal(dom.window.document.querySelector('.call-overlay'),null,'call overlay closes on hangup');
+ await act(async()=>root.unmount());await db.auth.stopAutoRefresh();
+});

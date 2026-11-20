@@ -1,8 +1,10 @@
+import {createHash} from 'node:crypto';
 import {z} from 'zod';
 import {type Context,getCase,HttpError,rate,result} from './server';
 import {safeName,validateFile} from './shared';
 const uuid=z.string().uuid();
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
+const callChannel=(id:string)=>'call-u-'+createHash('sha256').update('lexmarket-call:'+id).digest('hex').slice(0,24);
 export async function chatThread(ctx:Context,caseId:string,lawyerId:string){
  uuid.parse(caseId);uuid.parse(lawyerId);const c=result(await ctx.client.from('cases').select('*').eq('id',caseId).maybeSingle());if(!c)throw new HttpError(404,'Caso no disponible.');
  if(ctx.user.id!==c.owner_id&&ctx.user.id!==lawyerId)throw new HttpError(403,'Esta conversación es privada.');
@@ -29,9 +31,10 @@ export async function chatApi(req:Request,path:string[],ctx:Context,readBody:(r:
    const lawyer=result(await client.from('profiles').select('id,name,avatar_url,verification').eq('id',a.lawyer_id).single());
    if(!c||!lawyer||lawyer.verification!=='verified')return null;
    const peer=profile.role==='lawyer'&&a.state!=='granted'?{name:'Cliente',avatar_url:null}:profile.role==='lawyer'?(result(await client.from('profiles').select('id,name,avatar_url').eq('id',c.owner_id).single())||{name:'Cliente',avatar_url:null}):(lawyer||{name:'Abogado',avatar_url:null});
+   const peerId=profile.role==='lawyer'?c.owner_id:a.lawyer_id;
    const [last,unread]=await Promise.all([client.from('messages').select('id,body,created_at,sender_id').eq('case_id',c.id).eq('lawyer_id',a.lawyer_id).order('created_at',{ascending:false}).limit(1),client.from('messages').select('id',{count:'exact',head:true}).eq('case_id',c.id).eq('lawyer_id',a.lawyer_id).neq('sender_id',user.id).is('read_at',null)]);
-   result(unread);return {...a,title:c.title,status:c.status,peer,last:result(last)?.[0]||null,unread:unread.count||0};
-  }));return json({items:items.filter(Boolean).sort((a,b)=>(b?.last?.created_at||b?.created_at||'').localeCompare(a?.last?.created_at||a?.created_at||''))});
+   result(unread);return {...a,title:c.title,status:c.status,peer,peer_call_channel:callChannel(peerId),last:result(last)?.[0]||null,unread:unread.count||0};
+  }));return json({self_call_channel:callChannel(user.id),items:items.filter(Boolean).sort((a,b)=>(b?.last?.created_at||b?.created_at||'').localeCompare(a?.last?.created_at||a?.created_at||''))});
  }
  const caseId=uuid.parse(path[1]),lawyerId=uuid.parse(path[2]),action=path[3],c=await chatThread(ctx,caseId,lawyerId);
  const filter={case_id:caseId,lawyer_id:lawyerId};
@@ -45,7 +48,7 @@ export async function chatApi(req:Request,path:string[],ctx:Context,readBody:(r:
   const [files,activity,proposals,peer,delivered]=await Promise.all([ids.length?client.from('chat_attachments').select('id,name,size,mime').in('id',ids):Promise.resolve({data:[],error:null}),client.from('chat_activity').select('*').match(filter),client.from('proposals').select('*').match(filter).order('created_at'),client.from('profiles').select('id,name,avatar_url').eq('id',peerId).single(),delivery]);
   result(delivered);
   const peerProfile=result(peer);
-  return json({messages:messages.reverse(),files:result(files),activity:result(activity),proposals:result(proposals),peer:user.id!==c.owner_id&&c.access_state!=='granted'?{name:'Cliente',avatar_url:null}:(peerProfile||{name:'Usuario',avatar_url:null}),access_state:c.access_state,case:{id:c.id,title:c.title,status:c.status,summary:c.public_summary},owner:user.id===c.owner_id,hasMore:messages.length===60});
+  return json({messages:messages.reverse(),files:result(files),activity:result(activity),proposals:result(proposals),peer:user.id!==c.owner_id&&c.access_state!=='granted'?{name:'Cliente',avatar_url:null}:(peerProfile||{name:'Usuario',avatar_url:null}),peer_call_channel:callChannel(peerId),self_call_channel:callChannel(user.id),access_state:c.access_state,case:{id:c.id,title:c.title,status:c.status,summary:c.public_summary},owner:user.id===c.owner_id,hasMore:messages.length===60});
  }
  if(action==='activity'&&method==='POST'){
   const p=z.object({typing:z.boolean().default(false),read_ids:z.array(uuid).max(60).default([])}).parse(await readBody(req));

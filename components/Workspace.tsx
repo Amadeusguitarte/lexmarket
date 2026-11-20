@@ -569,6 +569,8 @@ export default function Workspace(props: WorkProps) {
                   <Messenger
                     mode="page"
                     userId={props.session.user.id}
+                    userName={p.name}
+                    userAvatar={avatar}
                     open
                     target={chatTarget}
                     onOpen={() => {}}
@@ -1106,6 +1108,8 @@ export default function Workspace(props: WorkProps) {
             <Messenger
               onAll={() => navigate('messages')}
               userId={props.session.user.id}
+              userName={p.name}
+              userAvatar={avatar}
               open={chatOpen}
               target={chatTarget}
               assistantOpen={assistantOpen}
