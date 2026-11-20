@@ -143,6 +143,8 @@ export default function ClientAdaptiveDashboard({
   onNavigate,
   onOpenChat
 }: ClientAdaptiveDashboardProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
   if (loading) {
     return <DashboardSkeleton />;
   }
@@ -161,8 +163,6 @@ export default function ClientAdaptiveDashboard({
   else if (publishedCase) activeMode = 'published';
   else if (activeDraft) activeMode = 'draft';
   else activeMode = 'empty';
-
-  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -628,7 +628,8 @@ function PublishedStateArea({
                   if (typeof window !== 'undefined') window.location.href = '/abogados';
                 }}
                 onContact={() => {
-                  if (onOpenChat) onOpenChat(caseId, l.id);
+                  const isUuid = (str?: string) => Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
+                  if (onOpenChat && isUuid(caseId) && isUuid(l.id)) onOpenChat(caseId, l.id);
                   else onNavigate('messages');
                 }}
               />
@@ -780,7 +781,14 @@ function InProgressStateArea({
               <button
                 type="button"
                 className="button outline small"
-                onClick={() => (onOpenChat ? onOpenChat(caseId, 'andrea') : onNavigate('messages'))}
+                onClick={() => {
+                  const isUuid = (str?: string) => Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
+                  if (onOpenChat && isUuid(caseId) && isUuid(inProgressCase?.selected_lawyer)) {
+                    onOpenChat(caseId, inProgressCase!.selected_lawyer);
+                  } else {
+                    onNavigate('messages');
+                  }
+                }}
               >
                 Enviar mensaje
               </button>

@@ -41,6 +41,7 @@ import ClientAdaptiveDashboard from './ClientAdaptiveDashboard';
 import MatchAssistantChat from './MatchAssistantChat';
 import { calculateProfileProgress, getFirstIncompleteStep } from '@/lib/lawyer-profile';
 import { draftStore } from '@/lib/intake';
+import ErrorBoundary from './ErrorBoundary';
 
 export type Run = (fn: () => Promise<void>) => Promise<void>;
 export type WorkProps = {
@@ -107,6 +108,10 @@ export default function Workspace(props: WorkProps) {
   const [unreadMsgCount, setUnreadMsgCount] = useState<number>(0);
 
   function openChat(cId: string, lawyerId: string) {
+    if (!cId || !lawyerId) {
+      navigate('messages');
+      return;
+    }
     setChatTarget({ case_id: cId, lawyer_id: lawyerId });
     setChatOpen(true);
   }
@@ -560,16 +565,18 @@ export default function Workspace(props: WorkProps) {
                   )}
                 </div>
               ) : view === 'messages' ? (
-                <Messenger
-                  mode="page"
-                  userId={props.session.user.id}
-                  open
-                  target={chatTarget}
-                  onOpen={() => {}}
-                  onClose={() => {}}
-                  onSelect={setChatTarget}
-                  onCase={(id) => navigate('cases', id)}
-                />
+                <ErrorBoundary fallbackTitle="No se pudo cargar el centro de mensajes">
+                  <Messenger
+                    mode="page"
+                    userId={props.session.user.id}
+                    open
+                    target={chatTarget}
+                    onOpen={() => {}}
+                    onClose={() => {}}
+                    onSelect={setChatTarget}
+                    onCase={(id) => navigate('cases', id)}
+                  />
+                </ErrorBoundary>
               ) : view === 'welcome' ? (
                 <ClientAdaptiveDashboard
                   loading={!initialLoaded && items.length === 0 && draftLoading}
@@ -1095,31 +1102,33 @@ export default function Workspace(props: WorkProps) {
               userRole={isLawyer ? 'lawyer' : 'client'}
             />
           )}
-          <Messenger
-            onAll={() => navigate('messages')}
-            userId={props.session.user.id}
-            open={chatOpen}
-            target={chatTarget}
-            assistantOpen={assistantOpen}
-            onOpen={() => {
-              setAssistantOpen(false);
-              setChatOpen(true);
-            }}
-            onClose={() => {
-              setChatOpen(false);
-            }}
-            onSelect={(t) => {
-              setChatTarget(t);
-              if (t) {
+          <ErrorBoundary fallbackTitle="No se pudo cargar la ventana de mensajes">
+            <Messenger
+              onAll={() => navigate('messages')}
+              userId={props.session.user.id}
+              open={chatOpen}
+              target={chatTarget}
+              assistantOpen={assistantOpen}
+              onOpen={() => {
                 setAssistantOpen(false);
-              }
-            }}
-            onCase={(id) => {
-              setChatOpen(false);
-              setChatTarget(null);
-              navigate('cases', id);
-            }}
-          />
+                setChatOpen(true);
+              }}
+              onClose={() => {
+                setChatOpen(false);
+              }}
+              onSelect={(t) => {
+                setChatTarget(t);
+                if (t) {
+                  setAssistantOpen(false);
+                }
+              }}
+              onCase={(id) => {
+                setChatOpen(false);
+                setChatTarget(null);
+                navigate('cases', id);
+              }}
+            />
+          </ErrorBoundary>
         </>
       )}
     </div>

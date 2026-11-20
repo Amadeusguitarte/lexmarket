@@ -50,3 +50,35 @@ test('chat opens its thread, renders a private document and offer, marks visible
  assert.ok(dom.window.document.querySelector('.messages-page'));assert.equal(dom.window.document.querySelector('.chat-launcher'),null);
  await act(async()=>root.unmount());await db.auth.stopAutoRefresh();assert.equal(cleaned,3);
 });
+
+test('clicking an inbox message seeded without last.id does not crash or duplicate when server messages load',async t=>{
+ process.env.NEXT_PUBLIC_SUPABASE_URL='https://example.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='not-a-real-key';const db=browserDB()!;
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://lexmarket.test',pretendToBeVisual:true});
+ const saved=new Map<string,PropertyDescriptor|undefined>();
+ for(const [key,value] of Object.entries({window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Event:dom.window.Event,sessionStorage:dom.window.sessionStorage,IS_REACT_ACT_ENVIRONMENT:true})){saved.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});}
+ t.after(()=>{for(const [key,d] of saved){if(d)Object.defineProperty(globalThis,key,d);else delete (globalThis as any)[key];}dom.window.close();});
+ const channel={on(){return this;},subscribe(callback?:Function){callback?.('SUBSCRIBED');return this;}};
+ t.mock.method(db,'channel',()=>channel);t.mock.method(db,'removeChannel',async()=>'ok');t.mock.method(db.auth,'getSession',async()=>({data:{session:{access_token:'fake'}},error:null}));
+ t.mock.method(dom.window.document,'hasFocus',()=>true);
+ const activityBodies:any[]=[];
+ const sharedTs='2026-09-17T12:00:00Z';
+ t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
+  const path=String(input);const body=init?.body?JSON.parse(init.body):null;
+  if(path==='/api/chats'){
+   return new Response(JSON.stringify({items:[{case_id:'c2',lawyer_id:'l2',title:'Caso laboral',status:'published',peer:{id:'l2',name:'Dra. Elena',avatar_url:null},last:{body:'Hola, revisé tu caso',created_at:sharedTs,sender_id:'l2'},unread:1}]}),{status:200,headers:{'Content-Type':'application/json'}});
+  }
+  if(path.endsWith('/activity')){activityBodies.push(body);return new Response(JSON.stringify({ok:true}),{status:200,headers:{'Content-Type':'application/json'}});}
+  return new Response(JSON.stringify({messages:[{id:'00000000-0000-4000-8000-000000000099',body:'Hola, revisé tu caso',created_at:sharedTs,sender_id:'l2',read_at:null}],files:[],activity:[],proposals:[],peer:{id:'l2',name:'Dra. Elena',avatar_url:null},case:{id:'c2',title:'Caso laboral',status:'published'},owner:true,hasMore:false,access_state:'granted'}),{status:200,headers:{'Content-Type':'application/json'}});
+ });
+ const root=createRoot(dom.window.document.getElementById('root')!);t.after(async()=>{await act(async()=>root.unmount());});
+ await act(async()=>{root.render(React.createElement(Messenger,{userId:'client-seed',open:true,target:null,onOpen:()=>{},onClose:()=>{},onSelect:()=>{},onCase:()=>{}}));await new Promise(r=>setTimeout(r,30));});
+ const row=dom.window.document.querySelector('.inbox-row') as HTMLButtonElement;
+ assert.ok(row,'inbox row renders');
+ await act(async()=>{row.click();await new Promise(r=>setTimeout(r,40));});
+ const bubbles=dom.window.document.querySelectorAll('.chat-bubble');
+ assert.equal(bubbles.length,1,'seed message is replaced rather than duplicated');
+ assert.match(bubbles[0].textContent!,/Hola, revisé tu caso/);
+ assert.ok(!activityBodies.some(b=>b?.read_ids?.includes('last-seed')),'never sends synthetic seed id to /activity');
+ assert.ok(activityBodies.some(b=>b?.read_ids?.includes('00000000-0000-4000-8000-000000000099')),'marks real message id read');
+ await act(async()=>root.unmount());await db.auth.stopAutoRefresh();
+});
