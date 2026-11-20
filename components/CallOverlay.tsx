@@ -565,6 +565,7 @@ export default function CallOverlay({
   const toggleCamera = async () => {
     const stream = localStreamRef.current;
     if (!stream) return;
+    setErrorText('');
     const existing = stream.getVideoTracks();
     if (existing.length > 0) {
       const nextOff = !cameraOff;
@@ -595,8 +596,15 @@ export default function CallOverlay({
           payload: { type: 'offer', callId: session.callId, from: userId, sdp: pc.localDescription },
         });
       }
-    } catch {
-      setErrorText('No pudimos activar la cámara. Verifica los permisos del navegador.');
+    } catch (err: any) {
+      const name = err?.name || '';
+      if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        setErrorText('No se detectó ninguna cámara conectada en este dispositivo.');
+      } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+        setErrorText('Otra aplicación está usando la cámara en este momento.');
+      } else {
+        setErrorText('Permite el acceso a la cámara en los ajustes del navegador (icono al lado de la URL).');
+      }
     }
   };
 

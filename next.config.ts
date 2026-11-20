@@ -39,13 +39,13 @@ const config: NextConfig = {
   async headers() {
     const isDev = process.env.NODE_ENV !== 'production';
     const scriptSrc = isDev ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline'";
-    const csp = `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com https://*.licdn.com https://*.linkedin.com; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.linkedin.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'`;
+    const csp = `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://*.licdn.com https://*.linkedin.com; font-src 'self'; media-src 'self' blob:; frame-src 'self' blob:; connect-src 'self' blob: https://*.supabase.co wss://*.supabase.co https://api.linkedin.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'`;
     return [{ source: '/:path*', headers: [
       {key:'Strict-Transport-Security',value:'max-age=63072000; includeSubDomains; preload'},
       {key:'X-Content-Type-Options',value:'nosniff'},
       {key:'Referrer-Policy',value:'strict-origin-when-cross-origin'},
       {key:'X-Frame-Options',value:'DENY'},
-      {key:'Permissions-Policy',value:'camera=(), microphone=(self), geolocation=()'},
+      {key:'Permissions-Policy',value:'camera=(self), microphone=(self), geolocation=()'},
       {key:'Content-Security-Policy',value:csp},
     ]}];
   }
